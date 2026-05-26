@@ -1,4 +1,4 @@
-# PartnerWebhooks
+# Webhooks
 
 ## Overview
 
@@ -31,16 +31,16 @@ Failed deliveries are retried on a backoff schedule by Gando’s webhook retry j
 
 ### Available Operations
 
-* [webhooksList](#webhookslist) - List partner webhook endpoints
-* [webhooksCreate](#webhookscreate) - Create partner webhook endpoint
-* [webhooksDelete](#webhooksdelete) - Delete partner webhook endpoint
-* [webhooksUpdate](#webhooksupdate) - Update partner webhook endpoint
-* [webhooksRotateSecret](#webhooksrotatesecret) - Rotate partner webhook secret
-* [webhooksGetSecret](#webhooksgetsecret) - Get partner webhook secret
-* [webhooksTest](#webhookstest) - Send test partner webhook delivery
-* [webhooksGetDeliveries](#webhooksgetdeliveries) - List partner webhook deliveries
+* [list](#list) - List partner webhook endpoints
+* [create](#create) - Create partner webhook endpoint
+* [delete](#delete) - Delete partner webhook endpoint
+* [update](#update) - Update partner webhook endpoint
+* [rotateSecret](#rotatesecret) - Rotate partner webhook secret
+* [getSecret](#getsecret) - Get partner webhook secret
+* [test](#test) - Send test partner webhook delivery
+* [getDeliveries](#getdeliveries) - List partner webhook deliveries
 
-## webhooksList
+## list
 
 Retrieve all configured webhook endpoints for the authenticated partner (`gando_pk_` key). Each item aggregates subscribed event types.
 
@@ -65,7 +65,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerWebhooks->webhooksList(
+$response = $sdk->webhooks->list(
 
 );
 
@@ -86,7 +86,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## webhooksCreate
+## create
 
 Create a webhook URL and signing secret for this partner, and subscribe it to the requested event types. Returns the plain signing secret **exactly once**. Default `events` include all available events (`rental_operator.linked`, `caution.status_changed`, `caution.activated`, `caution.captured`, `caution.expired`, `caution.cancelled`) when omitted.
 
@@ -118,7 +118,7 @@ $request = new Operations\CreatePartnerWebhookSubscriptionBody(
     ],
 );
 
-$response = $sdk->partnerWebhooks->webhooksCreate(
+$response = $sdk->webhooks->create(
     request: $request
 );
 
@@ -145,7 +145,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## webhooksDelete
+## delete
 
 Delete a webhook endpoint and its event subscriptions for the authenticated partner.
 
@@ -170,7 +170,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerWebhooks->webhooksDelete(
+$response = $sdk->webhooks->delete(
     id: '<id>'
 );
 
@@ -197,7 +197,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## webhooksUpdate
+## update
 
 Update webhook URL, subscribed event types, or activation status. `{id}` is the partner webhook endpoint id.
 
@@ -229,7 +229,7 @@ $body = new Operations\UpdatePartnerWebhookSubscriptionBody(
     isActive: true,
 );
 
-$response = $sdk->partnerWebhooks->webhooksUpdate(
+$response = $sdk->webhooks->update(
     id: '<id>',
     body: $body
 
@@ -259,7 +259,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## webhooksRotateSecret
+## rotateSecret
 
 Generate and return a new signing secret for a partner webhook endpoint.
 
@@ -284,7 +284,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerWebhooks->webhooksRotateSecret(
+$response = $sdk->webhooks->rotateSecret(
     id: '<id>'
 );
 
@@ -311,7 +311,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## webhooksGetSecret
+## getSecret
 
 Decrypt and return the current signing secret for a partner webhook endpoint.
 
@@ -336,7 +336,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerWebhooks->webhooksGetSecret(
+$response = $sdk->webhooks->getSecret(
     id: '<id>'
 );
 
@@ -363,7 +363,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## webhooksTest
+## test
 
 Sends a sample **`caution.activated`** payload to the endpoint URL. The endpoint must be subscribed to either `caution.activated` or the wildcard `caution.status_changed`.
 
@@ -415,7 +415,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerWebhooks->webhooksTest(
+$response = $sdk->webhooks->test(
     id: '<id>'
 );
 
@@ -442,7 +442,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500, 502                          | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## webhooksGetDeliveries
+## getDeliveries
 
 Paginated delivery history for a partner webhook endpoint.
 
@@ -467,7 +467,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerWebhooks->webhooksGetDeliveries(
+$response = $sdk->webhooks->getDeliveries(
     id: '<id>'
 );
 

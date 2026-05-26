@@ -2,8 +2,8 @@ speakeasyVersion: 1.764.0
 sources:
     Gando Partner API:
         sourceNamespace: gando-partner-api
-        sourceRevisionDigest: sha256:5cc5b61b84c2ad89500863673f28674d872a643a3f7d379ce342161b85b42042
-        sourceBlobDigest: sha256:d7dbc404750caeee5daf08ca06156459b44a17ffdb7b97f1470a95bff994c874
+        sourceRevisionDigest: sha256:1194fc0edb9ba1721b8aa3a32c7e6e92aa73cd3e0aac085f2789910c6593b21b
+        sourceBlobDigest: sha256:1a5235320de48b4d4f80cf2801d7629bb10edf3afa1b769c0be456c1d10285d0
         tags:
             - latest
             - 1.0.0
@@ -11,17 +11,17 @@ targets:
     gando:
         source: Gando Partner API
         sourceNamespace: gando-partner-api
-        sourceRevisionDigest: sha256:5cc5b61b84c2ad89500863673f28674d872a643a3f7d379ce342161b85b42042
-        sourceBlobDigest: sha256:d7dbc404750caeee5daf08ca06156459b44a17ffdb7b97f1470a95bff994c874
+        sourceRevisionDigest: sha256:1194fc0edb9ba1721b8aa3a32c7e6e92aa73cd3e0aac085f2789910c6593b21b
+        sourceBlobDigest: sha256:1a5235320de48b4d4f80cf2801d7629bb10edf3afa1b769c0be456c1d10285d0
         codeSamplesNamespace: gando-partner-api-php-code-samples
-        codeSamplesRevisionDigest: sha256:13e1c0c747c7d9df13a2358f134ae4377e5d12a4deb7d333becb572bc3c9dcc5
+        codeSamplesRevisionDigest: sha256:eacc0a3855057bc05387ca5df541ed9747e963092875da8d5eb3a50c02929d5f
 workflow:
     workflowVersion: 1.0.0
     speakeasyVersion: latest
     sources:
         Gando Partner API:
             inputs:
-                - location: ../partner.json
+                - location: ./partner.json
             output: .speakeasy/out.openapi.yaml
             registry:
                 location: registry.speakeasyapi.dev/gando/gando/gando-partner-api
@@ -29,6 +29,10 @@ workflow:
         gando:
             target: php
             source: Gando Partner API
+            publish:
+                packagist:
+                    username: $packagist_username
+                    token: $packagist_token
             codeSamples:
                 registry:
                     location: registry.speakeasyapi.dev/gando/gando/gando-partner-api-php-code-samples

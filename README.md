@@ -35,32 +35,11 @@ Gando Partner API: API for **rental management software** and **multi–rental-o
 <!-- Start SDK Installation [installation] -->
 ## SDK Installation
 
-> [!TIP]
-> To finish publishing your SDK you must [run your first generation action](https://www.speakeasy.com/docs/github-setup#step-by-step-guide).
-
-
 The SDK relies on [Composer](https://getcomposer.org/) to manage its dependencies.
 
-To install the SDK first add the below to your `composer.json` file:
-
-```json
-{
-    "repositories": [
-        {
-            "type": "github",
-            "url": "<UNSET>.git"
-        }
-    ],
-    "require": {
-        "gando/partner": "*"
-    }
-}
-```
-
-Then run the following command:
-
+To install the SDK and add it as a dependency to an existing `composer.json` file:
 ```bash
-composer update
+composer require "gando/partner"
 ```
 <!-- End SDK Installation [installation] -->
 
@@ -87,7 +66,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerAPI->accountsList(
+$response = $sdk->accounts->list(
 
 );
 
@@ -128,7 +107,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerAPI->accountsList(
+$response = $sdk->accounts->list(
 
 );
 
@@ -144,36 +123,42 @@ if ($response->object !== null) {
 <details open>
 <summary>Available methods</summary>
 
-### [PartnerAPI](docs/sdks/partnerapi/README.md)
+### [Accounts](docs/sdks/accounts/README.md)
 
-* [accountsList](docs/sdks/partnerapi/README.md#accountslist) - List linked rental operator accounts
-* [accountsRevoke](docs/sdks/partnerapi/README.md#accountsrevoke) - Revoke partner ↔ rental operator link
-* [clientsList](docs/sdks/partnerapi/README.md#clientslist) - List clients across linked rental operator accounts
-* [clientsCreate](docs/sdks/partnerapi/README.md#clientscreate) - Create a client for a linked rental operator account
-* [clientsUpdate](docs/sdks/partnerapi/README.md#clientsupdate) - Update a partner-accessible client
-* [depositsList](docs/sdks/partnerapi/README.md#depositslist) - List deposits
-* [depositsCreate](docs/sdks/partnerapi/README.md#depositscreate) - Create a deposit for a linked rental operator
-* [depositsRetrieve](docs/sdks/partnerapi/README.md#depositsretrieve) - Get deposit by id
-* [depositsDelete](docs/sdks/partnerapi/README.md#depositsdelete) - Delete or archive a deposit
-* [depositsUpdate](docs/sdks/partnerapi/README.md#depositsupdate) - Update deposit (change client or cancel pending payment)
-* [depositsGetCapture](docs/sdks/partnerapi/README.md#depositsgetcapture) - Get latest capture for a deposit
-* [depositsCapture](docs/sdks/partnerapi/README.md#depositscapture) - Create a capture (encaissement)
-* [depositsSendEmails](docs/sdks/partnerapi/README.md#depositssendemails) - Send deposit link to multiple emails
-* [depositsSendDepositMail](docs/sdks/partnerapi/README.md#depositssenddepositmail) - Send deposit link to one email
-* [depositsCancel](docs/sdks/partnerapi/README.md#depositscancel) - Close deposit (status close + optional email)
-* [depositsGetPaymentMethod](docs/sdks/partnerapi/README.md#depositsgetpaymentmethod) - Masked card info for the deposit
-* [depositsGetPdf](docs/sdks/partnerapi/README.md#depositsgetpdf) - Download deposit summary PDF
+* [list](docs/sdks/accounts/README.md#list) - List linked rental operator accounts
+* [revoke](docs/sdks/accounts/README.md#revoke) - Revoke partner ↔ rental operator link
 
-### [PartnerWebhooks](docs/sdks/partnerwebhooks/README.md)
+### [Clients](docs/sdks/clients/README.md)
 
-* [webhooksList](docs/sdks/partnerwebhooks/README.md#webhookslist) - List partner webhook endpoints
-* [webhooksCreate](docs/sdks/partnerwebhooks/README.md#webhookscreate) - Create partner webhook endpoint
-* [webhooksDelete](docs/sdks/partnerwebhooks/README.md#webhooksdelete) - Delete partner webhook endpoint
-* [webhooksUpdate](docs/sdks/partnerwebhooks/README.md#webhooksupdate) - Update partner webhook endpoint
-* [webhooksRotateSecret](docs/sdks/partnerwebhooks/README.md#webhooksrotatesecret) - Rotate partner webhook secret
-* [webhooksGetSecret](docs/sdks/partnerwebhooks/README.md#webhooksgetsecret) - Get partner webhook secret
-* [webhooksTest](docs/sdks/partnerwebhooks/README.md#webhookstest) - Send test partner webhook delivery
-* [webhooksGetDeliveries](docs/sdks/partnerwebhooks/README.md#webhooksgetdeliveries) - List partner webhook deliveries
+* [list](docs/sdks/clients/README.md#list) - List clients across linked rental operator accounts
+* [create](docs/sdks/clients/README.md#create) - Create a client for a linked rental operator account
+* [update](docs/sdks/clients/README.md#update) - Update a partner-accessible client
+
+### [Deposits](docs/sdks/deposits/README.md)
+
+* [list](docs/sdks/deposits/README.md#list) - List deposits
+* [create](docs/sdks/deposits/README.md#create) - Create a deposit for a linked rental operator
+* [retrieve](docs/sdks/deposits/README.md#retrieve) - Get deposit by id
+* [delete](docs/sdks/deposits/README.md#delete) - Delete or archive a deposit
+* [update](docs/sdks/deposits/README.md#update) - Update deposit (change client or cancel pending payment)
+* [getCapture](docs/sdks/deposits/README.md#getcapture) - Get latest capture for a deposit
+* [capture](docs/sdks/deposits/README.md#capture) - Create a capture (encaissement)
+* [sendEmails](docs/sdks/deposits/README.md#sendemails) - Send deposit link to multiple emails
+* [sendDepositMail](docs/sdks/deposits/README.md#senddepositmail) - Send deposit link to one email
+* [cancel](docs/sdks/deposits/README.md#cancel) - Close deposit (status close + optional email)
+* [getPaymentMethod](docs/sdks/deposits/README.md#getpaymentmethod) - Masked card info for the deposit
+* [getPdf](docs/sdks/deposits/README.md#getpdf) - Download deposit summary PDF
+
+### [Webhooks](docs/sdks/webhooks/README.md)
+
+* [list](docs/sdks/webhooks/README.md#list) - List partner webhook endpoints
+* [create](docs/sdks/webhooks/README.md#create) - Create partner webhook endpoint
+* [delete](docs/sdks/webhooks/README.md#delete) - Delete partner webhook endpoint
+* [update](docs/sdks/webhooks/README.md#update) - Update partner webhook endpoint
+* [rotateSecret](docs/sdks/webhooks/README.md#rotatesecret) - Rotate partner webhook secret
+* [getSecret](docs/sdks/webhooks/README.md#getsecret) - Get partner webhook secret
+* [test](docs/sdks/webhooks/README.md#test) - Send test partner webhook delivery
+* [getDeliveries](docs/sdks/webhooks/README.md#getdeliveries) - List partner webhook deliveries
 
 </details>
 <!-- End Available Resources and Operations [operations] -->
@@ -192,7 +177,7 @@ By default an API error will raise a `Errors\APIException` exception, which has 
 | `$rawResponse` | *?\Psr\Http\Message\ResponseInterface*  | The raw HTTP response |
 | `$body`        | *string*                                | The response content  |
 
-When custom error responses are specified for an operation, the SDK may also throw their associated exception. You can refer to respective *Errors* tables in SDK docs for more details on possible exception types for each operation. For example, the `accountsList` method throws the following exceptions:
+When custom error responses are specified for an operation, the SDK may also throw their associated exception. You can refer to respective *Errors* tables in SDK docs for more details on possible exception types for each operation. For example, the `list` method throws the following exceptions:
 
 | Error Type           | Status Code                       | Content Type     |
 | -------------------- | --------------------------------- | ---------------- |
@@ -220,7 +205,7 @@ $sdk = Partner\Gando::builder()
     ->build();
 
 try {
-    $response = $sdk->partnerAPI->accountsList(
+    $response = $sdk->accounts->list(
 
     );
 
@@ -265,7 +250,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerAPI->accountsList(
+$response = $sdk->accounts->list(
 
 );
 

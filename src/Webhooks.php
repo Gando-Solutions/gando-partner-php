@@ -13,7 +13,7 @@ use Gando\Partner\Models\Operations;
 use Gando\Partner\Utils\Options;
 use Speakeasy\Serializer\DeserializationContext;
 
-class PartnerWebhooks
+class Webhooks
 {
     private SDKConfiguration $sdkConfiguration;
     /**
@@ -53,7 +53,7 @@ class PartnerWebhooks
      * @return \Gando\Partner\Models\Operations\WebhooksCreateResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function webhooksCreate(Operations\CreatePartnerWebhookSubscriptionBody $request, ?Options $options = null): Operations\WebhooksCreateResponse
+    public function create(Operations\CreatePartnerWebhookSubscriptionBody $request, ?Options $options = null): Operations\WebhooksCreateResponse
     {
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
         $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/webhooks');
@@ -144,7 +144,7 @@ class PartnerWebhooks
      * @return \Gando\Partner\Models\Operations\WebhooksDeleteResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function webhooksDelete(string $id, ?Options $options = null): Operations\WebhooksDeleteResponse
+    public function delete(string $id, ?Options $options = null): Operations\WebhooksDeleteResponse
     {
         $request = new Operations\WebhooksDeleteRequest(
             id: $id,
@@ -235,7 +235,7 @@ class PartnerWebhooks
      * @return \Gando\Partner\Models\Operations\WebhooksGetDeliveriesResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function webhooksGetDeliveries(string $id, ?int $limit = null, ?int $offset = null, ?Options $options = null): Operations\WebhooksGetDeliveriesResponse
+    public function getDeliveries(string $id, ?int $limit = null, ?int $offset = null, ?Options $options = null): Operations\WebhooksGetDeliveriesResponse
     {
         $request = new Operations\WebhooksGetDeliveriesRequest(
             id: $id,
@@ -329,7 +329,7 @@ class PartnerWebhooks
      * @return \Gando\Partner\Models\Operations\WebhooksGetSecretResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function webhooksGetSecret(string $id, ?Options $options = null): Operations\WebhooksGetSecretResponse
+    public function getSecret(string $id, ?Options $options = null): Operations\WebhooksGetSecretResponse
     {
         $request = new Operations\WebhooksGetSecretRequest(
             id: $id,
@@ -417,7 +417,7 @@ class PartnerWebhooks
      * @return \Gando\Partner\Models\Operations\WebhooksListResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function webhooksList(?Options $options = null): Operations\WebhooksListResponse
+    public function list(?Options $options = null): Operations\WebhooksListResponse
     {
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
         $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/webhooks');
@@ -503,7 +503,7 @@ class PartnerWebhooks
      * @return \Gando\Partner\Models\Operations\WebhooksRotateSecretResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function webhooksRotateSecret(string $id, ?Options $options = null): Operations\WebhooksRotateSecretResponse
+    public function rotateSecret(string $id, ?Options $options = null): Operations\WebhooksRotateSecretResponse
     {
         $request = new Operations\WebhooksRotateSecretRequest(
             id: $id,
@@ -619,7 +619,7 @@ class PartnerWebhooks
      * @return \Gando\Partner\Models\Operations\WebhooksTestResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function webhooksTest(string $id, ?Options $options = null): Operations\WebhooksTestResponse
+    public function test(string $id, ?Options $options = null): Operations\WebhooksTestResponse
     {
         $request = new Operations\WebhooksTestRequest(
             id: $id,
@@ -709,7 +709,7 @@ class PartnerWebhooks
      * @return \Gando\Partner\Models\Operations\WebhooksUpdateResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function webhooksUpdate(Operations\UpdatePartnerWebhookSubscriptionBody $body, string $id, ?Options $options = null): Operations\WebhooksUpdateResponse
+    public function update(Operations\UpdatePartnerWebhookSubscriptionBody $body, string $id, ?Options $options = null): Operations\WebhooksUpdateResponse
     {
         $request = new Operations\WebhooksUpdateRequest(
             id: $id,
