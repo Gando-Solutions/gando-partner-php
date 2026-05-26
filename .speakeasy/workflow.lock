@@ -1,0 +1,37 @@
+speakeasyVersion: 1.764.0
+sources:
+    Gando Partner API:
+        sourceNamespace: gando-partner-api
+        sourceRevisionDigest: sha256:5cc5b61b84c2ad89500863673f28674d872a643a3f7d379ce342161b85b42042
+        sourceBlobDigest: sha256:d7dbc404750caeee5daf08ca06156459b44a17ffdb7b97f1470a95bff994c874
+        tags:
+            - latest
+            - 1.0.0
+targets:
+    gando:
+        source: Gando Partner API
+        sourceNamespace: gando-partner-api
+        sourceRevisionDigest: sha256:5cc5b61b84c2ad89500863673f28674d872a643a3f7d379ce342161b85b42042
+        sourceBlobDigest: sha256:d7dbc404750caeee5daf08ca06156459b44a17ffdb7b97f1470a95bff994c874
+        codeSamplesNamespace: gando-partner-api-php-code-samples
+        codeSamplesRevisionDigest: sha256:13e1c0c747c7d9df13a2358f134ae4377e5d12a4deb7d333becb572bc3c9dcc5
+workflow:
+    workflowVersion: 1.0.0
+    speakeasyVersion: latest
+    sources:
+        Gando Partner API:
+            inputs:
+                - location: ../partner.json
+            output: .speakeasy/out.openapi.yaml
+            registry:
+                location: registry.speakeasyapi.dev/gando/gando/gando-partner-api
+    targets:
+        gando:
+            target: php
+            source: Gando Partner API
+            codeSamples:
+                registry:
+                    location: registry.speakeasyapi.dev/gando/gando/gando-partner-api-php-code-samples
+                labelOverride:
+                    fixedValue: Php (SDK)
+                blocking: false

@@ -1,0 +1,19 @@
+workflowVersion: 1.0.0
+speakeasyVersion: latest
+sources:
+    Gando Partner API:
+        inputs:
+            - location: ../partner.json
+        output: .speakeasy/out.openapi.yaml
+        registry:
+            location: registry.speakeasyapi.dev/gando/gando/gando-partner-api
+targets:
+    gando:
+        target: php
+        source: Gando Partner API
+        codeSamples:
+            registry:
+                location: registry.speakeasyapi.dev/gando/gando/gando-partner-api-php-code-samples
+            labelOverride:
+                fixedValue: Php (SDK)
+            blocking: false

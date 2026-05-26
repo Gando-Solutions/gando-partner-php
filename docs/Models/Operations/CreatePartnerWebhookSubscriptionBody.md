@@ -1,0 +1,11 @@
+# CreatePartnerWebhookSubscriptionBody
+
+Partner webhook endpoint creation payload
+
+
+## Fields
+
+| Field                                                                                                 | Type                                                                                                  | Required                                                                                              | Description                                                                                           |
+| ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `url`                                                                                                 | *string*                                                                                              | :heavy_check_mark:                                                                                    | Destination URL (must start with http:// or https://)                                                 |
+| `events`                                                                                              | array<[Operations\WebhooksCreateEventRequest](../../Models/Operations/WebhooksCreateEventRequest.md)> | :heavy_minus_sign:                                                                                    | Event types to subscribe. Defaults to all partner events when omitted.                                |

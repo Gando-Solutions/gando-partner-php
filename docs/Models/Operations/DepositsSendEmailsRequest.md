@@ -1,0 +1,9 @@
+# DepositsSendEmailsRequest
+
+
+## Fields
+
+| Field                                                                                      | Type                                                                                       | Required                                                                                   | Description                                                                                | Example                                                                                    |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `id`                                                                                       | *string*                                                                                   | :heavy_check_mark:                                                                         | Deposit (caution) unique identifier                                                        |                                                                                            |
+| `body`                                                                                     | [Operations\PartnerDepositEmailsBody](../../Models/Operations/PartnerDepositEmailsBody.md) | :heavy_check_mark:                                                                         | N/A                                                                                        | {<br/>"emails": [<br/>"tenant@example.com",<br/>"tenant.spouse@example.com"<br/>]<br/>}    |
