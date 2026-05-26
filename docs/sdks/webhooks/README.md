@@ -1,4 +1,4 @@
-# PartnerWebhooks
+# Webhooks
 
 ## Overview
 
@@ -65,7 +65,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerWebhooks->webhooksList(
+$response = $sdk->webhooks->webhooksList(
 
 );
 
@@ -118,7 +118,7 @@ $request = new Operations\CreatePartnerWebhookSubscriptionBody(
     ],
 );
 
-$response = $sdk->partnerWebhooks->webhooksCreate(
+$response = $sdk->webhooks->webhooksCreate(
     request: $request
 );
 
@@ -170,7 +170,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerWebhooks->webhooksDelete(
+$response = $sdk->webhooks->webhooksDelete(
     id: '<id>'
 );
 
@@ -229,7 +229,7 @@ $body = new Operations\UpdatePartnerWebhookSubscriptionBody(
     isActive: true,
 );
 
-$response = $sdk->partnerWebhooks->webhooksUpdate(
+$response = $sdk->webhooks->webhooksUpdate(
     id: '<id>',
     body: $body
 
@@ -284,7 +284,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerWebhooks->webhooksRotateSecret(
+$response = $sdk->webhooks->webhooksRotateSecret(
     id: '<id>'
 );
 
@@ -336,7 +336,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerWebhooks->webhooksGetSecret(
+$response = $sdk->webhooks->webhooksGetSecret(
     id: '<id>'
 );
 
@@ -415,7 +415,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerWebhooks->webhooksTest(
+$response = $sdk->webhooks->webhooksTest(
     id: '<id>'
 );
 
@@ -467,7 +467,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->partnerWebhooks->webhooksGetDeliveries(
+$response = $sdk->webhooks->webhooksGetDeliveries(
     id: '<id>'
 );
 

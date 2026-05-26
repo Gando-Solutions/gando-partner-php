@@ -18,8 +18,10 @@ class Gando
     ];
 
     /**
-     * ## Partner API vs rental operator API
+     * Manage rental operator accounts linked to your partner integration.
      *
+     *
+     * ## Partner API vs rental operator API
      *
      * These routes live under `/api/partner/*` and use **partner API keys** only. They are **not** the same as rental operator (loueur) API keys under `/api/cautions`, `/api/clients`, etc.
      *
@@ -127,7 +129,7 @@ class Gando
      * if (deposit_url) window.location.assign(deposit_url);
      * ```
      *
-     * `deposit_url` is only returned when `inline_redirect` is `true`. After the tenant finishes on Gando, they are sent to `return_url` with query params **`caution_id`** and **`caution_status`** (`secured` | `declined` | `abandoned`). Always confirm the final state with **webhooks** (subscribe under **`/api/partner/webhooks`** — see **Partner webhooks** tag) or **GET /api/partner/deposits/{id}**.
+     * `deposit_url` is only returned when `inline_redirect` is `true`. After the tenant finishes on Gando, they are sent to `return_url` with query params **`caution_id`** and **`caution_status`** (`secured` | `declined` | `abandoned`). Always confirm the final state with **webhooks** (subscribe under **`/api/partner/webhooks`** — see **Webhooks** tag) or **GET /api/partner/deposits/{id}**.
      *
      * ### Webhooks — `partner_context` on caution events
      *
@@ -173,9 +175,23 @@ class Gando
      *
      * Rental-operator tokens (`gando_…` without `_pk_`) and session cookies are documented under **Deposits** / **Clients** / **Webhooks** — do **not** use them for `/api/partner/*`.
      *
-     * @var PartnerAPI $$partnerAPI
+     * @var Accounts $$accounts
      */
-    public PartnerAPI $partnerAPI;
+    public Accounts $accounts;
+
+    /**
+     * Create and manage end-customer (tenant) records across linked rental operator accounts.
+     *
+     * @var Clients $$clients
+     */
+    public Clients $clients;
+
+    /**
+     * Create, retrieve, update, cancel, and capture deposits on behalf of linked rental operators.
+     *
+     * @var Deposits $$deposits
+     */
+    public Deposits $deposits;
 
     /**
      * ## Partner webhooks
@@ -206,9 +222,9 @@ class Gando
      *
      * Failed deliveries are retried on a backoff schedule by Gando’s webhook retry job (same behaviour as rental-operator webhook deliveries).
      *
-     * @var PartnerWebhooks $$partnerWebhooks
+     * @var Webhooks $$webhooks
      */
-    public PartnerWebhooks $partnerWebhooks;
+    public Webhooks $webhooks;
 
     /**
      * Returns a new instance of the SDK builder used to configure and create the SDK instance.
@@ -226,8 +242,10 @@ class Gando
     public function __construct(
         public SDKConfiguration $sdkConfiguration,
     ) {
-        $this->partnerAPI = new PartnerAPI($this->sdkConfiguration);
-        $this->partnerWebhooks = new PartnerWebhooks($this->sdkConfiguration);
+        $this->accounts = new Accounts($this->sdkConfiguration);
+        $this->clients = new Clients($this->sdkConfiguration);
+        $this->deposits = new Deposits($this->sdkConfiguration);
+        $this->webhooks = new Webhooks($this->sdkConfiguration);
         $this->initHooks();
 
     }

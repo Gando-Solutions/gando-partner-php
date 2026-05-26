@@ -13,7 +13,7 @@ use Gando\Partner\Models\Operations;
 use Gando\Partner\Utils\Options;
 use Speakeasy\Serializer\DeserializationContext;
 
-class PartnerWebhooks
+class Webhooks
 {
     private SDKConfiguration $sdkConfiguration;
     /**
