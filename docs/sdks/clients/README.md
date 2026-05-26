@@ -6,11 +6,11 @@ Create and manage end-customer (tenant) records across linked rental operator ac
 
 ### Available Operations
 
-* [clientsList](#clientslist) - List clients across linked rental operator accounts
-* [clientsCreate](#clientscreate) - Create a client for a linked rental operator account
-* [clientsUpdate](#clientsupdate) - Update a partner-accessible client
+* [list](#list) - List clients across linked rental operator accounts
+* [create](#create) - Create a client for a linked rental operator account
+* [update](#update) - Update a partner-accessible client
 
-## clientsList
+## list
 
 Returns paginated clients for all active linked rental operator accounts, or for a specific linked account when `accountId` is provided.
 
@@ -35,7 +35,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->clients->clientsList(
+$response = $sdk->clients->list(
     page: 1,
     limit: 20
 
@@ -67,7 +67,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## clientsCreate
+## create
 
 Creates a client and returns its id. This id can then be sent as optional `client_id` in `POST /api/partner/deposits`. This endpoint is idempotent by email within account: when a client already exists, it returns 200 with the existing id.
 
@@ -92,7 +92,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->clients->clientsCreate(
+$response = $sdk->clients->create(
     body: new Components\ParticulierClient(
         accountId: 'acc_7k2m9x',
         firstName: 'Jean',
@@ -126,7 +126,7 @@ if ($response->twoHundredApplicationJsonObject !== null) {
 | Errors\ErrorEnvelope              | 500, 503                          | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## clientsUpdate
+## update
 
 Updates a client that belongs to one of the partner's linked rental operator accounts.
 
@@ -151,7 +151,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->clients->clientsUpdate(
+$response = $sdk->clients->update(
     id: '<id>',
     body: new Components\ParticulierPartnerClientPatch(
         phone: '+33698765432',

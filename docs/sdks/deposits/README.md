@@ -6,20 +6,20 @@ Create, retrieve, update, cancel, and capture deposits on behalf of linked renta
 
 ### Available Operations
 
-* [depositsList](#depositslist) - List deposits
-* [depositsCreate](#depositscreate) - Create a deposit for a linked rental operator
-* [depositsRetrieve](#depositsretrieve) - Get deposit by id
-* [depositsDelete](#depositsdelete) - Delete or archive a deposit
-* [depositsUpdate](#depositsupdate) - Update deposit (change client or cancel pending payment)
-* [depositsGetCapture](#depositsgetcapture) - Get latest capture for a deposit
-* [depositsCapture](#depositscapture) - Create a capture (encaissement)
-* [depositsSendEmails](#depositssendemails) - Send deposit link to multiple emails
-* [depositsSendDepositMail](#depositssenddepositmail) - Send deposit link to one email
-* [depositsCancel](#depositscancel) - Close deposit (status close + optional email)
-* [depositsGetPaymentMethod](#depositsgetpaymentmethod) - Masked card info for the deposit
-* [depositsGetPdf](#depositsgetpdf) - Download deposit summary PDF
+* [list](#list) - List deposits
+* [create](#create) - Create a deposit for a linked rental operator
+* [retrieve](#retrieve) - Get deposit by id
+* [delete](#delete) - Delete or archive a deposit
+* [update](#update) - Update deposit (change client or cancel pending payment)
+* [getCapture](#getcapture) - Get latest capture for a deposit
+* [capture](#capture) - Create a capture (encaissement)
+* [sendEmails](#sendemails) - Send deposit link to multiple emails
+* [sendDepositMail](#senddepositmail) - Send deposit link to one email
+* [cancel](#cancel) - Close deposit (status close + optional email)
+* [getPaymentMethod](#getpaymentmethod) - Masked card info for the deposit
+* [getPdf](#getpdf) - Download deposit summary PDF
 
-## depositsList
+## list
 
 Lists deposits across **all active** rental operator accounts linked to your partner.
 
@@ -51,7 +51,7 @@ $sdk = Partner\Gando::builder()
 
 $request = new Operations\DepositsListRequest();
 
-$response = $sdk->deposits->depositsList(
+$response = $sdk->deposits->list(
     request: $request
 );
 
@@ -78,7 +78,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## depositsCreate
+## create
 
 Creates a deposit on behalf of a linked rental operator (`account_id`). Optionally set `client_id` to attach an existing client from the same rental operator account.
 
@@ -119,7 +119,7 @@ $body = new Operations\PartnerCreateDepositBody(
     returnUrl: 'https://partner.example.com/deposits/return',
 );
 
-$response = $sdk->deposits->depositsCreate(
+$response = $sdk->deposits->create(
     body: $body
 );
 
@@ -147,7 +147,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500, 503                          | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## depositsRetrieve
+## retrieve
 
 Returns the same deposit shape as the rental operator API (`CautionItem` fields). Deposit must belong to a linked rental operator.
 
@@ -172,7 +172,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->deposits->depositsRetrieve(
+$response = $sdk->deposits->retrieve(
     id: '<id>'
 );
 
@@ -199,7 +199,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## depositsDelete
+## delete
 
 Same semantics as rental-operator delete: remove when allowed, otherwise archive. Response uses top-level **`message`** (`Deleted` or `Archived`), not `data`.
 
@@ -224,7 +224,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->deposits->depositsDelete(
+$response = $sdk->deposits->delete(
     id: '<id>'
 );
 
@@ -251,7 +251,7 @@ if ($response->partnerDeleteDepositResponse !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## depositsUpdate
+## update
 
 Exactly one of:
 - `client_id` — reassign client (must belong to the deposit's rental operator account)
@@ -281,7 +281,7 @@ $body = new Operations\PartnerPatchDepositBody(
     clientId: 'cli_9f3k2a',
 );
 
-$response = $sdk->deposits->depositsUpdate(
+$response = $sdk->deposits->update(
     id: '<id>',
     body: $body
 
@@ -311,7 +311,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500, 502                          | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## depositsGetCapture
+## getCapture
 
 Prefers the latest **paid** capture; if none, returns the most recent capture of any status. **404** when no capture exists yet.
 
@@ -336,7 +336,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->deposits->depositsGetCapture(
+$response = $sdk->deposits->getCapture(
     id: '<id>'
 );
 
@@ -363,7 +363,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## depositsCapture
+## capture
 
 Charge the tenant card for the given amount in **cents** (min 1000). Requires a payment method on the deposit and capture-ready payout configuration on the linked rental operator's Gando account.
 
@@ -392,7 +392,7 @@ $body = new Operations\PartnerCaptureBody(
     reason: 'Vehicle damage — bumper scratch',
 );
 
-$response = $sdk->deposits->depositsCapture(
+$response = $sdk->deposits->capture(
     id: '<id>',
     body: $body
 
@@ -423,7 +423,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500, 503                          | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## depositsSendEmails
+## sendEmails
 
 Sends the deposit completion link to each address. Per-recipient success is returned in `results`; failed sends do not fail the whole request.
 
@@ -454,7 +454,7 @@ $body = new Operations\PartnerDepositEmailsBody(
     ],
 );
 
-$response = $sdk->deposits->depositsSendEmails(
+$response = $sdk->deposits->sendEmails(
     id: '<id>',
     body: $body
 
@@ -484,7 +484,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## depositsSendDepositMail
+## sendDepositMail
 
 Single-recipient variant of `/email`. Returns provider `messageId` when available.
 
@@ -512,7 +512,7 @@ $body = new Operations\PartnerSendDepositMailBody(
     email: 'tenant@example.com',
 );
 
-$response = $sdk->deposits->depositsSendDepositMail(
+$response = $sdk->deposits->sendDepositMail(
     id: '<id>',
     body: $body
 
@@ -542,7 +542,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## depositsCancel
+## cancel
 
 Sets the deposit status to `close` (end-of-contract closure) and may send the closed-caution email. **Different from** `PATCH …` with `action: cancel` which voids the in-flight deposit payment and sets status to `cancelled`.
 
@@ -567,7 +567,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->deposits->depositsCancel(
+$response = $sdk->deposits->cancel(
     id: '<id>'
 );
 
@@ -595,7 +595,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500, 503                          | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## depositsGetPaymentMethod
+## getPaymentMethod
 
 Requires payment processing to be configured and a saved payment method on the deposit.
 
@@ -620,7 +620,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->deposits->depositsGetPaymentMethod(
+$response = $sdk->deposits->getPaymentMethod(
     id: '<id>'
 );
 
@@ -647,7 +647,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500, 502                          | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## depositsGetPdf
+## getPdf
 
 Returns raw **application/pdf** bytes (not JSON).
 
@@ -672,7 +672,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->deposits->depositsGetPdf(
+$response = $sdk->deposits->getPdf(
     id: '<id>'
 );
 

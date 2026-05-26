@@ -53,7 +53,7 @@ class Accounts
      * @return \Gando\Partner\Models\Operations\AccountsListResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function accountsList(?Operations\AccountsListQueryParamStatus $status = null, ?Options $options = null): Operations\AccountsListResponse
+    public function list(?Operations\AccountsListQueryParamStatus $status = null, ?Options $options = null): Operations\AccountsListResponse
     {
         $request = new Operations\AccountsListRequest(
             status: $status,
@@ -145,7 +145,7 @@ class Accounts
      * @return \Gando\Partner\Models\Operations\AccountsRevokeResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function accountsRevoke(string $id, ?Options $options = null): Operations\AccountsRevokeResponse
+    public function revoke(string $id, ?Options $options = null): Operations\AccountsRevokeResponse
     {
         $request = new Operations\AccountsRevokeRequest(
             id: $id,

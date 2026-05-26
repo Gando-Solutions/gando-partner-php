@@ -55,7 +55,7 @@ class Clients
      * @return \Gando\Partner\Models\Operations\ClientsCreateResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function clientsCreate(Components\ParticulierClient|Components\ProfessionnelClient $body, ?string $idempotencyKey = null, ?Options $options = null): Operations\ClientsCreateResponse
+    public function create(Components\ParticulierClient|Components\ProfessionnelClient $body, ?string $idempotencyKey = null, ?Options $options = null): Operations\ClientsCreateResponse
     {
         $request = new Operations\ClientsCreateRequest(
             body: $body,
@@ -174,7 +174,7 @@ class Clients
      * @return \Gando\Partner\Models\Operations\ClientsListResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function clientsList(?string $accountId = null, ?int $page = null, ?int $limit = null, ?string $search = null, ?Options $options = null): Operations\ClientsListResponse
+    public function list(?string $accountId = null, ?int $page = null, ?int $limit = null, ?string $search = null, ?Options $options = null): Operations\ClientsListResponse
     {
         $request = new Operations\ClientsListRequest(
             accountId: $accountId,
@@ -270,7 +270,7 @@ class Clients
      * @return \Gando\Partner\Models\Operations\ClientsUpdateResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function clientsUpdate(Components\ParticulierPartnerClientPatch|Components\ProfessionnelPartnerClientPatch $body, string $id, ?Options $options = null): Operations\ClientsUpdateResponse
+    public function update(Components\ParticulierPartnerClientPatch|Components\ProfessionnelPartnerClientPatch $body, string $id, ?Options $options = null): Operations\ClientsUpdateResponse
     {
         $request = new Operations\ClientsUpdateRequest(
             id: $id,

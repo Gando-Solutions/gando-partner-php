@@ -17,7 +17,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->accounts->accountsList(
+$response = $sdk->accounts->list(
 
 );
 

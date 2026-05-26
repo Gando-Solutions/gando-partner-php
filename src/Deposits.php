@@ -54,7 +54,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsCancelResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function depositsCancel(string $id, ?string $idempotencyKey = null, ?Options $options = null): Operations\DepositsCancelResponse
+    public function cancel(string $id, ?string $idempotencyKey = null, ?Options $options = null): Operations\DepositsCancelResponse
     {
         $request = new Operations\DepositsCancelRequest(
             id: $id,
@@ -150,7 +150,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsCaptureResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function depositsCapture(Operations\PartnerCaptureBody $body, string $id, ?string $idempotencyKey = null, ?Options $options = null): Operations\DepositsCaptureResponse
+    public function capture(Operations\PartnerCaptureBody $body, string $id, ?string $idempotencyKey = null, ?Options $options = null): Operations\DepositsCaptureResponse
     {
         $request = new Operations\DepositsCaptureRequest(
             id: $id,
@@ -257,7 +257,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsCreateResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function depositsCreate(Operations\PartnerCreateDepositBody $body, ?string $idempotencyKey = null, ?Options $options = null): Operations\DepositsCreateResponse
+    public function create(Operations\PartnerCreateDepositBody $body, ?string $idempotencyKey = null, ?Options $options = null): Operations\DepositsCreateResponse
     {
         $request = new Operations\DepositsCreateRequest(
             body: $body,
@@ -356,7 +356,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsDeleteResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function depositsDelete(string $id, ?Options $options = null): Operations\DepositsDeleteResponse
+    public function delete(string $id, ?Options $options = null): Operations\DepositsDeleteResponse
     {
         $request = new Operations\DepositsDeleteRequest(
             id: $id,
@@ -445,7 +445,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsGetCaptureResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function depositsGetCapture(string $id, ?Options $options = null): Operations\DepositsGetCaptureResponse
+    public function getCapture(string $id, ?Options $options = null): Operations\DepositsGetCaptureResponse
     {
         $request = new Operations\DepositsGetCaptureRequest(
             id: $id,
@@ -534,7 +534,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsGetPaymentMethodResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function depositsGetPaymentMethod(string $id, ?Options $options = null): Operations\DepositsGetPaymentMethodResponse
+    public function getPaymentMethod(string $id, ?Options $options = null): Operations\DepositsGetPaymentMethodResponse
     {
         $request = new Operations\DepositsGetPaymentMethodRequest(
             id: $id,
@@ -623,7 +623,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsGetPdfResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function depositsGetPdf(string $id, ?Options $options = null): Operations\DepositsGetPdfResponse
+    public function getPdf(string $id, ?Options $options = null): Operations\DepositsGetPdfResponse
     {
         $request = new Operations\DepositsGetPdfRequest(
             id: $id,
@@ -715,7 +715,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsListResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function depositsList(?Operations\DepositsListRequest $request = null, ?Options $options = null): Operations\DepositsListResponse
+    public function list(?Operations\DepositsListRequest $request = null, ?Options $options = null): Operations\DepositsListResponse
     {
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
         $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits');
@@ -804,7 +804,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsRetrieveResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function depositsRetrieve(string $id, ?Options $options = null): Operations\DepositsRetrieveResponse
+    public function retrieve(string $id, ?Options $options = null): Operations\DepositsRetrieveResponse
     {
         $request = new Operations\DepositsRetrieveRequest(
             id: $id,
@@ -894,7 +894,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsSendDepositMailResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function depositsSendDepositMail(Operations\PartnerSendDepositMailBody $body, string $id, ?Options $options = null): Operations\DepositsSendDepositMailResponse
+    public function sendDepositMail(Operations\PartnerSendDepositMailBody $body, string $id, ?Options $options = null): Operations\DepositsSendDepositMailResponse
     {
         $request = new Operations\DepositsSendDepositMailRequest(
             id: $id,
@@ -990,7 +990,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsSendEmailsResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function depositsSendEmails(Operations\PartnerDepositEmailsBody $body, string $id, ?Options $options = null): Operations\DepositsSendEmailsResponse
+    public function sendEmails(Operations\PartnerDepositEmailsBody $body, string $id, ?Options $options = null): Operations\DepositsSendEmailsResponse
     {
         $request = new Operations\DepositsSendEmailsRequest(
             id: $id,
@@ -1088,7 +1088,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsUpdateResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function depositsUpdate(Operations\PartnerPatchDepositBody $body, string $id, ?Options $options = null): Operations\DepositsUpdateResponse
+    public function update(Operations\PartnerPatchDepositBody $body, string $id, ?Options $options = null): Operations\DepositsUpdateResponse
     {
         $request = new Operations\DepositsUpdateRequest(
             id: $id,

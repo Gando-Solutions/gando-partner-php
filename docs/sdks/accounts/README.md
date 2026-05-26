@@ -160,10 +160,10 @@ Rental-operator tokens (`gando_…` without `_pk_`) and session cookies are docu
 
 ### Available Operations
 
-* [accountsList](#accountslist) - List linked rental operator accounts
-* [accountsRevoke](#accountsrevoke) - Revoke partner ↔ rental operator link
+* [list](#list) - List linked rental operator accounts
+* [revoke](#revoke) - Revoke partner ↔ rental operator link
 
-## accountsList
+## list
 
 Returns rental operator accounts linked to your partner. Filter with `status`: `active` (default), `revoked`, or `all`.
 
@@ -188,7 +188,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->accounts->accountsList(
+$response = $sdk->accounts->list(
 
 );
 
@@ -215,7 +215,7 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## accountsRevoke
+## revoke
 
 Revokes the link between your partner and the given rental operator `account_id`. Further deposit operations for that account return **403** until re-linked.
 
@@ -240,7 +240,7 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->accounts->accountsRevoke(
+$response = $sdk->accounts->revoke(
     id: '<id>'
 );
 
