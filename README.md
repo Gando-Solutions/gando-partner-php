@@ -52,7 +52,7 @@ Gando Partner integrations use **two different secrets** depending on what you a
 | Secret | Prefix | Class | Use |
 | --- | --- | --- | --- |
 | Partner API key | `gando_pk_` | `Gando\Partner\Api\Client` | Call `/api/partner/*` |
-| Connect secret | `gando_cs_` | `Gando\Partner\Connect\UrlBuilder` | Build signed `/register` URLs |
+| Connect secret | `gando_cs_` | [`Gando\Partner\Connect\UrlBuilder`](docs/sdks/connect/README.md) | Build signed `/register` URLs |
 | Webhook secret | `gando_whsec_` | `Gando\Partner\WebhookVerifier` | Verify inbound webhooks |
 
 ### Example
@@ -155,6 +155,10 @@ if ($response->object !== null) {
 
 <details open>
 <summary>Available methods</summary>
+
+### [Connect](docs/sdks/connect/README.md) (hand-maintained)
+
+* [signupUrl](docs/sdks/connect/README.md#signupurl) - Build a signed rental-operator signup URL (`gando_cs_`)
 
 ### [Accounts](docs/sdks/accounts/README.md)
 
