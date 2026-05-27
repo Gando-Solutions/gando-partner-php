@@ -25,6 +25,8 @@ Gando Partner API: API for **rental management software** and **multi–rental-o
   * [SDK Example Usage](#sdk-example-usage)
   * [Authentication](#authentication)
   * [Available Resources and Operations](#available-resources-and-operations)
+  * [Default retry policy](#default-retry-policy)
+  * [Retries](#retries)
   * [Error Handling](#error-handling)
   * [Server Selection](#server-selection)
   * [Webhook signature verification](#webhook-signature-verification)
@@ -156,10 +158,6 @@ if ($response->object !== null) {
 <details open>
 <summary>Available methods</summary>
 
-### [Connect](docs/sdks/connect/README.md) (hand-maintained)
-
-* [signupUrl](docs/sdks/connect/README.md#signupurl) - Build a signed rental-operator signup URL (`gando_cs_`)
-
 ### [Accounts](docs/sdks/accounts/README.md)
 
 * [list](docs/sdks/accounts/README.md#list) - List linked rental operator accounts
@@ -199,6 +197,100 @@ if ($response->object !== null) {
 
 </details>
 <!-- End Available Resources and Operations [operations] -->
+
+## Default retry policy
+
+All Partner API operations use the global `x-speakeasy-retries` extension from the Partner OpenAPI document (`PARTNER_SPEAKEASY_RETRIES` in `gando-app` → `lib/api/openapi/shared.ts`). Out of the box, the SDK retries transient failures without custom loops in partner integrations.
+
+| Setting | Value |
+| --- | --- |
+| Strategy | Exponential backoff (`initialInterval` 500 ms, `maxInterval` 60 s, `exponent` 1.5) |
+| Max elapsed time | 30 s |
+| Status codes | `429`, `5xx` (server errors) |
+| Connection errors | Retried when enabled |
+| Attempts | Up to **3** (1 initial + **2** retries) within the elapsed window |
+
+The SDK respects a `Retry-After` response header when present. Override globally via `Gando::builder()->setRetryConfig(...)` or per call via `Utils\Options` (see below).
+
+<!-- Start Retries [retries] -->
+## Retries
+
+Some of the endpoints in this SDK support retries. If you use the SDK without any configuration, it will fall back to the default retry strategy provided by the API. However, the default retry strategy can be overridden on a per-operation basis, or across the entire SDK.
+
+To change the default retry strategy for a single API call, simply provide an `Options` object built with a `RetryConfig` object to the call:
+```php
+declare(strict_types=1);
+
+require 'vendor/autoload.php';
+
+use Gando\Partner;
+use Gando\Partner\Models\Components;
+use Gando\Partner\Utils\Retry;
+
+$sdk = Partner\Gando::builder()
+    ->setSecurity(
+        new Components\Security(
+            partnerApiKeyAuth: '<YOUR_API_KEY_HERE>',
+        )
+    )
+    ->build();
+
+
+
+$response = $sdk->accounts->list(
+    options: Utils\Options->builder()->setRetryConfig(
+        new Retry\RetryConfigBackoff(
+            initialInterval: 1,
+            maxInterval:     50,
+            exponent:        1.1,
+            maxElapsedTime:  100,
+            retryConnectionErrors: false,
+        ))->build()
+);
+
+if ($response->object !== null) {
+    // handle response
+}
+```
+
+If you'd like to override the default retry strategy for all operations that support retries, you can pass a `RetryConfig` object to the `SDKBuilder->setRetryConfig` function when initializing the SDK:
+```php
+declare(strict_types=1);
+
+require 'vendor/autoload.php';
+
+use Gando\Partner;
+use Gando\Partner\Models\Components;
+use Gando\Partner\Utils\Retry;
+
+$sdk = Partner\Gando::builder()
+    ->setRetryConfig(
+        new Retry\RetryConfigBackoff(
+            initialInterval: 1,
+            maxInterval:     50,
+            exponent:        1.1,
+            maxElapsedTime:  100,
+            retryConnectionErrors: false,
+        )
+  )
+    ->setSecurity(
+        new Components\Security(
+            partnerApiKeyAuth: '<YOUR_API_KEY_HERE>',
+        )
+    )
+    ->build();
+
+
+
+$response = $sdk->accounts->list(
+
+);
+
+if ($response->object !== null) {
+    // handle response
+}
+```
+<!-- End Retries [retries] -->
 
 <!-- Start Error Handling [errors] -->
 ## Error Handling

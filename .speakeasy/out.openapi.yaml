@@ -1,0 +1,4380 @@
+openapi: "3.1.0"
+x-speakeasy-retries:
+  strategy: "backoff"
+  backoff:
+    initialInterval: 500
+    maxInterval: 60000
+    maxElapsedTime: 30000
+    exponent: 1.5
+    jitter: "full"
+  maxRetries: 2
+  statusCodes:
+    - "429"
+    - "5xx"
+  retryConnectionErrors: true
+info:
+  title: "Gando Partner API"
+  version: "1.0.0"
+  description: "API for **rental management software** and **multi–rental-operator platforms** integrating Gando on behalf of linked rental operators. Use **`gando_pk_`** keys (`x-api-key` or `Authorization: Bearer`) on `/api/partner/*`."
+  contact:
+    name: "Gando Solutions"
+    email: "contact@gando.app"
+    url: "https://support.gando.app/introduction"
+servers:
+  - url: "http://localhost:3000"
+tags:
+  - name: "Accounts"
+    description: "Manage rental operator accounts linked to your partner integration.\n\n## Partner API vs rental operator API\n\nThese routes live under `/api/partner/*` and use **partner API keys** only. They are **not** the same as rental operator (loueur) API keys under `/api/cautions`, `/api/clients`, etc.\n\n### Authentication (partner keys)\n\n- Keys are issued by Gando and always start with the prefix **`gando_pk_`**.\n- Send the raw key in either:\n  - Header **`x-api-key: gando_pk_…`**, or\n  - Header **`Authorization: Bearer gando_pk_…`**\n- Missing key or wrong prefix → **401** `error.code`: **`missing_api_key`**.\n- Unknown key → **401** `error.code`: **`invalid_api_key`**.\n- Revoked key → **401** `error.code`: **`api_key_revoked`**.\n\n### Error responses (ErrorEnvelope)\n\nAll documented 4xx/5xx responses use the same JSON shape (`#/components/schemas/ErrorEnvelope`):\n\n```json\n{\n  \"error\": {\n    \"code\": \"invalid_request\",\n    \"message\": \"Human-readable error message.\",\n    \"requestId\": \"req_abc123\",\n    \"details\": { \"field\": \"status\" }\n  }\n}\n```\n\n### Idempotency-Key (mutating POST)\n\nOptional header on **`POST /api/partner/deposits`**, **`POST /api/partner/clients`**, **`POST /api/partner/deposits/{id}/capture`**, and **`POST /api/partner/deposits/{id}/cancel`**. Send a **UUID v4** per logical operation. Within **24 hours**, repeating the same key with the **same JSON body** returns the **cached HTTP status and response** (no duplicate side effects). Reusing the key with a **different body** returns **409** with `error.code`: `idempotency_key_conflict`. Invalid key format → **400** with `error.code`: `invalid_idempotency_key`. Requires **`REDIS_URL`** on the server; if Redis is unavailable while the header is sent → **503** with `error.code`: `redis_unavailable`.\n\n### curl (partner key)\n\n```bash\ncurl -sS -X GET \"https://gando.app/api/partner/deposits?page=1&limit=20\" \\\n  -H \"x-api-key: gando_pk_YOUR_PARTNER_KEY\"\n```\n\n```bash\ncurl -sS -X GET \"https://gando.app/api/partner/deposits?page=1&limit=20\" \\\n  -H \"Authorization: Bearer gando_pk_YOUR_PARTNER_KEY\"\n```\n\n### Create client then deposit (recommended flow)\n\n```bash\ncurl -sS -X POST \"https://gando.app/api/partner/clients\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"x-api-key: gando_pk_YOUR_PARTNER_KEY\" \\\n  -d '{\n    \"account_id\": \"acct_rental_operator_uuid\",\n    \"email\": \"tenant@example.com\",\n    \"first_name\": \"Jean\",\n    \"last_name\": \"Dupont\"\n  }'\n```\n\nThen reuse the returned client `id` as optional `client_id` when creating a deposit.\n\n### Create a deposit (full example)\n\n```bash\ncurl -sS -X POST \"https://gando.app/api/partner/deposits\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"x-api-key: gando_pk_YOUR_PARTNER_KEY\" \\\n  -d '{\n    \"account_id\": \"acct_rental_operator_uuid\",\n    \"amount\": 800,\n    \"rental_contract\": \"CTR-2026-042\",\n    \"contract_start_at\": \"2026-04-01T00:00:00.000Z\",\n    \"contract_end_at\": \"2026-04-10T23:59:59.000Z\",\n    \"client_id\": \"cli_123\",\n    \"inline_redirect\": true,\n    \"return_url\": \"https://partner.example/checkout/complete\"\n  }'\n```\n\n### JavaScript (fetch) — create + redirect\n\n```javascript\nconst BASE = \"https://gando.app\";\nconst PARTNER_KEY = process.env.GANDO_PARTNER_KEY; // gando_pk_…\n\nconst res = await fetch(`${BASE}/api/partner/deposits`, {\n  method: \"POST\",\n  headers: {\n    \"Content-Type\": \"application/json\",\n    \"x-api-key\": PARTNER_KEY,\n  },\n  body: JSON.stringify({\n    account_id: \"acct_rental_operator_uuid\",\n    amount: 800,\n    rental_contract: \"CTR-2026-042\",\n    contract_start_at: \"2026-04-01T00:00:00.000Z\",\n    contract_end_at: \"2026-04-10T23:59:59.000Z\",\n    client_id: \"cli_123\",\n    inline_redirect: true,\n    return_url: \"https://partner.example/checkout/complete\",\n  }),\n});\nconst json = await res.json();\nif (!json.success) throw new Error(json.error);\nconst { deposit_url } = json.data;\nif (deposit_url) window.location.assign(deposit_url);\n```\n\n`deposit_url` is only returned when `inline_redirect` is `true`. After the tenant finishes on Gando, they are sent to `return_url` with query params **`caution_id`** and **`caution_status`** (`secured` | `declined` | `abandoned`). Always confirm the final state with **webhooks** (subscribe under **`/api/partner/webhooks`** — see **Webhooks** tag) or **GET /api/partner/deposits/{id}**.\n\n### Webhooks — `partner_context` on caution events\n\nWhen a deposit was created through the Partner API, webhook payloads (`caution.status_changed` wildcard or any of the specific `caution.activated` / `caution.captured` / `caution.expired` / `caution.cancelled`) may include **`data.partner_context`**:\n\n- `partner_id` — Gando partner id\n- `partner_name` — display name\n- `external_id` — your rental-operator / account identifier on the link, or `null`\n\nSchema reference: `#/components/schemas/WebhookCautionStatusChangedEvent` (field `data.partner_context`).\n\n### Verify webhook HMAC (Node.js)\n\nUse the **same** signing rules as rental-operator webhooks (`X-Gando-Signature`, `X-Gando-Timestamp`, payload `timestamp.rawBody`). See the **Webhooks** tag description in this document for full HMAC examples (Node, Python, PHP, Go).\n\n```javascript\nimport crypto from \"node:crypto\";\n\nexport function verifyGandoWebhook(rawBody, signature, timestamp, secret) {\n  if (!signature?.startsWith(\"sha256=\")) return false;\n  const signedPayload = `${timestamp}.${rawBody}`;\n  const expected =\n    \"sha256=\" +\n    crypto.createHmac(\"sha256\", secret).update(signedPayload).digest(\"hex\");\n  const a = Buffer.from(signature);\n  const b = Buffer.from(expected);\n  return a.length === b.length && crypto.timingSafeEqual(a, b);\n}\n```\n\n### HTTP status codes (Partner API)\n\n| Code | Meaning |\n|------|---------|\n| **401** | Missing partner key, invalid or revoked `gando_pk_` key |\n| **403** | Partner is not allowed to use this rental operator `account_id` / deposit |\n| **404** | Unknown deposit id, capture not found, etc. |\n| **409** | Idempotency key conflict (`idempotency_key_conflict`) or future linking conflicts |\n| **422** | Semantic validation failure (reserved; many cases still return **400** today) |\n| **429** | Rate limited (middleware: 200 req/min per IP+path on `/api/*`; `Retry-After` header) |\n| **400** | Invalid JSON body, query params, or business rule (e.g. capture amount) |\n| **500** / **502** | Server or upstream payment-processor errors |\n\nRental-operator tokens (`gando_…` without `_pk_`) and session cookies are documented under **Deposits** / **Clients** / **Webhooks** — do **not** use them for `/api/partner/*`."
+  - name: "Clients"
+    description: "Create and manage end-customer (tenant) records across linked rental operator accounts."
+  - name: "Deposits"
+    description: "Create, retrieve, update, cancel, and capture deposits on behalf of linked rental operators."
+  - name: "Webhooks"
+    description: "## Partner webhooks\n\nRegister **HTTPS endpoints** that receive JSON events for your entire partner integration (same `gando_pk_` authentication as `/api/partner/*`). Use this instead of polling **`GET /api/partner/accounts`** when you need the Gando **`account_id`** as soon as a rental operator completes partner connect (signup or login with signed `partner_connect`).\n\n### Authentication\n\nSend your partner API key with **`x-api-key: gando_pk_…`** or **`Authorization: Bearer gando_pk_…`** (same as other Partner API routes).\n\n### Events\n\n- **`rental_operator.linked`** — Fired when a rental operator account is linked to your partner via connect. Payload includes Gando `account_id`, your `external_id` from the connect URL, and `partner_id`.\n- **`caution.status_changed`** — Wildcard. Delivered for every deposit status transition (same JSON shape as rental-operator webhooks: `#/components/schemas/WebhookCautionStatusChangedEvent`), including optional `data.partner_context` when the deposit belongs to a linked rental operator.\n- **`caution.activated`** — Specific event. Delivered only when a deposit transitions to `active`.\n- **`caution.captured`** — Specific event. Delivered only when a deposit transitions to `captured`.\n- **`caution.expired`** — Specific event. Delivered only when a deposit transitions to `close` (natural end of contract).\n- **`caution.cancelled`** — Specific event. Delivered only when a deposit transitions to `cancelled` (manual cancellation).\n\nWhen a subscription includes both the wildcard and a specific event, **the most specific subscribed event wins** for that transition (single delivery per endpoint). The `event` field of the payload reflects the chosen event so consumers can branch on it directly.\n\n### Signing and headers\n\nIdentical to rental-operator webhooks: **`X-Gando-Signature`** (`sha256=<hex>`), **`X-Gando-Timestamp`** (unix seconds), **`X-Gando-Event`** (event name). Verify HMAC-SHA256 over `<timestamp>.<rawBody>` with your **webhook signing secret** (returned once when you create the endpoint). See the **Webhooks** tag in this document for full verification examples (Node.js, Python, PHP, Go).\n\n### Retries\n\nFailed deliveries are retried on a backoff schedule by Gando’s webhook retry job (same behaviour as rental-operator webhook deliveries)."
+components:
+  securitySchemes:
+    PartnerApiKeyAuth:
+      type: "apiKey"
+      in: "header"
+      name: "x-api-key"
+      description: "Partner API key (`gando_pk_` prefix). Required for all documented `/api/partner/*` routes."
+    PartnerBearerAuth:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "gando_pk_…"
+      description: "Same partner key as `PartnerApiKeyAuth`, sent as `Authorization: Bearer gando_pk_…`."
+  schemas:
+    WebhookCautionStatusChangedEvent:
+      type: "object"
+      properties:
+        event:
+          type: "string"
+          enum:
+            - "caution.status_changed"
+            - "caution.activated"
+            - "caution.captured"
+            - "caution.expired"
+            - "caution.cancelled"
+          description: "Webhook event name. Reflects the most specific subscribed event matched by this transition."
+        created_at:
+          type: "string"
+          format: "date-time"
+          description: "Event creation timestamp (ISO 8601)"
+        data:
+          type: "object"
+          properties:
+            id:
+              type: "string"
+              description: "Deposit unique identifier"
+            reference:
+              type: "string"
+              description: "Deposit reference (for reconciliation)"
+            rental_contract:
+              type:
+                - "string"
+                - "null"
+              description: "Rental contract reference set by the rental operator, if any"
+            status:
+              type: "string"
+              enum:
+                - "pending"
+                - "incomplete"
+                - "active"
+                - "processing"
+                - "captured"
+                - "close"
+                - "cancelled"
+                - "payment_issue"
+                - "capture_issue"
+              description: "New deposit status"
+            previous_status:
+              type: "string"
+              enum:
+                - "pending"
+                - "incomplete"
+                - "active"
+                - "processing"
+                - "captured"
+                - "close"
+                - "cancelled"
+                - "payment_issue"
+                - "capture_issue"
+              description: "Previous deposit status"
+            amount_cents:
+              type: "integer"
+              minimum: 0
+              description: "Deposit amount in cents"
+            contract_start_at:
+              type:
+                - "string"
+                - "null"
+              format: "date-time"
+              description: "Contract start date (ISO 8601), when available"
+            contract_end_at:
+              type:
+                - "string"
+                - "null"
+              format: "date-time"
+              description: "Contract end date (ISO 8601), when available"
+            client:
+              type:
+                - "object"
+                - "null"
+              properties:
+                id:
+                  type: "string"
+                  description: "Client unique identifier"
+                email:
+                  type: "string"
+                  format: "email"
+                  description: "Client email"
+                first_name:
+                  type: "string"
+                  description: "Client first name"
+                last_name:
+                  type: "string"
+                  description: "Client last name"
+              required:
+                - "id"
+                - "email"
+                - "first_name"
+                - "last_name"
+              description: "Client information if a client is attached to the deposit"
+            partner_context:
+              type: "object"
+              properties:
+                partner_id:
+                  type: "string"
+                  description: "Partner unique identifier"
+                partner_name:
+                  type: "string"
+                  description: "Partner display name"
+                external_id:
+                  type:
+                    - "string"
+                    - "null"
+                  description: "Partner-side rental-operator / account identifier when available"
+              required:
+                - "partner_id"
+                - "partner_name"
+                - "external_id"
+              description: "Partner context for cautions created through Partner API Key flow. Present only for partner-linked cautions."
+          required:
+            - "id"
+            - "reference"
+            - "rental_contract"
+            - "status"
+            - "previous_status"
+            - "amount_cents"
+            - "contract_start_at"
+            - "contract_end_at"
+            - "client"
+      required:
+        - "event"
+        - "created_at"
+        - "data"
+      title: "WebhookCautionStatusChangedEvent"
+      example:
+        event: "caution.activated"
+        created_at: "2026-03-15T12:00:00.000Z"
+        data:
+          id: "dep_abc123"
+          reference: "GAN-2026-0421"
+          rental_contract: "CTR-2026-0421"
+          status: "active"
+          previous_status: "pending"
+          amount_cents: 80000
+          contract_start_at: "2026-06-01T10:00:00.000Z"
+          contract_end_at: "2026-06-15T18:00:00.000Z"
+          client:
+            id: "cli_9f3k2a"
+            email: "tenant@example.com"
+            first_name: "Jean"
+            last_name: "Dupont"
+          partner_context:
+            partner_id: "ptr_fleetee"
+            partner_name: "Fleetee"
+            external_id: "fleet_operator_42"
+    WebhookRentalOperatorLinkedEvent:
+      type: "object"
+      properties:
+        event:
+          type: "string"
+          enum:
+            - "rental_operator.linked"
+          description: "Webhook event name"
+        created_at:
+          type: "string"
+          format: "date-time"
+          description: "Event creation timestamp (ISO 8601)"
+        data:
+          type: "object"
+          properties:
+            partner_id:
+              type: "string"
+              description: "Gando partner id"
+            account_id:
+              type: "string"
+              description: "Gando rental operator account id — use as `account_id` in Partner API calls"
+            external_id:
+              type:
+                - "string"
+                - "null"
+              description: "Your external id from the partner connect URL, if provided"
+            linked_at:
+              type: "string"
+              format: "date-time"
+              description: "When the link was established (server time)"
+          required:
+            - "partner_id"
+            - "account_id"
+            - "external_id"
+            - "linked_at"
+          description: "Rental operator link event payload"
+      required:
+        - "event"
+        - "created_at"
+        - "data"
+      title: "WebhookRentalOperatorLinkedEvent"
+      example:
+        event: "rental_operator.linked"
+        created_at: "2026-03-01T14:30:00.000Z"
+        data:
+          partner_id: "ptr_fleetee"
+          account_id: "acc_7k2m9x"
+          external_id: "fleet_operator_42"
+          linked_at: "2026-03-01T14:30:00.000Z"
+    ErrorEnvelope:
+      type: "object"
+      properties:
+        error:
+          type: "object"
+          properties:
+            code:
+              type: "string"
+              enum:
+                - "invalid_request"
+                - "invalid_json_body"
+                - "missing_api_key"
+                - "invalid_api_key"
+                - "api_key_revoked"
+                - "account_not_linked"
+                - "account_revoked"
+                - "deposit_not_found"
+                - "deposit_access_denied"
+                - "client_not_found"
+                - "client_access_denied"
+                - "webhook_not_found"
+                - "webhook_access_denied"
+                - "capture_not_found"
+                - "deposit_already_captured"
+                - "deposit_invalid_status"
+                - "deposit_missing_payment_method"
+                - "deposit_missing_payment_intent"
+                - "invalid_capture_amount"
+                - "capture_amount_too_low"
+                - "capture_amount_exceeds_deposit"
+                - "account_not_capture_ready"
+                - "payment_processor_unavailable"
+                - "payment_processor_error"
+                - "invalid_client_id"
+                - "client_not_linked_to_deposit"
+                - "scoring_not_found"
+                - "invalid_idempotency_key"
+                - "idempotency_key_conflict"
+                - "redis_unavailable"
+                - "rate_limited"
+                - "internal_error"
+                - "bad_gateway"
+                - "invalid_params"
+                - "partner_not_found"
+                - "missing_connect_secret"
+                - "invalid_signature"
+                - "expired"
+              description: "Machine-readable error code — exhaustive enum in OpenAPI (`PartnerErrorCode`)."
+            message:
+              type: "string"
+              description: "Human-readable error message."
+            requestId:
+              type: "string"
+              description: "Request correlation ID — include in support tickets."
+            details:
+              type: "object"
+              additionalProperties: {}
+              description: "Optional structured details."
+          required:
+            - "code"
+            - "message"
+            - "requestId"
+      required:
+        - "error"
+      title: "ErrorEnvelope"
+      example:
+        error:
+          code: "invalid_request"
+          message: "Invalid query parameter: status"
+          requestId: "req_abc123"
+    PartnerCreateClientBody:
+      anyOf:
+        - $ref: "#/components/schemas/ParticulierClient"
+        - $ref: "#/components/schemas/ProfessionnelClient"
+      description: "Create a client on a linked rental operator account. Shape depends on `clientType`. Idempotent by email within the account."
+      example:
+        accountId: "acc_7k2m9x"
+        firstName: "Jean"
+        lastName: "Dupont"
+        email: "jean.dupont@example.com"
+        clientType: "particulier"
+    ParticulierClient:
+      type: "object"
+      properties:
+        accountId:
+          type: "string"
+          minLength: 1
+          description: "Target rental operator account id (required on create)"
+        firstName:
+          type: "string"
+          minLength: 1
+          description: "Client first name"
+        lastName:
+          type: "string"
+          minLength: 1
+          description: "Client last name"
+        email:
+          type: "string"
+          format: "email"
+          description: "Client email (unique per account)"
+        phone:
+          type:
+            - "string"
+            - "null"
+          description: "Phone number in E.164 or local format"
+        siren:
+          type:
+            - "string"
+            - "null"
+          description: "French SIREN (9 digits), for business clients"
+        tvaNumber:
+          type:
+            - "string"
+            - "null"
+          description: "EU VAT number"
+        country:
+          type:
+            - "string"
+            - "null"
+          description: "Country name or ISO code"
+        street:
+          type:
+            - "string"
+            - "null"
+          description: "Street address line"
+        city:
+          type:
+            - "string"
+            - "null"
+          description: "City"
+        postalCode:
+          type:
+            - "string"
+            - "null"
+          description: "Postal or ZIP code"
+        clientType:
+          type: "string"
+          enum:
+            - "particulier"
+          description: "Individual (private) end customer"
+        companyName:
+          type:
+            - "string"
+            - "null"
+          description: "Optional company name for individuals"
+      required:
+        - "firstName"
+        - "lastName"
+        - "email"
+        - "clientType"
+      description: "Create an individual (private) client"
+      example:
+        accountId: "acc_7k2m9x"
+        firstName: "Jean"
+        lastName: "Dupont"
+        email: "jean.dupont@example.com"
+        clientType: "particulier"
+        phone: "+33612345678"
+        country: "FR"
+        city: "Paris"
+        postalCode: "75001"
+    ProfessionnelClient:
+      type: "object"
+      properties:
+        accountId:
+          type: "string"
+          minLength: 1
+          description: "Target rental operator account id (required on create)"
+        firstName:
+          type: "string"
+          minLength: 1
+          description: "Client first name"
+        lastName:
+          type: "string"
+          minLength: 1
+          description: "Client last name"
+        email:
+          type: "string"
+          format: "email"
+          description: "Client email (unique per account)"
+        phone:
+          type:
+            - "string"
+            - "null"
+          description: "Phone number in E.164 or local format"
+        siren:
+          type:
+            - "string"
+            - "null"
+          description: "French SIREN (9 digits), for business clients"
+        tvaNumber:
+          type:
+            - "string"
+            - "null"
+          description: "EU VAT number"
+        country:
+          type:
+            - "string"
+            - "null"
+          description: "Country name or ISO code"
+        street:
+          type:
+            - "string"
+            - "null"
+          description: "Street address line"
+        city:
+          type:
+            - "string"
+            - "null"
+          description: "City"
+        postalCode:
+          type:
+            - "string"
+            - "null"
+          description: "Postal or ZIP code"
+        clientType:
+          type: "string"
+          enum:
+            - "professionnel"
+          description: "Business customer; `companyName` is required"
+        companyName:
+          type: "string"
+          minLength: 1
+          description: "Legal or trade name (required for professionnel)"
+      required:
+        - "firstName"
+        - "lastName"
+        - "email"
+        - "clientType"
+        - "companyName"
+      description: "Create a business client. `companyName` is required."
+      example:
+        accountId: "acc_7k2m9x"
+        firstName: "Marie"
+        lastName: "Martin"
+        email: "marie.martin@acme-rentals.fr"
+        clientType: "professionnel"
+        companyName: "ACME Rentals SAS"
+        siren: "123456789"
+        phone: "+33123456789"
+        city: "Lyon"
+        postalCode: "69001"
+    PartnerClientPatchBody:
+      anyOf:
+        - $ref: "#/components/schemas/ParticulierPartnerClientPatch"
+        - $ref: "#/components/schemas/ProfessionnelPartnerClientPatch"
+      description: "Partial update of a partner-accessible client. At least one field is required."
+      example:
+        phone: "+33698765432"
+    ParticulierPartnerClientPatch:
+      type: "object"
+      properties:
+        firstName:
+          type: "string"
+          minLength: 1
+          description: "Updated first name"
+        lastName:
+          type: "string"
+          minLength: 1
+          description: "Updated last name"
+        phone:
+          type:
+            - "string"
+            - "null"
+          description: "Updated phone number"
+        siren:
+          type:
+            - "string"
+            - "null"
+          description: "Updated SIREN"
+        tvaNumber:
+          type:
+            - "string"
+            - "null"
+          description: "Updated VAT number"
+        country:
+          type:
+            - "string"
+            - "null"
+          description: "Updated country"
+        street:
+          type:
+            - "string"
+            - "null"
+          description: "Updated street address"
+        city:
+          type:
+            - "string"
+            - "null"
+          description: "Updated city"
+        postalCode:
+          type:
+            - "string"
+            - "null"
+          description: "Updated postal code"
+        clientType:
+          type: "string"
+          enum:
+            - "particulier"
+          description: "Individual (private) end customer"
+        companyName:
+          type:
+            - "string"
+            - "null"
+          description: "Updated company name (optional)"
+      description: "Patch an individual client. At least one field is required."
+      example:
+        phone: "+33698765432"
+        city: "Paris"
+        postalCode: "75008"
+    ProfessionnelPartnerClientPatch:
+      type: "object"
+      properties:
+        firstName:
+          type: "string"
+          minLength: 1
+          description: "Updated first name"
+        lastName:
+          type: "string"
+          minLength: 1
+          description: "Updated last name"
+        phone:
+          type:
+            - "string"
+            - "null"
+          description: "Updated phone number"
+        siren:
+          type:
+            - "string"
+            - "null"
+          description: "Updated SIREN"
+        tvaNumber:
+          type:
+            - "string"
+            - "null"
+          description: "Updated VAT number"
+        country:
+          type:
+            - "string"
+            - "null"
+          description: "Updated country"
+        street:
+          type:
+            - "string"
+            - "null"
+          description: "Updated street address"
+        city:
+          type:
+            - "string"
+            - "null"
+          description: "Updated city"
+        postalCode:
+          type:
+            - "string"
+            - "null"
+          description: "Updated postal code"
+        clientType:
+          type: "string"
+          enum:
+            - "professionnel"
+          description: "Business customer; `companyName` is required"
+        companyName:
+          type: "string"
+          minLength: 1
+          description: "Updated company name (required when setting `clientType` to professionnel)"
+      description: "Patch a business client. At least one field is required; `companyName` required when `clientType` is professionnel."
+      example:
+        companyName: "ACME Rentals SAS"
+        siren: "123456789"
+  parameters: {}
+security:
+  - PartnerApiKeyAuth: []
+  - PartnerBearerAuth: []
+paths:
+  /api/partner/accounts:
+    get:
+      operationId: "accounts.list"
+      x-speakeasy-name-override: "list"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$accounts = $client->accounts->list([\n    'status' => 'active', // active | revoked | all\n]);"
+      tags:
+        - "Accounts"
+      summary: "List linked rental operator accounts"
+      description: "Returns rental operator accounts linked to your partner. Filter with `status`: `active` (default), `revoked`, or `all`."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            enum:
+              - "active"
+              - "revoked"
+              - "all"
+            description: "Filter linked accounts: `active` (default, operable links), `revoked` (disconnected), or `all`."
+          required: false
+          description: "Filter linked accounts: `active` (default, operable links), `revoked` (disconnected), or `all`."
+          name: "status"
+          in: "query"
+      responses:
+        "200":
+          description: "Linked accounts"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      accounts:
+                        type: "array"
+                        items:
+                          type: "object"
+                          properties:
+                            account_id:
+                              type: "string"
+                              description: "Gando rental operator account id. Use as `account_id` in Partner API calls."
+                            external_id:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "Your external id from partner connect, when provided at link time"
+                            company_name:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "Legal or trade name of the rental operator"
+                            display_name:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "Display name in Gando dashboards"
+                            email:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "Primary contact email for the rental operator"
+                            linked_at:
+                              type: "string"
+                              format: "date-time"
+                              description: "ISO 8601 timestamp when the partner link was created"
+                            status:
+                              type: "string"
+                              enum:
+                                - "active"
+                                - "revoked"
+                              description: "Partner link status: `active` (operations allowed) or `revoked` (403 on deposits)"
+                          required:
+                            - "account_id"
+                            - "external_id"
+                            - "company_name"
+                            - "display_name"
+                            - "email"
+                            - "linked_at"
+                            - "status"
+                          title: "PartnerLinkedAccount"
+                          example:
+                            account_id: "acc_7k2m9x"
+                            external_id: "fleet_operator_42"
+                            company_name: "ACME Rentals SAS"
+                            display_name: "ACME Rentals"
+                            email: "ops@acme-rentals.fr"
+                            linked_at: "2026-03-01T14:30:00.000Z"
+                            status: "active"
+                        description: "Linked rental operator accounts for this partner"
+                      total:
+                        type: "integer"
+                        description: "Total number of accounts matching the filter"
+                    required:
+                      - "accounts"
+                      - "total"
+                    title: "PartnerAccountList"
+                    example:
+                      accounts:
+                        - account_id: "acc_7k2m9x"
+                          external_id: "fleet_operator_42"
+                          company_name: "ACME Rentals SAS"
+                          display_name: "ACME Rentals"
+                          email: "ops@acme-rentals.fr"
+                          linked_at: "2026-03-01T14:30:00.000Z"
+                          status: "active"
+                      total: 1
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Invalid query (e.g. invalid `status`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Forbidden — partner cannot access this resource."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Resource not found."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/accounts/{id}:
+    delete:
+      operationId: "accounts.revoke"
+      x-speakeasy-name-override: "revoke"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$result = $client->accounts->revoke('acc_7k2m9x');"
+      tags:
+        - "Accounts"
+      summary: "Revoke partner ↔ rental operator link"
+      description: "Revokes the link between your partner and the given rental operator `account_id`. Further deposit operations for that account return **403** until re-linked."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Rental operator account id (`accountId`)"
+          required: true
+          description: "Rental operator account id (`accountId`)"
+          name: "id"
+          in: "path"
+      responses:
+        "200":
+          description: "Link revoked"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      status:
+                        type: "string"
+                        enum:
+                          - "revoked"
+                        description: "Link status after revocation"
+                      revoked_at:
+                        type: "string"
+                        format: "date-time"
+                        description: "ISO 8601 timestamp when the link was revoked"
+                    required:
+                      - "status"
+                      - "revoked_at"
+                    title: "PartnerRevokeAccountResponse"
+                    example:
+                      status: "revoked"
+                      revoked_at: "2026-03-15T09:00:00.000Z"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Bad request — invalid parameters or business rule."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Partner is not linked to this account"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Resource not found."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/clients:
+    get:
+      operationId: "clients.list"
+      x-speakeasy-name-override: "list"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$clients = $client->clients->list([\n    'accountId' => 'acc_7k2m9x',\n    'page' => 1,\n    'limit' => 20,\n    // 'search' => 'dupont',\n]);"
+      tags:
+        - "Clients"
+      summary: "List clients across linked rental operator accounts"
+      description: "Returns paginated clients for all active linked rental operator accounts, or for a specific linked account when `accountId` is provided."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Filter clients to this linked rental operator account"
+          required: false
+          description: "Filter clients to this linked rental operator account"
+          name: "accountId"
+          in: "query"
+        - schema:
+            type: "integer"
+            minimum: 1
+            default: 1
+            description: "Page number (1-based)"
+          required: false
+          description: "Page number (1-based)"
+          name: "page"
+          in: "query"
+        - schema:
+            type: "integer"
+            minimum: 1
+            maximum: 100
+            default: 20
+            description: "Items per page (max 100)"
+          required: false
+          description: "Items per page (max 100)"
+          name: "limit"
+          in: "query"
+        - schema:
+            type: "string"
+            description: "Case-insensitive search on name, email, or company"
+          required: false
+          description: "Case-insensitive search on name, email, or company"
+          name: "search"
+          in: "query"
+      responses:
+        "200":
+          description: "Paginated clients"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      items:
+                        type: "array"
+                        items:
+                          type: "object"
+                          properties:
+                            id:
+                              type: "string"
+                              description: "Unique identifier of the client"
+                            email:
+                              type: "string"
+                              format: "email"
+                              description: "Email address of the client"
+                            firstName:
+                              type: "string"
+                              description: "First name of the client"
+                            lastName:
+                              type: "string"
+                              description: "Last name of the client"
+                            phone:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "Phone number of the client (optional)"
+                            clientType:
+                              type: "string"
+                              enum:
+                                - "particulier"
+                                - "professionnel"
+                              description: "Type of client: particulier (individual) or professionnel (business)"
+                            companyName:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "Company name (required if clientType is professionnel)"
+                            siren:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "SIREN number for French businesses (optional)"
+                            tvaNumber:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "VAT/TVA number (optional)"
+                            country:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "Country (optional)"
+                            street:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "Street address (optional)"
+                            city:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "City (optional)"
+                            postalCode:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "Postal code (optional)"
+                            isArchived:
+                              type: "boolean"
+                              description: "Whether the client is archived"
+                            createdAt:
+                              type: "string"
+                              format: "date-time"
+                              description: "Creation date and time (ISO 8601 format)"
+                            updatedAt:
+                              type: "string"
+                              format: "date-time"
+                              description: "Last update date and time (ISO 8601 format)"
+                          required:
+                            - "id"
+                            - "email"
+                            - "firstName"
+                            - "lastName"
+                            - "clientType"
+                            - "isArchived"
+                            - "createdAt"
+                            - "updatedAt"
+                          title: "PartnerClientItem"
+                        description: "Clients for the current page"
+                      pagination:
+                        type: "object"
+                        properties:
+                          page:
+                            type: "number"
+                            description: "Current page number"
+                          limit:
+                            type: "number"
+                            description: "Number of items per page"
+                          total:
+                            type: "number"
+                            description: "Total number of items"
+                          totalPages:
+                            type: "number"
+                            description: "Total number of pages"
+                        required:
+                          - "page"
+                          - "limit"
+                          - "total"
+                          - "totalPages"
+                        description: "Pagination metadata"
+                    required:
+                      - "items"
+                      - "pagination"
+                    title: "PartnerClientsListResponse"
+                    example:
+                      items:
+                        - id: "cli_9f3k2a"
+                          email: "jean.dupont@example.com"
+                          firstName: "Jean"
+                          lastName: "Dupont"
+                          clientType: "particulier"
+                          companyName: null
+                          phone: "+33612345678"
+                          isArchived: false
+                          createdAt: "2026-03-01T10:00:00.000Z"
+                          updatedAt: "2026-03-01T10:00:00.000Z"
+                      pagination:
+                        page: 1
+                        limit: 20
+                        total: 1
+                        totalPages: 1
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Invalid query parameters"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "`accountId` is not linked to this partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Resource not found."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    post:
+      operationId: "clients.create"
+      x-speakeasy-name-override: "create"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n// Optional: pass idempotencyKey in request options (UUID v4)\n$clientRecord = $client->clients->create([\n    'accountId' => 'acc_7k2m9x',\n    'firstName' => 'Jean',\n    'lastName' => 'Dupont',\n    'email' => 'jean.dupont@example.com',\n    'clientType' => 'particulier',\n    // ...\n]);"
+      tags:
+        - "Clients"
+      summary: "Create a client for a linked rental operator account"
+      description: "Creates a client and returns its id. This id can then be sent as optional `client_id` in `POST /api/partner/deposits`. This endpoint is idempotent by email within account: when a client already exists, it returns 200 with the existing id."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - name: "Idempotency-Key"
+          in: "header"
+          required: false
+          description: "Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`."
+          schema:
+            type: "string"
+            format: "uuid"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerCreateClientBody"
+      responses:
+        "200":
+          description: "Client already exists (idempotent create)"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: "Created or existing client id (use as `client_id` on deposits)"
+                    required:
+                      - "id"
+                    title: "PartnerCreateClientResponse"
+                    example:
+                      id: "cli_9f3k2a"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "201":
+          description: "Client created"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: "Created or existing client id (use as `client_id` on deposits)"
+                    required:
+                      - "id"
+                    title: "PartnerCreateClientResponse"
+                    example:
+                      id: "cli_9f3k2a"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Validation error (missing account id, missing names, invalid email, etc.)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Partner is not linked to this account"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Resource not found."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Idempotency key already used with a different request body (`error.code`: `idempotency_key_conflict`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "503":
+          description: "Redis unavailable while Idempotency-Key was sent"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/clients/{id}:
+    patch:
+      operationId: "clients.update"
+      x-speakeasy-name-override: "update"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$clientRecord = $client->clients->update('cli_9f3k2a', [\n    'firstName' => 'Jean',\n    'lastName' => 'Martin',\n    // ...\n]);"
+      tags:
+        - "Clients"
+      summary: "Update a partner-accessible client"
+      description: "Updates a client that belongs to one of the partner's linked rental operator accounts."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Client unique identifier"
+          required: true
+          description: "Client unique identifier"
+          name: "id"
+          in: "path"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerClientPatchBody"
+      responses:
+        "200":
+          description: "Client updated"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: "Unique identifier of the client"
+                      email:
+                        type: "string"
+                        format: "email"
+                        description: "Email address of the client"
+                      firstName:
+                        type: "string"
+                        description: "First name of the client"
+                      lastName:
+                        type: "string"
+                        description: "Last name of the client"
+                      phone:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "Phone number of the client (optional)"
+                      clientType:
+                        type: "string"
+                        enum:
+                          - "particulier"
+                          - "professionnel"
+                        description: "Type of client: particulier (individual) or professionnel (business)"
+                      companyName:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "Company name (required if clientType is professionnel)"
+                      siren:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "SIREN number for French businesses (optional)"
+                      tvaNumber:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "VAT/TVA number (optional)"
+                      country:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "Country (optional)"
+                      street:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "Street address (optional)"
+                      city:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "City (optional)"
+                      postalCode:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "Postal code (optional)"
+                      isArchived:
+                        type: "boolean"
+                        description: "Whether the client is archived"
+                      createdAt:
+                        type: "string"
+                        format: "date-time"
+                        description: "Creation date and time (ISO 8601 format)"
+                      updatedAt:
+                        type: "string"
+                        format: "date-time"
+                        description: "Last update date and time (ISO 8601 format)"
+                    required:
+                      - "id"
+                      - "email"
+                      - "firstName"
+                      - "lastName"
+                      - "clientType"
+                      - "isArchived"
+                      - "createdAt"
+                      - "updatedAt"
+                    title: "PartnerClientItem"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Invalid body"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Partner cannot access this client"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Client not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/deposits:
+    post:
+      operationId: "deposits.create"
+      x-speakeasy-name-override: "create"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n// Optional: pass idempotencyKey in request options (UUID v4)\n$deposit = $client->deposits->create([\n    'accountId' => 'acc_7k2m9x',\n    'amount' => 800,\n    'rentalContract' => 'CTR-2026-0421',\n    'contractStartAt' => '2026-06-01T10:00:00.000Z',\n    'contractEndAt' => '2026-06-15T18:00:00.000Z',\n    'clientId' => 'cli_9f3k2a',\n    'inlineRedirect' => true,\n    'returnUrl' => 'https://partner.example.com/deposits/return',\n    // ...\n]);"
+      tags:
+        - "Deposits"
+      summary: "Create a deposit for a linked rental operator"
+      description: "Creates a deposit on behalf of a linked rental operator (`account_id`). Optionally set `client_id` to attach an existing client from the same rental operator account.\n\n**Inline redirect:** set `inline_redirect: true` and `return_url` to receive `deposit_url` and send the tenant straight to Gando. Same redirect query parameters as the rental operator API: `caution_id`, `caution_status`.\n\n**Idempotency-Key:** optional UUID v4 header; replays return the same **201** and `data.id` within 24h when the body is unchanged.\n\nSee the **Accounts** tag description for authentication details and curl/fetch examples."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - name: "Idempotency-Key"
+          in: "header"
+          required: false
+          description: "Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`."
+          schema:
+            type: "string"
+            format: "uuid"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                account_id:
+                  type: "string"
+                  minLength: 1
+                  description: "Rental operator account id. Must be actively linked to your partner."
+                amount:
+                  type: "number"
+                  exclusiveMinimum: 0
+                  minimum: 70
+                  maximum: 2500
+                  description: "Deposit amount in euros (70–2500, same rules as the rental operator API)"
+                rental_contract:
+                  type: "string"
+                  minLength: 1
+                  description: "Your rental contract or booking reference for reconciliation"
+                contract_start_at:
+                  type: "string"
+                  minLength: 1
+                  description: "Contract start date (ISO 8601 or parseable date string)"
+                contract_end_at:
+                  type: "string"
+                  minLength: 1
+                  description: "Contract end date. Must be on or after `contract_start_at`"
+                client_id:
+                  type: "string"
+                  minLength: 1
+                  description: "Optional client id from `POST /api/partner/clients` on the same rental operator account"
+                inline_redirect:
+                  type: "boolean"
+                  description: "When true, response includes `deposit_url` for immediate tenant redirect"
+                return_url:
+                  type: "string"
+                  format: "uri"
+                  description: "HTTPS return URL (localhost allowed). Required with inline checkout; Gando appends `caution_id` and `caution_status` query params"
+              required:
+                - "account_id"
+                - "amount"
+                - "rental_contract"
+                - "contract_start_at"
+                - "contract_end_at"
+              title: "PartnerCreateDepositBody"
+              example:
+                account_id: "acc_7k2m9x"
+                amount: 800
+                rental_contract: "CTR-2026-0421"
+                contract_start_at: "2026-06-01T10:00:00.000Z"
+                contract_end_at: "2026-06-15T18:00:00.000Z"
+                client_id: "cli_9f3k2a"
+                inline_redirect: true
+                return_url: "https://partner.example.com/deposits/return"
+      responses:
+        "201":
+          description: "Deposit created"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: "Deposit unique identifier"
+                      reference:
+                        type: "string"
+                        description: "Human-readable deposit reference (e.g. GAN-XXXX)"
+                      status:
+                        type: "string"
+                        enum:
+                          - "pending"
+                          - "incomplete"
+                          - "active"
+                          - "processing"
+                          - "captured"
+                          - "close"
+                          - "cancelled"
+                          - "payment_issue"
+                          - "capture_issue"
+                        description: "Status of the caution: pending (waiting for next step), incomplete (client journey not finished), active (payment authorized), processing (being processed), captured (payment captured), close (caution closed by natural expiration / end of contract), cancelled (caution cancelled manually before activation or while active), payment_issue (payment issue at fee payment), capture_issue (capture/recovery issue)"
+                      deposit_url:
+                        type:
+                          - "string"
+                          - "null"
+                        format: "uri"
+                        description: "Tenant checkout URL when `inline_redirect` was true on create"
+                      amount:
+                        type: "number"
+                        description: "Deposit amount in euros"
+                      created_at:
+                        type: "string"
+                        format: "date-time"
+                        description: "Creation timestamp (ISO 8601)"
+                    required:
+                      - "id"
+                      - "reference"
+                      - "status"
+                      - "amount"
+                      - "created_at"
+                    title: "PartnerCreateDepositResponse"
+                    example:
+                      id: "dep_abc123"
+                      reference: "GAN-2026-0421"
+                      status: "pending"
+                      deposit_url: "https://gando.app/deposit-confirmation-form?id=dep_abc123"
+                      amount: 800
+                      created_at: "2026-03-15T12:00:00.000Z"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Validation or creation error (JSON body, dates, amount limits, etc.)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Partner is not linked to `account_id`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Resource not found."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Idempotency key already used with a different request body (`error.code`: `idempotency_key_conflict`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "503":
+          description: "Redis unavailable while Idempotency-Key was sent"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    get:
+      operationId: "deposits.list"
+      x-speakeasy-name-override: "list"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$deposits = $client->deposits->list([\n    'accountId' => 'acc_7k2m9x',\n    'status' => ['pending', 'active'],\n    'page' => 1,\n    'limit' => 20,\n    'includeCounts' => true,\n]);"
+      tags:
+        - "Deposits"
+      summary: "List deposits"
+      description: "Lists deposits across **all active** rental operator accounts linked to your partner.\n\nPass **`account_id`** to return only deposits for that single linked rental operator account.\n\nRepeat query parameter **`status`** to filter by several statuses (e.g. `?status=pending&status=active`).\n\nWhen `include_counts=true` **and** `account_id` is set, the response includes per-status counts for that account."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "When set, only deposits for this linked rental operator account (`account_id`)"
+          required: false
+          description: "When set, only deposits for this linked rental operator account (`account_id`)"
+          name: "account_id"
+          in: "query"
+        - schema:
+            type: "integer"
+            minimum: 1
+            default: 1
+            description: "Page number (1-based)"
+          required: false
+          description: "Page number (1-based)"
+          name: "page"
+          in: "query"
+        - schema:
+            type: "integer"
+            minimum: 1
+            default: 20
+            description: "Items per page (max 100)"
+          required: false
+          description: "Items per page (max 100)"
+          name: "limit"
+          in: "query"
+        - schema:
+            type: "string"
+            enum:
+              - "amount"
+              - "status"
+              - "rentalContract"
+              - "startAt"
+              - "expiresAt"
+              - "reference"
+              - "createdAt"
+            description: "Field to sort deposit results by"
+          required: false
+          description: "Field to sort deposit results by"
+          name: "sortBy"
+          in: "query"
+        - schema:
+            type: "string"
+            enum:
+              - "asc"
+              - "desc"
+            description: "Sort direction: ascending or descending"
+          required: false
+          description: "Sort direction: ascending or descending"
+          name: "sortOrder"
+          in: "query"
+        - schema:
+            type: "array"
+            items:
+              type: "string"
+              enum:
+                - "pending"
+                - "incomplete"
+                - "active"
+                - "processing"
+                - "captured"
+                - "close"
+                - "cancelled"
+                - "payment_issue"
+                - "capture_issue"
+              description: "Status of the caution: pending (waiting for next step), incomplete (client journey not finished), active (payment authorized), processing (being processed), captured (payment captured), close (caution closed by natural expiration / end of contract), cancelled (caution cancelled manually before activation or while active), payment_issue (payment issue at fee payment), capture_issue (capture/recovery issue)"
+            description: "Repeat `status` to filter by multiple deposit statuses"
+          required: false
+          description: "Repeat `status` to filter by multiple deposit statuses"
+          name: "status"
+          in: "query"
+        - schema:
+            type: "string"
+            description: "Filter deposits assigned to this client id"
+          required: false
+          description: "Filter deposits assigned to this client id"
+          name: "client_id"
+          in: "query"
+        - schema:
+            type:
+              - "number"
+              - "null"
+            description: "Minimum deposit amount in euros (inclusive)"
+          required: false
+          description: "Minimum deposit amount in euros (inclusive)"
+          name: "amount_min"
+          in: "query"
+        - schema:
+            type:
+              - "number"
+              - "null"
+            description: "Maximum deposit amount in euros (inclusive)"
+          required: false
+          description: "Maximum deposit amount in euros (inclusive)"
+          name: "amount_max"
+          in: "query"
+        - schema:
+            type: "string"
+            description: "Filter: contract/start date on or after (ISO 8601)"
+          required: false
+          description: "Filter: contract/start date on or after (ISO 8601)"
+          name: "start_at_from"
+          in: "query"
+        - schema:
+            type: "string"
+            description: "Filter: contract/start date on or before (ISO 8601)"
+          required: false
+          description: "Filter: contract/start date on or before (ISO 8601)"
+          name: "start_at_to"
+          in: "query"
+        - schema:
+            type: "string"
+            description: "Filter: expiry date on or after (ISO 8601)"
+          required: false
+          description: "Filter: expiry date on or after (ISO 8601)"
+          name: "expires_at_from"
+          in: "query"
+        - schema:
+            type: "string"
+            description: "Filter: expiry date on or before (ISO 8601)"
+          required: false
+          description: "Filter: expiry date on or before (ISO 8601)"
+          name: "expires_at_to"
+          in: "query"
+        - schema:
+            type: "string"
+            enum:
+              - "0"
+              - "1"
+              - "true"
+              - "false"
+            description: "When `true` or `1`, include per-status counts (requires `account_id`)"
+          required: false
+          description: "When `true` or `1`, include per-status counts (requires `account_id`)"
+          name: "include_counts"
+          in: "query"
+      responses:
+        "200":
+          description: "Paginated list (`items` + `total`; optional `counts`)"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      items:
+                        type: "array"
+                        items:
+                          type: "object"
+                          properties:
+                            id:
+                              type: "string"
+                              description: "Unique identifier of the caution"
+                            reference:
+                              type: "string"
+                              description: "Unique reference code for the caution"
+                            amount:
+                              type: "number"
+                              description: "Amount of the caution in euros"
+                            currency:
+                              type: "string"
+                              enum:
+                                - "EUR"
+                              description: "Currency code (always EUR)"
+                            status:
+                              type: "string"
+                              enum:
+                                - "pending"
+                                - "incomplete"
+                                - "active"
+                                - "processing"
+                                - "captured"
+                                - "close"
+                                - "cancelled"
+                                - "payment_issue"
+                                - "capture_issue"
+                              description: "Status of the caution: pending (waiting for next step), incomplete (client journey not finished), active (payment authorized), processing (being processed), captured (payment captured), close (caution closed by natural expiration / end of contract), cancelled (caution cancelled manually before activation or while active), payment_issue (payment issue at fee payment), capture_issue (capture/recovery issue)"
+                            rentalContract:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "Rental contract reference"
+                            contractStartAt:
+                              type:
+                                - "string"
+                                - "null"
+                              format: "date-time"
+                              description: "Contract start date (ISO 8601)"
+                            contractEndAt:
+                              type:
+                                - "string"
+                                - "null"
+                              format: "date-time"
+                              description: "Contract end date (ISO 8601)"
+                            clientId:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "ID of the client associated with the caution (optional, can be null)"
+                            isArchived:
+                              type: "boolean"
+                              description: "Whether the caution is archived (soft-deleted)"
+                            accountId:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "ID of the account that owns the caution"
+                            stripePaymentIntentId:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "Payment processor reference for the deposit authorisation (when present)"
+                            stripePaymentMethodId:
+                              type:
+                                - "string"
+                                - "null"
+                              description: "Payment processor reference for the saved card on the caution (when present)"
+                            startAt:
+                              type:
+                                - "string"
+                                - "null"
+                              format: "date-time"
+                              description: "Start date and time of the caution (ISO 8601 format)"
+                            expiresAt:
+                              type:
+                                - "string"
+                                - "null"
+                              format: "date-time"
+                              description: "Expiration date and time of the caution (ISO 8601 format)"
+                            createdAt:
+                              type: "string"
+                              format: "date-time"
+                              description: "Creation date and time (ISO 8601 format)"
+                            updatedAt:
+                              type: "string"
+                              format: "date-time"
+                              description: "Last update date and time (ISO 8601 format)"
+                          required:
+                            - "id"
+                            - "reference"
+                            - "amount"
+                            - "currency"
+                            - "status"
+                            - "rentalContract"
+                            - "contractStartAt"
+                            - "contractEndAt"
+                            - "clientId"
+                            - "createdAt"
+                            - "updatedAt"
+                        description: "Deposits for the current page"
+                      total:
+                        type: "integer"
+                        description: "Total deposits matching filters"
+                      counts:
+                        type: "object"
+                        properties:
+                          total:
+                            type: "integer"
+                            description: "Total deposits for the filtered account"
+                          byStatus:
+                            type: "object"
+                            additionalProperties:
+                              type: "integer"
+                            description: "Deposit count keyed by status"
+                        required:
+                          - "total"
+                          - "byStatus"
+                        title: "PartnerDepositListCounts"
+                        example:
+                          total: 42
+                          byStatus:
+                            pending: 5
+                            active: 30
+                            close: 7
+                        description: "Present only when `include_counts=true` and `account_id` is set"
+                    required:
+                      - "items"
+                      - "total"
+                    title: "PartnerDepositListResponse"
+                    example:
+                      items:
+                        - id: "dep_abc123"
+                          reference: "GAN-2026-0421"
+                          amount: 800
+                          currency: "EUR"
+                          status: "active"
+                          rentalContract: "CTR-2026-0421"
+                          contractStartAt: "2026-06-01T10:00:00.000Z"
+                          contractEndAt: "2026-06-15T18:00:00.000Z"
+                          clientId: "cli_9f3k2a"
+                          createdAt: "2026-03-15T12:00:00.000Z"
+                          updatedAt: "2026-03-16T08:00:00.000Z"
+                      total: 1
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Invalid query parameters"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "`account_id` is not linked to this partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Resource not found."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/deposits/{id}:
+    get:
+      operationId: "deposits.retrieve"
+      x-speakeasy-name-override: "retrieve"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$deposit = $client->deposits->retrieve('dep_abc123');"
+      tags:
+        - "Deposits"
+      summary: "Get deposit by id"
+      description: "Returns the same deposit shape as the rental operator API (`CautionItem` fields). Deposit must belong to a linked rental operator."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Deposit (caution) unique identifier"
+          required: true
+          description: "Deposit (caution) unique identifier"
+          name: "id"
+          in: "path"
+      responses:
+        "200":
+          description: "Deposit details"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: "Unique identifier of the caution"
+                      reference:
+                        type: "string"
+                        description: "Unique reference code for the caution"
+                      amount:
+                        type: "number"
+                        description: "Amount of the caution in euros"
+                      currency:
+                        type: "string"
+                        enum:
+                          - "EUR"
+                        description: "Currency code (always EUR)"
+                      status:
+                        type: "string"
+                        enum:
+                          - "pending"
+                          - "incomplete"
+                          - "active"
+                          - "processing"
+                          - "captured"
+                          - "close"
+                          - "cancelled"
+                          - "payment_issue"
+                          - "capture_issue"
+                        description: "Status of the caution: pending (waiting for next step), incomplete (client journey not finished), active (payment authorized), processing (being processed), captured (payment captured), close (caution closed by natural expiration / end of contract), cancelled (caution cancelled manually before activation or while active), payment_issue (payment issue at fee payment), capture_issue (capture/recovery issue)"
+                      rentalContract:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "Rental contract reference"
+                      contractStartAt:
+                        type:
+                          - "string"
+                          - "null"
+                        format: "date-time"
+                        description: "Contract start date (ISO 8601)"
+                      contractEndAt:
+                        type:
+                          - "string"
+                          - "null"
+                        format: "date-time"
+                        description: "Contract end date (ISO 8601)"
+                      clientId:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "ID of the client associated with the caution (optional, can be null)"
+                      isArchived:
+                        type: "boolean"
+                        description: "Whether the caution is archived (soft-deleted)"
+                      accountId:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "ID of the account that owns the caution"
+                      stripePaymentIntentId:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "Payment processor reference for the deposit authorisation (when present)"
+                      stripePaymentMethodId:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "Payment processor reference for the saved card on the caution (when present)"
+                      startAt:
+                        type:
+                          - "string"
+                          - "null"
+                        format: "date-time"
+                        description: "Start date and time of the caution (ISO 8601 format)"
+                      expiresAt:
+                        type:
+                          - "string"
+                          - "null"
+                        format: "date-time"
+                        description: "Expiration date and time of the caution (ISO 8601 format)"
+                      createdAt:
+                        type: "string"
+                        format: "date-time"
+                        description: "Creation date and time (ISO 8601 format)"
+                      updatedAt:
+                        type: "string"
+                        format: "date-time"
+                        description: "Last update date and time (ISO 8601 format)"
+                    required:
+                      - "id"
+                      - "reference"
+                      - "amount"
+                      - "currency"
+                      - "status"
+                      - "rentalContract"
+                      - "contractStartAt"
+                      - "contractEndAt"
+                      - "clientId"
+                      - "createdAt"
+                      - "updatedAt"
+                    title: "PartnerCautionItem"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Bad request — invalid parameters or business rule."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Deposit not accessible for this partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Unknown deposit id"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    patch:
+      operationId: "deposits.update"
+      x-speakeasy-name-override: "update"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n// Reassign client:\n$deposit = $client->deposits->update('dep_abc123', [\n    'clientId' => 'cli_9f3k2a',\n]);\n// Or void in-flight payment (status cancelled):\n// $deposit = $client->deposits->update('dep_abc123', ['action' => 'cancel']);"
+      tags:
+        - "Deposits"
+      summary: "Update deposit (change client or cancel pending payment)"
+      description: "Exactly one of:\n- `client_id` — reassign client (must belong to the deposit's rental operator account)\n- `action: \"cancel\"` — void the in-flight deposit payment and set status to `cancelled`"
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Deposit (caution) unique identifier"
+          required: true
+          description: "Deposit (caution) unique identifier"
+          name: "id"
+          in: "path"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                client_id:
+                  type: "string"
+                  minLength: 1
+                  description: "Reassign deposit to another client on the same rental operator account"
+                action:
+                  type: "string"
+                  enum:
+                    - "cancel"
+                  description: "Void the in-flight deposit payment and set status to `cancelled` (not the same as POST …/cancel which closes an active deposit)"
+              title: "PartnerPatchDepositBody"
+              example:
+                client_id: "cli_9f3k2a"
+      responses:
+        "200":
+          description: "Updated"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      success:
+                        type: "boolean"
+                        enum:
+                          - true
+                        description: "Operation completed successfully"
+                    required:
+                      - "success"
+                    title: "PartnerDepositMutationOk"
+                    example:
+                      success: true
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Invalid body or deposit state (e.g. no pending payment to cancel)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Deposit not accessible for this partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Unknown deposit or client"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: "Payment processor or cancel failure"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    delete:
+      operationId: "deposits.delete"
+      x-speakeasy-name-override: "delete"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$result = $client->deposits->delete('dep_abc123');"
+      tags:
+        - "Deposits"
+      summary: "Delete or archive a deposit"
+      description: "Same semantics as rental-operator delete: remove when allowed, otherwise archive. Response uses top-level **`message`** (`Deleted` or `Archived`), not `data`."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Deposit (caution) unique identifier"
+          required: true
+          description: "Deposit (caution) unique identifier"
+          name: "id"
+          in: "path"
+      responses:
+        "200":
+          description: "Deleted or archived"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always true on success"
+                  message:
+                    type: "string"
+                    enum:
+                      - "Deleted"
+                      - "Archived"
+                    description: "`Deleted` when removed; `Archived` when soft-deleted instead"
+                required:
+                  - "success"
+                  - "message"
+                title: "PartnerDeleteDepositResponse"
+                example:
+                  success: true
+                  message: "Deleted"
+        "400":
+          description: "Bad request — invalid parameters or business rule."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Forbidden for this deposit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Unknown deposit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/deposits/{id}/capture:
+    post:
+      operationId: "deposits.capture"
+      x-speakeasy-name-override: "capture"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n// Optional: pass idempotencyKey in request options (UUID v4)\n$result = $client->deposits->capture('dep_abc123', [\n    'amount' => 50000, // cents (min 1000)\n    'reason' => 'Vehicle damage',\n]);"
+      tags:
+        - "Deposits"
+      summary: "Create a capture (encaissement)"
+      description: "Charge the tenant card for the given amount in **cents** (min 1000). Requires a payment method on the deposit and capture-ready payout configuration on the linked rental operator's Gando account."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - name: "Idempotency-Key"
+          in: "header"
+          required: false
+          description: "Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`."
+          schema:
+            type: "string"
+            format: "uuid"
+        - schema:
+            type: "string"
+            description: "Deposit (caution) unique identifier"
+          required: true
+          description: "Deposit (caution) unique identifier"
+          name: "id"
+          in: "path"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                amount:
+                  type: "integer"
+                  exclusiveMinimum: 0
+                  description: "Amount to capture in EUR cents (minimum 1000 = €10.00)"
+                reason:
+                  type: "string"
+                  minLength: 1
+                  description: "Optional reason shown in capture records and reporting"
+              required:
+                - "amount"
+              title: "PartnerCaptureBody"
+              example:
+                amount: 50000
+                reason: "Vehicle damage — bumper scratch"
+      responses:
+        "200":
+          description: "Capture processed (check `status` for outcome)"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      capturedAmount:
+                        type: "integer"
+                        description: "Captured amount in EUR cents"
+                      status:
+                        type: "string"
+                        description: "Capture outcome status from the payment processor"
+                    required:
+                      - "capturedAmount"
+                      - "status"
+                    title: "PartnerCaptureResult"
+                    example:
+                      capturedAmount: 50000
+                      status: "succeeded"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Invalid amount, no payment method, payout configuration not ready, etc."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Deposit not accessible for this partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Unknown deposit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Idempotency key already used with a different request body (`error.code`: `idempotency_key_conflict`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "503":
+          description: "Redis unavailable while Idempotency-Key was sent"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    get:
+      operationId: "deposits.getCapture"
+      x-speakeasy-name-override: "getCapture"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$capture = $client->deposits->getCapture('dep_abc123');"
+      tags:
+        - "Deposits"
+      summary: "Get latest capture for a deposit"
+      description: "Prefers the latest **paid** capture; if none, returns the most recent capture of any status. **404** when no capture exists yet."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Deposit (caution) unique identifier"
+          required: true
+          description: "Deposit (caution) unique identifier"
+          name: "id"
+          in: "path"
+      responses:
+        "200":
+          description: "Capture summary"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      amountCents:
+                        type: "integer"
+                        description: "Capture amount in EUR cents"
+                      feeCents:
+                        type: "integer"
+                        description: "Gando collection fee in EUR cents"
+                      netCents:
+                        type: "integer"
+                        description: "Net amount credited to the rental operator in EUR cents"
+                      reason:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "Capture reason if provided"
+                      status:
+                        type: "string"
+                        description: "Capture status (e.g. paid, pending, failed)"
+                    required:
+                      - "amountCents"
+                      - "feeCents"
+                      - "netCents"
+                      - "reason"
+                      - "status"
+                    title: "PartnerCaptureInfo"
+                    example:
+                      amountCents: 50000
+                      feeCents: 1750
+                      netCents: 48250
+                      reason: "Vehicle damage"
+                      status: "paid"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Bad request — invalid parameters or business rule."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Deposit not accessible for this partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "No capture found for this deposit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/deposits/{id}/email:
+    post:
+      operationId: "deposits.sendEmails"
+      x-speakeasy-name-override: "sendEmails"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$result = $client->deposits->sendEmails('dep_abc123', [\n    'emails' => ['tenant@example.com', 'co-tenant@example.com'],\n]);"
+      tags:
+        - "Deposits"
+      summary: "Send deposit link to multiple emails"
+      description: "Sends the deposit completion link to each address. Per-recipient success is returned in `results`; failed sends do not fail the whole request."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Deposit (caution) unique identifier"
+          required: true
+          description: "Deposit (caution) unique identifier"
+          name: "id"
+          in: "path"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                emails:
+                  type: "array"
+                  items:
+                    type: "string"
+                    format: "email"
+                  minItems: 1
+                  description: "Recipient email addresses for the deposit completion link"
+              required:
+                - "emails"
+              title: "PartnerDepositEmailsBody"
+              example:
+                emails:
+                  - "tenant@example.com"
+                  - "tenant.spouse@example.com"
+      responses:
+        "200":
+          description: "Attempted sends"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      link:
+                        type: "string"
+                        format: "uri"
+                        description: "Deposit completion URL sent to recipients"
+                      results:
+                        type: "array"
+                        items:
+                          type: "object"
+                          properties:
+                            email:
+                              type: "string"
+                              format: "email"
+                              description: "Recipient address"
+                            success:
+                              type: "boolean"
+                              description: "Whether this recipient send succeeded"
+                          required:
+                            - "email"
+                            - "success"
+                        description: "Per-recipient send outcome"
+                    required:
+                      - "link"
+                      - "results"
+                    title: "PartnerDepositEmailsResponse"
+                    example:
+                      link: "https://gando.app/deposit-confirmation-form?id=dep_abc123"
+                      results:
+                        - email: "tenant@example.com"
+                          success: true
+                        - email: "bounce@mail.example.com"
+                          success: false
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Invalid body"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Deposit not accessible for this partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Unknown deposit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/deposits/{id}/send-deposit-mail:
+    post:
+      operationId: "deposits.sendDepositMail"
+      x-speakeasy-name-override: "sendDepositMail"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$result = $client->deposits->sendDepositMail('dep_abc123', [\n    'email' => 'tenant@example.com',\n]);"
+      tags:
+        - "Deposits"
+      summary: "Send deposit link to one email"
+      description: "Single-recipient variant of `/email`. Returns provider `messageId` when available."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Deposit (caution) unique identifier"
+          required: true
+          description: "Deposit (caution) unique identifier"
+          name: "id"
+          in: "path"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                email:
+                  type: "string"
+                  format: "email"
+                  description: "Single recipient for the deposit completion link"
+              required:
+                - "email"
+              title: "PartnerSendDepositMailBody"
+              example:
+                email: "tenant@example.com"
+      responses:
+        "200":
+          description: "Send result"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      link:
+                        type: "string"
+                        format: "uri"
+                        description: "Deposit completion URL"
+                      success:
+                        type: "boolean"
+                        description: "Whether the email was accepted by the provider"
+                      messageId:
+                        type: "string"
+                        description: "Transactional email provider message id, when available"
+                    required:
+                      - "link"
+                      - "success"
+                    title: "PartnerSendDepositMailResponse"
+                    example:
+                      link: "https://gando.app/deposit-confirmation-form?id=dep_abc123"
+                      success: true
+                      messageId: "msg_01h2x9k3"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Invalid body"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Deposit not accessible for this partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Unknown deposit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/deposits/{id}/cancel:
+    post:
+      operationId: "deposits.cancel"
+      x-speakeasy-name-override: "cancel"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n// Optional: pass idempotencyKey in request options (UUID v4)\n$result = $client->deposits->cancel('dep_abc123');"
+      tags:
+        - "Deposits"
+      summary: "Close deposit (status close + optional email)"
+      description: "Sets the deposit status to `close` (end-of-contract closure) and may send the closed-caution email. **Different from** `PATCH …` with `action: cancel` which voids the in-flight deposit payment and sets status to `cancelled`."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - name: "Idempotency-Key"
+          in: "header"
+          required: false
+          description: "Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`."
+          schema:
+            type: "string"
+            format: "uuid"
+        - schema:
+            type: "string"
+            description: "Deposit (caution) unique identifier"
+          required: true
+          description: "Deposit (caution) unique identifier"
+          name: "id"
+          in: "path"
+      responses:
+        "200":
+          description: "Closed"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      success:
+                        type: "boolean"
+                        enum:
+                          - true
+                        description: "Operation completed successfully"
+                    required:
+                      - "success"
+                    title: "PartnerDepositMutationOk"
+                    example:
+                      success: true
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Bad request — invalid parameters or business rule."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Deposit not accessible for this partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Unknown deposit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Idempotency key already used with a different request body (`error.code`: `idempotency_key_conflict`)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "503":
+          description: "Redis unavailable while Idempotency-Key was sent"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/deposits/{id}/payment-method:
+    get:
+      operationId: "deposits.getPaymentMethod"
+      x-speakeasy-name-override: "getPaymentMethod"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$card = $client->deposits->getPaymentMethod('dep_abc123');"
+      tags:
+        - "Deposits"
+      summary: "Masked card info for the deposit"
+      description: "Requires payment processing to be configured and a saved payment method on the deposit."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Deposit (caution) unique identifier"
+          required: true
+          description: "Deposit (caution) unique identifier"
+          name: "id"
+          in: "path"
+      responses:
+        "200":
+          description: "Masked PAN / brand"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      maskedPan:
+                        type: "string"
+                        description: "Masked card number (e.g. •••• 4242)"
+                      country:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "Card country ISO code"
+                      brand:
+                        type:
+                          - "string"
+                          - "null"
+                        description: "Card brand (visa, mastercard, etc.)"
+                    required:
+                      - "maskedPan"
+                    title: "PartnerPaymentMethodInfo"
+                    example:
+                      maskedPan: "•••• 4242"
+                      country: "FR"
+                      brand: "visa"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "No payment method on deposit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Deposit not accessible for this partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Unknown deposit or payment method"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: "Payment processing not configured"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/deposits/{id}/pdf:
+    get:
+      operationId: "deposits.getPdf"
+      x-speakeasy-name-override: "getPdf"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$pdfBytes = $client->deposits->getPdf('dep_abc123');\nfile_put_contents('deposit-summary.pdf', $pdfBytes);"
+      tags:
+        - "Deposits"
+      summary: "Download deposit summary PDF"
+      description: "Returns raw **application/pdf** bytes (not JSON)."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Deposit (caution) unique identifier"
+          required: true
+          description: "Deposit (caution) unique identifier"
+          name: "id"
+          in: "path"
+      responses:
+        "200":
+          description: "PDF document"
+          content:
+            application/pdf:
+              schema:
+                type: "string"
+                format: "binary"
+        "400":
+          description: "Bad request — invalid parameters or business rule."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Deposit not accessible for this partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Unknown deposit"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/webhooks:
+    get:
+      operationId: "webhooks.list"
+      x-speakeasy-name-override: "list"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$webhooks = $client->webhooks->list();"
+      tags:
+        - "Webhooks"
+      summary: "List partner webhook endpoints"
+      description: "Retrieve all configured webhook endpoints for the authenticated partner (`gando_pk_` key). Each item aggregates subscribed event types."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      responses:
+        "200":
+          description: "Successfully retrieved webhook endpoints"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        id:
+                          type: "string"
+                          description: "Partner webhook endpoint id; path parameter `{id}` in update/delete/test/deliveries routes"
+                        url:
+                          type: "string"
+                          format: "uri"
+                          description: "Destination URL for webhook deliveries"
+                        events:
+                          type: "array"
+                          items:
+                            type: "string"
+                            enum:
+                              - "rental_operator.linked"
+                              - "caution.status_changed"
+                              - "caution.activated"
+                              - "caution.captured"
+                              - "caution.expired"
+                              - "caution.cancelled"
+                            description: "Partner webhook event types. `rental_operator.linked` fires when a rental operator account is linked to your partner via connect. The five caution events mirror rental-operator webhooks: `caution.status_changed` is the wildcard delivered for every status transition; `caution.activated` (-> active), `caution.captured` (-> captured), `caution.expired` (-> close, natural end of contract), `caution.cancelled` (-> cancelled, manual cancellation) are the specific events. When an endpoint subscribes to both the wildcard and a specific event, the most specific subscribed event wins for that transition (single delivery per endpoint)."
+                          description: "Subscribed event types for this endpoint"
+                        isActive:
+                          type: "boolean"
+                          description: "Whether this endpoint receives deliveries"
+                        createdAt:
+                          type: "string"
+                          format: "date-time"
+                          description: "Creation timestamp (ISO 8601)"
+                        updatedAt:
+                          type: "string"
+                          format: "date-time"
+                          description: "Last update timestamp (ISO 8601)"
+                      required:
+                        - "id"
+                        - "url"
+                        - "events"
+                        - "isActive"
+                        - "createdAt"
+                        - "updatedAt"
+                      title: "PartnerWebhookSubscriptionItem"
+                      example:
+                        id: "pwh_01h2x9k3"
+                        url: "https://api.example.com/webhooks/gando"
+                        events:
+                          - "caution.activated"
+                          - "caution.status_changed"
+                        isActive: true
+                        createdAt: "2026-03-01T10:00:00.000Z"
+                        updatedAt: "2026-03-10T14:00:00.000Z"
+                    description: "Webhook endpoints configured for this partner"
+                    title: "PartnerWebhookSubscriptionList"
+                    example:
+                      - id: "pwh_01h2x9k3"
+                        url: "https://api.example.com/webhooks/gando"
+                        events:
+                          - "caution.activated"
+                          - "caution.status_changed"
+                        isActive: true
+                        createdAt: "2026-03-01T10:00:00.000Z"
+                        updatedAt: "2026-03-10T14:00:00.000Z"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Bad request — invalid parameters or business rule."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Forbidden — partner cannot access this resource."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Resource not found."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    post:
+      operationId: "webhooks.create"
+      x-speakeasy-name-override: "create"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$webhook = $client->webhooks->create([\n    'url' => 'https://api.example.com/webhooks/gando',\n    'events' => ['caution.activated', 'caution.status_changed'],\n    // ...\n]);"
+      tags:
+        - "Webhooks"
+      summary: "Create partner webhook endpoint"
+      description: "Create a webhook URL and signing secret for this partner, and subscribe it to the requested event types. Returns the plain signing secret **exactly once**. Default `events` include all available events (`rental_operator.linked`, `caution.status_changed`, `caution.activated`, `caution.captured`, `caution.expired`, `caution.cancelled`) when omitted."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      requestBody:
+        description: "Partner webhook endpoint creation payload"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                url:
+                  type: "string"
+                  format: "uri"
+                  description: "Destination URL (must start with http:// or https://)"
+                events:
+                  type: "array"
+                  items:
+                    type: "string"
+                    enum:
+                      - "rental_operator.linked"
+                      - "caution.status_changed"
+                      - "caution.activated"
+                      - "caution.captured"
+                      - "caution.expired"
+                      - "caution.cancelled"
+                    description: "Partner webhook event types. `rental_operator.linked` fires when a rental operator account is linked to your partner via connect. The five caution events mirror rental-operator webhooks: `caution.status_changed` is the wildcard delivered for every status transition; `caution.activated` (-> active), `caution.captured` (-> captured), `caution.expired` (-> close, natural end of contract), `caution.cancelled` (-> cancelled, manual cancellation) are the specific events. When an endpoint subscribes to both the wildcard and a specific event, the most specific subscribed event wins for that transition (single delivery per endpoint)."
+                  minItems: 1
+                  description: "Event types to subscribe. Defaults to all partner events when omitted."
+              required:
+                - "url"
+              title: "CreatePartnerWebhookSubscriptionBody"
+              example:
+                url: "https://api.example.com/webhooks/gando"
+                events:
+                  - "caution.activated"
+                  - "caution.status_changed"
+      responses:
+        "201":
+          description: "Webhook endpoint created"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: "Partner webhook endpoint id (use as `{id}` in follow-up routes)"
+                      url:
+                        type: "string"
+                        format: "uri"
+                        description: "Destination URL for webhook deliveries"
+                      events:
+                        type: "array"
+                        items:
+                          type: "string"
+                          enum:
+                            - "rental_operator.linked"
+                            - "caution.status_changed"
+                            - "caution.activated"
+                            - "caution.captured"
+                            - "caution.expired"
+                            - "caution.cancelled"
+                          description: "Partner webhook event types. `rental_operator.linked` fires when a rental operator account is linked to your partner via connect. The five caution events mirror rental-operator webhooks: `caution.status_changed` is the wildcard delivered for every status transition; `caution.activated` (-> active), `caution.captured` (-> captured), `caution.expired` (-> close, natural end of contract), `caution.cancelled` (-> cancelled, manual cancellation) are the specific events. When an endpoint subscribes to both the wildcard and a specific event, the most specific subscribed event wins for that transition (single delivery per endpoint)."
+                        description: "Subscribed event list"
+                      createdAt:
+                        type: "string"
+                        format: "date-time"
+                        description: "Creation date and time (ISO 8601)"
+                      secret:
+                        type: "string"
+                        description: "Plain signing secret. Returned only once at creation (store it securely)."
+                    required:
+                      - "id"
+                      - "url"
+                      - "events"
+                      - "createdAt"
+                      - "secret"
+                    title: "PartnerWebhookSubscriptionCreated"
+                    example:
+                      id: "pwh_01h2x9k3"
+                      url: "https://api.example.com/webhooks/gando"
+                      events:
+                        - "caution.activated"
+                        - "rental_operator.linked"
+                      createdAt: "2026-03-01T10:00:00.000Z"
+                      secret: "whsec_partner_abc123xyz"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Bad request - Invalid URL or events"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Forbidden — partner cannot access this resource."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Resource not found."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/webhooks/{id}:
+    patch:
+      operationId: "webhooks.update"
+      x-speakeasy-name-override: "update"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$webhook = $client->webhooks->update('pwh_01h2x9k3', [\n    'url' => 'https://api.example.com/webhooks/gando',\n    'events' => ['caution.activated'],\n    'isActive' => true,\n]);"
+      tags:
+        - "Webhooks"
+      summary: "Update partner webhook endpoint"
+      description: "Update webhook URL, subscribed event types, or activation status. `{id}` is the partner webhook endpoint id."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Partner webhook endpoint id"
+          required: true
+          description: "Partner webhook endpoint id"
+          name: "id"
+          in: "path"
+      requestBody:
+        description: "Partner webhook endpoint update payload"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                url:
+                  type: "string"
+                  format: "uri"
+                  description: "Destination URL (must start with http:// or https://)"
+                events:
+                  type: "array"
+                  items:
+                    type: "string"
+                    enum:
+                      - "rental_operator.linked"
+                      - "caution.status_changed"
+                      - "caution.activated"
+                      - "caution.captured"
+                      - "caution.expired"
+                      - "caution.cancelled"
+                    description: "Partner webhook event types. `rental_operator.linked` fires when a rental operator account is linked to your partner via connect. The five caution events mirror rental-operator webhooks: `caution.status_changed` is the wildcard delivered for every status transition; `caution.activated` (-> active), `caution.captured` (-> captured), `caution.expired` (-> close, natural end of contract), `caution.cancelled` (-> cancelled, manual cancellation) are the specific events. When an endpoint subscribes to both the wildcard and a specific event, the most specific subscribed event wins for that transition (single delivery per endpoint)."
+                  minItems: 1
+                  description: "Replace the subscribed event list"
+                isActive:
+                  type: "boolean"
+                  description: "Enable or disable deliveries for this endpoint"
+              title: "UpdatePartnerWebhookSubscriptionBody"
+              example:
+                isActive: true
+                events:
+                  - "rental_operator.linked"
+                  - "caution.activated"
+      responses:
+        "200":
+          description: "Successfully updated webhook endpoint"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      id:
+                        type: "string"
+                        description: "Partner webhook endpoint id; path parameter `{id}` in update/delete/test/deliveries routes"
+                      url:
+                        type: "string"
+                        format: "uri"
+                        description: "Destination URL for webhook deliveries"
+                      events:
+                        type: "array"
+                        items:
+                          type: "string"
+                          enum:
+                            - "rental_operator.linked"
+                            - "caution.status_changed"
+                            - "caution.activated"
+                            - "caution.captured"
+                            - "caution.expired"
+                            - "caution.cancelled"
+                          description: "Partner webhook event types. `rental_operator.linked` fires when a rental operator account is linked to your partner via connect. The five caution events mirror rental-operator webhooks: `caution.status_changed` is the wildcard delivered for every status transition; `caution.activated` (-> active), `caution.captured` (-> captured), `caution.expired` (-> close, natural end of contract), `caution.cancelled` (-> cancelled, manual cancellation) are the specific events. When an endpoint subscribes to both the wildcard and a specific event, the most specific subscribed event wins for that transition (single delivery per endpoint)."
+                        description: "Subscribed event types for this endpoint"
+                      isActive:
+                        type: "boolean"
+                        description: "Whether this endpoint receives deliveries"
+                      createdAt:
+                        type: "string"
+                        format: "date-time"
+                        description: "Creation timestamp (ISO 8601)"
+                      updatedAt:
+                        type: "string"
+                        format: "date-time"
+                        description: "Last update timestamp (ISO 8601)"
+                    required:
+                      - "id"
+                      - "url"
+                      - "events"
+                      - "isActive"
+                      - "createdAt"
+                      - "updatedAt"
+                    title: "PartnerWebhookSubscriptionItem"
+                    example:
+                      id: "pwh_01h2x9k3"
+                      url: "https://api.example.com/webhooks/gando"
+                      events:
+                        - "caution.activated"
+                        - "caution.status_changed"
+                      isActive: true
+                      createdAt: "2026-03-01T10:00:00.000Z"
+                      updatedAt: "2026-03-10T14:00:00.000Z"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Bad request - Invalid URL or events"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Forbidden - Webhook does not belong to your partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Not found - Webhook endpoint was not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    delete:
+      operationId: "webhooks.delete"
+      x-speakeasy-name-override: "delete"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$result = $client->webhooks->delete('pwh_01h2x9k3');"
+      tags:
+        - "Webhooks"
+      summary: "Delete partner webhook endpoint"
+      description: "Delete a webhook endpoint and its event subscriptions for the authenticated partner."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Partner webhook endpoint id"
+          required: true
+          description: "Partner webhook endpoint id"
+          name: "id"
+          in: "path"
+      responses:
+        "200":
+          description: "Webhook endpoint deleted"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      deleted:
+                        type: "boolean"
+                        enum:
+                          - true
+                        description: "Webhook endpoint was removed"
+                    required:
+                      - "deleted"
+                    title: "PartnerDeleteWebhookResponse"
+                    example:
+                      deleted: true
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Bad request — invalid parameters or business rule."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Forbidden - Webhook does not belong to your partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Not found - Webhook endpoint was not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/webhooks/{id}/rotate-secret:
+    post:
+      operationId: "webhooks.rotateSecret"
+      x-speakeasy-name-override: "rotateSecret"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$result = $client->webhooks->rotateSecret('pwh_01h2x9k3');"
+      tags:
+        - "Webhooks"
+      summary: "Rotate partner webhook secret"
+      description: "Generate and return a new signing secret for a partner webhook endpoint."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Partner webhook endpoint id"
+          required: true
+          description: "Partner webhook endpoint id"
+          name: "id"
+          in: "path"
+      responses:
+        "200":
+          description: "New secret returned"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      secret:
+                        type: "string"
+                        description: "New plain signing secret. Store securely; shown once per rotation."
+                    required:
+                      - "secret"
+                    title: "PartnerWebhookRotateSecretResponse"
+                    example:
+                      secret: "whsec_partner_abc123xyz"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Bad request — invalid parameters or business rule."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Forbidden - Webhook does not belong to your partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Not found - Webhook endpoint was not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/webhooks/{id}/secret:
+    get:
+      operationId: "webhooks.getSecret"
+      x-speakeasy-name-override: "getSecret"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$secret = $client->webhooks->getSecret('pwh_01h2x9k3');"
+      tags:
+        - "Webhooks"
+      summary: "Get partner webhook secret"
+      description: "Decrypt and return the current signing secret for a partner webhook endpoint."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Partner webhook endpoint id"
+          required: true
+          description: "Partner webhook endpoint id"
+          name: "id"
+          in: "path"
+      responses:
+        "200":
+          description: "Current secret returned"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      secret:
+                        type: "string"
+                        description: "Current plain signing secret for this webhook endpoint"
+                    required:
+                      - "secret"
+                    title: "PartnerWebhookGetSecretResponse"
+                    example:
+                      secret: "whsec_partner_abc123xyz"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Bad request — invalid parameters or business rule."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Forbidden - Webhook does not belong to your partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Not found - Webhook endpoint was not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Server error (e.g. secret decryption failed)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/webhooks/{id}/test:
+    post:
+      operationId: "webhooks.test"
+      x-speakeasy-name-override: "test"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$result = $client->webhooks->test('pwh_01h2x9k3');"
+      tags:
+        - "Webhooks"
+      summary: "Send test partner webhook delivery"
+      description: "Sends a sample **`caution.activated`** payload to the endpoint URL. The endpoint must be subscribed to either `caution.activated` or the wildcard `caution.status_changed`.\n\nOutbound payload schema reference: `#/components/schemas/WebhookCautionStatusChangedEvent` (see Models). The `data.rental_contract` field carries the partner-side contract id set by the rental operator.\n\nSample payload sent by this test and the production dispatcher:\n\n```json\n{\n  \"event\": \"caution.activated\",\n  \"created_at\": \"2026-03-02T10:00:00.000Z\",\n  \"data\": {\n    \"id\": \"test_deposit_id\",\n    \"reference\": \"GAN-TEST\",\n    \"rental_contract\": \"CTR-TEST-2026\",\n    \"status\": \"active\",\n    \"previous_status\": \"pending\",\n    \"amount_cents\": 150000,\n    \"contract_start_at\": null,\n    \"contract_end_at\": null,\n    \"client\": null,\n    \"partner_context\": {\n      \"partner_id\": \"ptr_xxx\",\n      \"partner_name\": \"Fleetee\",\n      \"external_id\": \"fleet_operator_42\"\n    }\n  }\n}\n```"
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Partner webhook endpoint id"
+          required: true
+          description: "Partner webhook endpoint id"
+          name: "id"
+          in: "path"
+      responses:
+        "200":
+          description: "Test delivery succeeded"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "object"
+                    properties:
+                      statusCode:
+                        type: "integer"
+                        description: "HTTP status code returned by your webhook URL"
+                    required:
+                      - "statusCode"
+                    title: "PartnerWebhookTestOk"
+                    example:
+                      statusCode: 200
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Bad request — invalid parameters or business rule."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Forbidden - Webhook does not belong to your partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Not found - Webhook endpoint was not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Server error (e.g. endpoint not subscribed to caution.activated or caution.status_changed)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: "Delivery failed (connection error or non-2xx from your URL)"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /api/partner/webhooks/{id}/deliveries:
+    get:
+      operationId: "webhooks.getDeliveries"
+      x-speakeasy-name-override: "getDeliveries"
+      x-codeSamples:
+        - lang: "php"
+          label: "SDK"
+          source: "$client = new Gando\\Partner\\Client(['apiKey' => getenv('GANDO_API_KEY')]);\n$deliveries = $client->webhooks->getDeliveries('pwh_01h2x9k3', [\n    'limit' => 20,\n    'offset' => 0,\n]);"
+      tags:
+        - "Webhooks"
+      summary: "List partner webhook deliveries"
+      description: "Paginated delivery history for a partner webhook endpoint."
+      security:
+        - PartnerApiKeyAuth: []
+        - PartnerBearerAuth: []
+      parameters:
+        - schema:
+            type: "string"
+            description: "Partner webhook endpoint id"
+          required: true
+          description: "Partner webhook endpoint id"
+          name: "id"
+          in: "path"
+        - schema:
+            type: "integer"
+            minimum: 1
+            maximum: 100
+            description: "Page size (1–100, default 20)"
+          required: false
+          description: "Page size (1–100, default 20)"
+          name: "limit"
+          in: "query"
+        - schema:
+            type:
+              - "integer"
+              - "null"
+            minimum: 0
+            description: "Number of deliveries to skip"
+          required: false
+          description: "Number of deliveries to skip"
+          name: "offset"
+          in: "query"
+      responses:
+        "200":
+          description: "Delivery history"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  success:
+                    type: "boolean"
+                    enum:
+                      - true
+                    description: "Always `true` for successful responses"
+                  data:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        id:
+                          type: "string"
+                          description: "Webhook delivery unique identifier"
+                        eventType:
+                          type: "string"
+                          enum:
+                            - "rental_operator.linked"
+                            - "caution.status_changed"
+                            - "caution.activated"
+                            - "caution.captured"
+                            - "caution.expired"
+                            - "caution.cancelled"
+                          description: "Event type delivered"
+                        statusCode:
+                          type:
+                            - "integer"
+                            - "null"
+                          description: "HTTP status code returned by your endpoint"
+                        error:
+                          type:
+                            - "string"
+                            - "null"
+                          description: "Error message when delivery failed"
+                        attemptCount:
+                          type: "integer"
+                          minimum: 1
+                          description: "Delivery attempt number (1-based)"
+                        deliveredAt:
+                          type:
+                            - "string"
+                            - "null"
+                          format: "date-time"
+                          description: "ISO 8601 timestamp when delivery succeeded"
+                        nextRetryAt:
+                          type:
+                            - "string"
+                            - "null"
+                          format: "date-time"
+                          description: "ISO 8601 timestamp of the next retry, if scheduled"
+                        createdAt:
+                          type: "string"
+                          format: "date-time"
+                          description: "Delivery record creation timestamp (ISO 8601)"
+                      required:
+                        - "id"
+                        - "eventType"
+                        - "statusCode"
+                        - "error"
+                        - "attemptCount"
+                        - "deliveredAt"
+                        - "nextRetryAt"
+                        - "createdAt"
+                      title: "PartnerWebhookDeliveryItem"
+                      example:
+                        id: "pwd_01h2x9k3"
+                        eventType: "caution.activated"
+                        statusCode: 200
+                        error: null
+                        attemptCount: 1
+                        deliveredAt: "2026-03-15T12:05:00.000Z"
+                        nextRetryAt: null
+                        createdAt: "2026-03-15T12:04:58.000Z"
+                    description: "Recent webhook delivery attempts for this endpoint"
+                    title: "PartnerWebhookDeliveryList"
+                    example:
+                      - id: "pwd_01h2x9k3"
+                        eventType: "caution.activated"
+                        statusCode: 200
+                        error: null
+                        attemptCount: 1
+                        deliveredAt: "2026-03-15T12:05:00.000Z"
+                        nextRetryAt: null
+                        createdAt: "2026-03-15T12:04:58.000Z"
+                  message:
+                    type: "string"
+                    description: "Optional human-readable message"
+                required:
+                  - "success"
+                  - "data"
+        "400":
+          description: "Bad request — invalid parameters or business rule."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Invalid or missing partner API key."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Forbidden - Webhook does not belong to your partner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: "Not found - Webhook endpoint was not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Conflict — e.g. idempotency key reused with a different body."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "422":
+          description: "Unprocessable entity — semantic validation failure."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: "Rate limited — retry after `Retry-After`."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: "Internal server error."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+webhooks: {}
