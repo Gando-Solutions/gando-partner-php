@@ -11,11 +11,11 @@ class WebhookVerifier
     /**
      * Verifies a Gando webhook signature.
      *
-     * @param string $rawBody          Raw request body (do NOT use parsed JSON).
-     * @param string $signatureHeader  Value of X-Gando-Signature header (format: "sha256=<hex>").
-     * @param string $timestampHeader  Value of X-Gando-Timestamp header (Unix seconds).
-     * @param string $secret           Webhook signing secret (gando_whsec_...).
-     * @param int    $toleranceSeconds Max age of webhook in seconds (default 300).
+     * @param  string  $rawBody  Raw request body (do NOT use parsed JSON).
+     * @param  string  $signatureHeader  Value of X-Gando-Signature header (format: "sha256=<hex>").
+     * @param  string  $timestampHeader  Value of X-Gando-Timestamp header (Unix seconds).
+     * @param  string  $secret  Webhook signing secret (gando_whsec_...).
+     * @param  int  $toleranceSeconds  Max age of webhook in seconds (default 300).
      *
      * @throws WebhookSignatureException on invalid signature, expired timestamp, or malformed inputs.
      */

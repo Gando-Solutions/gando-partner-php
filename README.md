@@ -26,6 +26,7 @@ Gando Partner API: API for **rental management software** and **multi–rental-o
   * [Available Resources and Operations](#available-resources-and-operations)
   * [Error Handling](#error-handling)
   * [Server Selection](#server-selection)
+  * [Webhook signature verification](#webhook-signature-verification)
 * [Development](#development)
   * [Maturity](#maturity)
   * [Contributions](#contributions)
