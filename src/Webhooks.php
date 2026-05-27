@@ -80,7 +80,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
@@ -196,7 +196,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\WebhooksDeleteRequest(
@@ -312,7 +312,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\WebhooksGetDeliveriesRequest(
@@ -431,7 +431,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\WebhooksGetSecretRequest(
@@ -544,7 +544,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
@@ -655,7 +655,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\WebhooksRotateSecretRequest(
@@ -796,7 +796,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\WebhooksTestRequest(
@@ -911,7 +911,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\WebhooksUpdateRequest(

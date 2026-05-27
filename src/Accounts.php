@@ -80,7 +80,7 @@ class Accounts
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\AccountsListRequest(
@@ -197,7 +197,7 @@ class Accounts
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\AccountsRevokeRequest(

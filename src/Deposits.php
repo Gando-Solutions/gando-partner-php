@@ -81,7 +81,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\DepositsCancelRequest(
@@ -202,7 +202,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\DepositsCaptureRequest(
@@ -334,7 +334,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\DepositsCreateRequest(
@@ -458,7 +458,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\DepositsDeleteRequest(
@@ -572,7 +572,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\DepositsGetCaptureRequest(
@@ -686,7 +686,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\DepositsGetPaymentMethodRequest(
@@ -800,7 +800,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\DepositsGetPdfRequest(
@@ -917,7 +917,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
@@ -1031,7 +1031,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\DepositsRetrieveRequest(
@@ -1146,7 +1146,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\DepositsSendDepositMailRequest(
@@ -1267,7 +1267,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\DepositsSendEmailsRequest(
@@ -1390,7 +1390,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5XX',
+                '5xx',
             ];
         }
         $request = new Operations\DepositsUpdateRequest(
