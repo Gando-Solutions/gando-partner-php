@@ -21,6 +21,7 @@ Gando Partner API: API for **rental management software** and **multi–rental-o
 <!-- $toc-max-depth=2 -->
 * [gando/partner](#gandopartner)
   * [SDK Installation](#sdk-installation)
+  * [Two credentials, two classes](#two-credentials-two-classes)
   * [SDK Example Usage](#sdk-example-usage)
   * [Authentication](#authentication)
   * [Available Resources and Operations](#available-resources-and-operations)
