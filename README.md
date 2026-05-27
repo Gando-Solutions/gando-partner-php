@@ -44,6 +44,37 @@ composer require "gando/partner"
 ```
 <!-- End SDK Installation [installation] -->
 
+## Two credentials, two classes
+
+Gando Partner integrations use **two different secrets** depending on what you are doing.
+
+| Secret | Prefix | Class | Use |
+| --- | --- | --- | --- |
+| Partner API key | `gando_pk_` | `Gando\Partner\Api\Client` | Call `/api/partner/*` |
+| Connect secret | `gando_cs_` | `Gando\Partner\Connect\UrlBuilder` | Build signed `/register` URLs |
+| Webhook secret | `gando_whsec_` | `Gando\Partner\WebhookVerifier` | Verify inbound webhooks |
+
+### Example
+
+```php
+declare(strict_types=1);
+
+require 'vendor/autoload.php';
+
+use Gando\Partner\Api\Client;
+use Gando\Partner\Connect\UrlBuilder;
+
+$api = new Client(apiKey: getenv('GANDO_API_KEY') ?: 'gando_pk_...');
+$response = $api->accounts->list();
+
+$builder = new UrlBuilder(
+    connectSecret: getenv('GANDO_CONNECT_SECRET') ?: 'gando_cs_...',
+    partnerSlug: 'fleetee',
+    baseUrl: 'https://dashboard.gando.app',
+);
+$signupUrl = $builder->signupUrl(externalId: 'fleet_acct_42');
+```
+
 <!-- Start SDK Example Usage [usage] -->
 ## SDK Example Usage
 
