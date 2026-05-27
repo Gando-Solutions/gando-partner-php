@@ -6,18 +6,77 @@ Create, retrieve, update, cancel, and capture deposits on behalf of linked renta
 
 ### Available Operations
 
-* [create](#create) - Create a deposit for a linked rental operator
 * [list](#list) - List deposits
+* [create](#create) - Create a deposit for a linked rental operator
 * [retrieve](#retrieve) - Get deposit by id
-* [update](#update) - Update deposit (change client or cancel pending payment)
 * [delete](#delete) - Delete or archive a deposit
-* [capture](#capture) - Create a capture (encaissement)
+* [update](#update) - Update deposit (change client or cancel pending payment)
 * [getCapture](#getcapture) - Get latest capture for a deposit
+* [capture](#capture) - Create a capture (encaissement)
 * [sendEmails](#sendemails) - Send deposit link to multiple emails
 * [sendDepositMail](#senddepositmail) - Send deposit link to one email
 * [cancel](#cancel) - Close deposit (status close + optional email)
 * [getPaymentMethod](#getpaymentmethod) - Masked card info for the deposit
 * [getPdf](#getpdf) - Download deposit summary PDF
+
+## list
+
+Lists deposits across **all active** rental operator accounts linked to your partner.
+
+Pass **`account_id`** to return only deposits for that single linked rental operator account.
+
+Repeat query parameter **`status`** to filter by several statuses (e.g. `?status=pending&status=active`).
+
+When `include_counts=true` **and** `account_id` is set, the response includes per-status counts for that account.
+
+### Example Usage
+
+<!-- UsageSnippet language="php" operationID="deposits.list" method="get" path="/api/partner/deposits" -->
+```php
+declare(strict_types=1);
+
+require 'vendor/autoload.php';
+
+use Gando\Partner;
+use Gando\Partner\Models\Components;
+use Gando\Partner\Models\Operations;
+
+$sdk = Partner\Gando::builder()
+    ->setSecurity(
+        new Components\Security(
+            partnerApiKeyAuth: '<YOUR_API_KEY_HERE>',
+        )
+    )
+    ->build();
+
+$request = new Operations\DepositsListRequest();
+
+$response = $sdk->deposits->list(
+    request: $request
+);
+
+if ($response->object !== null) {
+    // handle response
+}
+```
+
+### Parameters
+
+| Parameter                                                                        | Type                                                                             | Required                                                                         | Description                                                                      |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `$request`                                                                       | [Operations\DepositsListRequest](../../Models/Operations/DepositsListRequest.md) | :heavy_check_mark:                                                               | The request object to use for the request.                                       |
+
+### Response
+
+**[?Operations\DepositsListResponse](../../Models/Operations/DepositsListResponse.md)**
+
+### Errors
+
+| Error Type                        | Status Code                       | Content Type                      |
+| --------------------------------- | --------------------------------- | --------------------------------- |
+| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
+| Errors\ErrorEnvelope              | 500                               | application/json                  |
+| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
 ## create
 
@@ -88,65 +147,6 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500, 503                          | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## list
-
-Lists deposits across **all active** rental operator accounts linked to your partner.
-
-Pass **`account_id`** to return only deposits for that single linked rental operator account.
-
-Repeat query parameter **`status`** to filter by several statuses (e.g. `?status=pending&status=active`).
-
-When `include_counts=true` **and** `account_id` is set, the response includes per-status counts for that account.
-
-### Example Usage
-
-<!-- UsageSnippet language="php" operationID="deposits.list" method="get" path="/api/partner/deposits" -->
-```php
-declare(strict_types=1);
-
-require 'vendor/autoload.php';
-
-use Gando\Partner;
-use Gando\Partner\Models\Components;
-use Gando\Partner\Models\Operations;
-
-$sdk = Partner\Gando::builder()
-    ->setSecurity(
-        new Components\Security(
-            partnerApiKeyAuth: '<YOUR_API_KEY_HERE>',
-        )
-    )
-    ->build();
-
-$request = new Operations\DepositsListRequest();
-
-$response = $sdk->deposits->list(
-    request: $request
-);
-
-if ($response->object !== null) {
-    // handle response
-}
-```
-
-### Parameters
-
-| Parameter                                                                        | Type                                                                             | Required                                                                         | Description                                                                      |
-| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `$request`                                                                       | [Operations\DepositsListRequest](../../Models/Operations/DepositsListRequest.md) | :heavy_check_mark:                                                               | The request object to use for the request.                                       |
-
-### Response
-
-**[?Operations\DepositsListResponse](../../Models/Operations/DepositsListResponse.md)**
-
-### Errors
-
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500                               | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
-
 ## retrieve
 
 Returns the same deposit shape as the rental operator API (`CautionItem` fields). Deposit must belong to a linked rental operator.
@@ -190,6 +190,58 @@ if ($response->object !== null) {
 ### Response
 
 **[?Operations\DepositsRetrieveResponse](../../Models/Operations/DepositsRetrieveResponse.md)**
+
+### Errors
+
+| Error Type                        | Status Code                       | Content Type                      |
+| --------------------------------- | --------------------------------- | --------------------------------- |
+| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
+| Errors\ErrorEnvelope              | 500                               | application/json                  |
+| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+
+## delete
+
+Same semantics as rental-operator delete: remove when allowed, otherwise archive. Response uses top-level **`message`** (`Deleted` or `Archived`), not `data`.
+
+### Example Usage
+
+<!-- UsageSnippet language="php" operationID="deposits.delete" method="delete" path="/api/partner/deposits/{id}" -->
+```php
+declare(strict_types=1);
+
+require 'vendor/autoload.php';
+
+use Gando\Partner;
+use Gando\Partner\Models\Components;
+
+$sdk = Partner\Gando::builder()
+    ->setSecurity(
+        new Components\Security(
+            partnerApiKeyAuth: '<YOUR_API_KEY_HERE>',
+        )
+    )
+    ->build();
+
+
+
+$response = $sdk->deposits->delete(
+    id: '<id>'
+);
+
+if ($response->partnerDeleteDepositResponse !== null) {
+    // handle response
+}
+```
+
+### Parameters
+
+| Parameter                           | Type                                | Required                            | Description                         |
+| ----------------------------------- | ----------------------------------- | ----------------------------------- | ----------------------------------- |
+| `id`                                | *string*                            | :heavy_check_mark:                  | Deposit (caution) unique identifier |
+
+### Response
+
+**[?Operations\DepositsDeleteResponse](../../Models/Operations/DepositsDeleteResponse.md)**
 
 ### Errors
 
@@ -259,13 +311,13 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500, 502                          | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## delete
+## getCapture
 
-Same semantics as rental-operator delete: remove when allowed, otherwise archive. Response uses top-level **`message`** (`Deleted` or `Archived`), not `data`.
+Prefers the latest **paid** capture; if none, returns the most recent capture of any status. **404** when no capture exists yet.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="deposits.delete" method="delete" path="/api/partner/deposits/{id}" -->
+<!-- UsageSnippet language="php" operationID="deposits.getCapture" method="get" path="/api/partner/deposits/{id}/capture" -->
 ```php
 declare(strict_types=1);
 
@@ -284,11 +336,11 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->deposits->delete(
+$response = $sdk->deposits->getCapture(
     id: '<id>'
 );
 
-if ($response->partnerDeleteDepositResponse !== null) {
+if ($response->object !== null) {
     // handle response
 }
 ```
@@ -301,7 +353,7 @@ if ($response->partnerDeleteDepositResponse !== null) {
 
 ### Response
 
-**[?Operations\DepositsDeleteResponse](../../Models/Operations/DepositsDeleteResponse.md)**
+**[?Operations\DepositsGetCaptureResponse](../../Models/Operations/DepositsGetCaptureResponse.md)**
 
 ### Errors
 
@@ -369,58 +421,6 @@ if ($response->object !== null) {
 | --------------------------------- | --------------------------------- | --------------------------------- |
 | Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
 | Errors\ErrorEnvelope              | 500, 503                          | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
-
-## getCapture
-
-Prefers the latest **paid** capture; if none, returns the most recent capture of any status. **404** when no capture exists yet.
-
-### Example Usage
-
-<!-- UsageSnippet language="php" operationID="deposits.getCapture" method="get" path="/api/partner/deposits/{id}/capture" -->
-```php
-declare(strict_types=1);
-
-require 'vendor/autoload.php';
-
-use Gando\Partner;
-use Gando\Partner\Models\Components;
-
-$sdk = Partner\Gando::builder()
-    ->setSecurity(
-        new Components\Security(
-            partnerApiKeyAuth: '<YOUR_API_KEY_HERE>',
-        )
-    )
-    ->build();
-
-
-
-$response = $sdk->deposits->getCapture(
-    id: '<id>'
-);
-
-if ($response->object !== null) {
-    // handle response
-}
-```
-
-### Parameters
-
-| Parameter                           | Type                                | Required                            | Description                         |
-| ----------------------------------- | ----------------------------------- | ----------------------------------- | ----------------------------------- |
-| `id`                                | *string*                            | :heavy_check_mark:                  | Deposit (caution) unique identifier |
-
-### Response
-
-**[?Operations\DepositsGetCaptureResponse](../../Models/Operations/DepositsGetCaptureResponse.md)**
-
-### Errors
-
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
 ## sendEmails
