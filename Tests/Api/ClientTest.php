@@ -7,7 +7,7 @@ namespace Gando\Partner\Tests\Api;
 use Gando\Partner\Accounts;
 use Gando\Partner\Api\Client;
 use Gando\Partner\Clients;
-use Gando\Partner\Deposits;
+use Gando\Partner\Api\Deposits;
 use Gando\Partner\Webhooks;
 use PHPUnit\Framework\TestCase;
 

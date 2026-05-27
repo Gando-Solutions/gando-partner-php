@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 
 final class AccountsRetryTest extends TestCase
 {
-    public function testAccountsListRetries429Then503ThenSucceeds(): void
+    public function test_accounts_list_retries429_then503_then_succeeds(): void
     {
         $body = json_encode([
             'success' => true,

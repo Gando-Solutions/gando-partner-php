@@ -86,6 +86,8 @@ Creates a deposit on behalf of a linked rental operator (`account_id`). Optional
 
 **Idempotency-Key:** optional UUID v4 header; replays return the same **201** and `data.id` within 24h when the body is unchanged.
 
+**PHP SDK (`Gando\Partner\Api\Client`):** when `idempotencyKey` is omitted on `deposits->create()`, the SDK generates a UUID v4 and sends it on every HTTP attempt for that call (including retries), so a transient `429`/`5xx` does not create two deposits.
+
 See the **Accounts** tag description for authentication details and curl/fetch examples.
 
 ### Example Usage

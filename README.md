@@ -78,6 +78,10 @@ $builder = new UrlBuilder(
 $signupUrl = $builder->signupUrl(externalId: 'fleet_acct_42');
 ```
 
+### Deposit create idempotency
+
+`POST /api/partner/deposits` is idempotent when the `Idempotency-Key` header is sent (UUID v4, 24h deduplication via Redis on the API). **`Gando\Partner\Api\Client`** auto-generates that key on `deposits->create()` when you omit it, so SDK retries do not create duplicate deposits. Pass your own key to override.
+
 <!-- Start SDK Example Usage [usage] -->
 ## SDK Example Usage
 

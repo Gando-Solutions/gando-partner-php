@@ -6,7 +6,7 @@ namespace Gando\Partner\Api;
 
 use Gando\Partner\Accounts;
 use Gando\Partner\Clients;
-use Gando\Partner\Deposits;
+use Gando\Partner\Api\Deposits;
 use Gando\Partner\Gando;
 use Gando\Partner\Models\Components\Security;
 use Gando\Partner\Webhooks;
@@ -29,7 +29,7 @@ final class Client
 
         $this->accounts = $sdk->accounts;
         $this->clients = $sdk->clients;
-        $this->deposits = $sdk->deposits;
+        $this->deposits = new Deposits($sdk->deposits);
         $this->webhooks = $sdk->webhooks;
     }
 }
