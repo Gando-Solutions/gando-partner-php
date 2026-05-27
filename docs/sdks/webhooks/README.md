@@ -33,8 +33,8 @@ Failed deliveries are retried on a backoff schedule by Gando’s webhook retry j
 
 * [list](#list) - List partner webhook endpoints
 * [create](#create) - Create partner webhook endpoint
-* [delete](#delete) - Delete partner webhook endpoint
 * [update](#update) - Update partner webhook endpoint
+* [delete](#delete) - Delete partner webhook endpoint
 * [rotateSecret](#rotatesecret) - Rotate partner webhook secret
 * [getSecret](#getsecret) - Get partner webhook secret
 * [test](#test) - Send test partner webhook delivery
@@ -145,58 +145,6 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## delete
-
-Delete a webhook endpoint and its event subscriptions for the authenticated partner.
-
-### Example Usage
-
-<!-- UsageSnippet language="php" operationID="webhooks.delete" method="delete" path="/api/partner/webhooks/{id}" -->
-```php
-declare(strict_types=1);
-
-require 'vendor/autoload.php';
-
-use Gando\Partner;
-use Gando\Partner\Models\Components;
-
-$sdk = Partner\Gando::builder()
-    ->setSecurity(
-        new Components\Security(
-            partnerApiKeyAuth: '<YOUR_API_KEY_HERE>',
-        )
-    )
-    ->build();
-
-
-
-$response = $sdk->webhooks->delete(
-    id: '<id>'
-);
-
-if ($response->object !== null) {
-    // handle response
-}
-```
-
-### Parameters
-
-| Parameter                   | Type                        | Required                    | Description                 |
-| --------------------------- | --------------------------- | --------------------------- | --------------------------- |
-| `id`                        | *string*                    | :heavy_check_mark:          | Partner webhook endpoint id |
-
-### Response
-
-**[?Operations\WebhooksDeleteResponse](../../Models/Operations/WebhooksDeleteResponse.md)**
-
-### Errors
-
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500                               | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
-
 ## update
 
 Update webhook URL, subscribed event types, or activation status. `{id}` is the partner webhook endpoint id.
@@ -250,6 +198,58 @@ if ($response->object !== null) {
 ### Response
 
 **[?Operations\WebhooksUpdateResponse](../../Models/Operations/WebhooksUpdateResponse.md)**
+
+### Errors
+
+| Error Type                        | Status Code                       | Content Type                      |
+| --------------------------------- | --------------------------------- | --------------------------------- |
+| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
+| Errors\ErrorEnvelope              | 500                               | application/json                  |
+| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+
+## delete
+
+Delete a webhook endpoint and its event subscriptions for the authenticated partner.
+
+### Example Usage
+
+<!-- UsageSnippet language="php" operationID="webhooks.delete" method="delete" path="/api/partner/webhooks/{id}" -->
+```php
+declare(strict_types=1);
+
+require 'vendor/autoload.php';
+
+use Gando\Partner;
+use Gando\Partner\Models\Components;
+
+$sdk = Partner\Gando::builder()
+    ->setSecurity(
+        new Components\Security(
+            partnerApiKeyAuth: '<YOUR_API_KEY_HERE>',
+        )
+    )
+    ->build();
+
+
+
+$response = $sdk->webhooks->delete(
+    id: '<id>'
+);
+
+if ($response->object !== null) {
+    // handle response
+}
+```
+
+### Parameters
+
+| Parameter                   | Type                        | Required                    | Description                 |
+| --------------------------- | --------------------------- | --------------------------- | --------------------------- |
+| `id`                        | *string*                    | :heavy_check_mark:          | Partner webhook endpoint id |
+
+### Response
+
+**[?Operations\WebhooksDeleteResponse](../../Models/Operations/WebhooksDeleteResponse.md)**
 
 ### Errors
 
