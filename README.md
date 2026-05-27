@@ -262,6 +262,41 @@ if ($response->object !== null) {
 
 <!-- Placeholder for Future Speakeasy SDK Sections -->
 
+## Webhook signature verification
+
+Inbound partner webhooks are signed by Gando. Verify every delivery before processing the JSON payload.
+
+**Headers:** `X-Gando-Signature` (`sha256=<hex>`), `X-Gando-Timestamp` (Unix seconds), `X-Gando-Event` (event name).
+
+Use the raw request body (not `json_decode` output). The signing secret is returned once when you [create a webhook endpoint](docs/sdks/webhooks/README.md#create) (`gando_whsec_...`).
+
+```php
+declare(strict_types=1);
+
+require 'vendor/autoload.php';
+
+use Gando\Partner\Exceptions\WebhookSignatureException;
+use Gando\Partner\WebhookVerifier;
+
+$rawBody = file_get_contents('php://input');
+$signature = $_SERVER['HTTP_X_GANDO_SIGNATURE'] ?? '';
+$timestamp = $_SERVER['HTTP_X_GANDO_TIMESTAMP'] ?? '';
+$secret = getenv('GANDO_WEBHOOK_SECRET'); // your signing secret
+
+try {
+    WebhookVerifier::verify($rawBody, $signature, $timestamp, $secret);
+} catch (WebhookSignatureException $e) {
+    // $e->getReason() is "invalid" or "expired"
+    http_response_code(400);
+    exit;
+}
+
+$payload = json_decode($rawBody, true, flags: JSON_THROW_ON_ERROR);
+// handle $payload...
+```
+
+See also [Webhooks SDK docs](docs/sdks/webhooks/README.md) and the recipe snippet at `recipes/snippets/webhooks.verify.php`.
+
 # Development
 
 ## Maturity

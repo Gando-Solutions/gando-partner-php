@@ -23,7 +23,7 @@ When a subscription includes both the wildcard and a specific event, **the most 
 
 ### Signing and headers
 
-Identical to rental-operator webhooks: **`X-Gando-Signature`** (`sha256=<hex>`), **`X-Gando-Timestamp`** (unix seconds), **`X-Gando-Event`** (event name). Verify HMAC-SHA256 over `<timestamp>.<rawBody>` with your **webhook signing secret** (returned once when you create the endpoint). See the **Webhooks** tag in this document for full verification examples (Node.js, Python, PHP, Go).
+Identical to rental-operator webhooks: **`X-Gando-Signature`** (`sha256=<hex>`), **`X-Gando-Timestamp`** (unix seconds), **`X-Gando-Event`** (event name). Verify HMAC-SHA256 over `<timestamp>.<rawBody>` with your **webhook signing secret** (returned once when you create the endpoint). Use **`Gando\Partner\WebhookVerifier::verify()`** in this SDK (see the root [README](../../../README.md#webhook-signature-verification) and `recipes/snippets/webhooks.verify.php`). OpenAPI also documents inline examples (Node.js, Python, PHP, Go).
 
 ### Retries
 
