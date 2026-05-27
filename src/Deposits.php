@@ -81,7 +81,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\DepositsCancelRequest(
@@ -202,7 +202,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\DepositsCaptureRequest(
@@ -301,7 +301,7 @@ class Deposits
      *
      * **Inline redirect:** set `inline_redirect: true` and `return_url` to receive `deposit_url` and send the tenant straight to Gando. Same redirect query parameters as the rental operator API: `caution_id`, `caution_status`.
      *
-     * **Idempotency-Key:** optional UUID v4 header; replays return the same **201** and `data.id` within 24h when the body is unchanged.
+     * **Idempotency-Key:** optional UUID v4 header; replays return the same **201** and `data.id` within 24h when the body is unchanged. The PHP SDK (`Gando\Partner\Api\Client`) auto-generates this header when omitted so retries stay idempotent.
      *
      * See the **Accounts** tag description for authentication details and curl/fetch examples.
      *
@@ -334,7 +334,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\DepositsCreateRequest(
@@ -458,7 +458,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\DepositsDeleteRequest(
@@ -572,7 +572,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\DepositsGetCaptureRequest(
@@ -686,7 +686,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\DepositsGetPaymentMethodRequest(
@@ -800,7 +800,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\DepositsGetPdfRequest(
@@ -893,7 +893,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsListResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function list(?Operations\DepositsListRequest $request = null, ?Options $options = null): Operations\DepositsListResponse
+    private function listIndividual(?Operations\DepositsListRequest $request = null, ?Options $options = null): Operations\DepositsListResponse
     {
         $retryConfig = null;
         if ($options) {
@@ -917,7 +917,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
@@ -960,6 +960,40 @@ class Deposits
                     contentType: $contentType,
                     rawResponse: $httpResponse,
                     object: $obj);
+                $sdk = $this;
+
+                $response->next = function () use ($sdk, $request, $responseData): ?Operations\DepositsListResponse {
+                    $page = $request != null ? $request->page : 0;
+                    $nextPage = $page + 1;
+                    $jsonObject = new \JsonPath\JsonObject($responseData);
+                    $numPages = $jsonObject->get('$.data.numPages');
+                    if ($numPages == null || $numPages[0] <= $page) {
+                        return null;
+                    }
+                    if (! $responseData) {
+                        return null;
+                    }
+
+                    return $sdk->listIndividual(
+                        request: new Operations\DepositsListRequest(
+                            accountId: $request != null ? $request->accountId : null,
+                            page: $nextPage,
+                            limit: $request != null ? $request->limit : null,
+                            sortBy: $request != null ? $request->sortBy : null,
+                            sortOrder: $request != null ? $request->sortOrder : null,
+                            status: $request != null ? $request->status : null,
+                            clientId: $request != null ? $request->clientId : null,
+                            amountMin: $request != null ? $request->amountMin : null,
+                            amountMax: $request != null ? $request->amountMax : null,
+                            startAtFrom: $request != null ? $request->startAtFrom : null,
+                            startAtTo: $request != null ? $request->startAtTo : null,
+                            expiresAtFrom: $request != null ? $request->expiresAtFrom : null,
+                            expiresAtTo: $request != null ? $request->expiresAtTo : null,
+                            includeCounts: $request != null ? $request->includeCounts : null,
+                        ),
+                    );
+                };
+
 
                 return $response;
             } else {
@@ -997,6 +1031,29 @@ class Deposits
             throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
         }
     }
+    /**
+     * List deposits
+     *
+     * Lists deposits across **all active** rental operator accounts linked to your partner.
+     *
+     * Pass **`account_id`** to return only deposits for that single linked rental operator account.
+     *
+     * Repeat query parameter **`status`** to filter by several statuses (e.g. `?status=pending&status=active`).
+     *
+     * When `include_counts=true` **and** `account_id` is set, the response includes per-status counts for that account.
+     *
+     * @param  ?\Gando\Partner\Models\Operations\DepositsListRequest  $request
+     * @return \Generator<\Gando\Partner\Models\Operations\DepositsListResponse>
+     * @throws \Gando\Partner\Models\Errors\APIException
+     */
+    public function list(?Operations\DepositsListRequest $request = null, ?Options $options = null): \Generator
+    {
+        $res = $this->listIndividual($request, $options);
+        while ($res !== null) {
+            yield $res;
+            $res = $res->next($res);
+        }
+    }
 
     /**
      * Get deposit by id
@@ -1031,7 +1088,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\DepositsRetrieveRequest(
@@ -1146,7 +1203,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\DepositsSendDepositMailRequest(
@@ -1267,7 +1324,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\DepositsSendEmailsRequest(
@@ -1390,7 +1447,7 @@ class Deposits
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\DepositsUpdateRequest(

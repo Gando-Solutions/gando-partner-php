@@ -82,7 +82,7 @@ class Clients
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\ClientsCreateRequest(
@@ -226,7 +226,7 @@ class Clients
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\ClientsListRequest(
@@ -347,7 +347,7 @@ class Clients
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\ClientsUpdateRequest(

@@ -51,12 +51,15 @@ $sdk = Partner\Gando::builder()
 
 $request = new Operations\DepositsListRequest();
 
-$response = $sdk->deposits->list(
+$responses = $sdk->deposits->list(
     request: $request
 );
 
-if ($response->object !== null) {
-    // handle response
+
+foreach ($responses as $response) {
+    if ($response->statusCode === 200) {
+        // handle response
+    }
 }
 ```
 
@@ -84,7 +87,7 @@ Creates a deposit on behalf of a linked rental operator (`account_id`). Optional
 
 **Inline redirect:** set `inline_redirect: true` and `return_url` to receive `deposit_url` and send the tenant straight to Gando. Same redirect query parameters as the rental operator API: `caution_id`, `caution_status`.
 
-**Idempotency-Key:** optional UUID v4 header; replays return the same **201** and `data.id` within 24h when the body is unchanged.
+**Idempotency-Key:** optional UUID v4 header; replays return the same **201** and `data.id` within 24h when the body is unchanged. The PHP SDK (`Gando\Partner\Api\Client`) auto-generates this header when omitted so retries stay idempotent.
 
 See the **Accounts** tag description for authentication details and curl/fetch examples.
 
