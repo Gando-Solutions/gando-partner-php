@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__.'/scripts/rector/MakeGeneratedDtoFinalReadonlyRector.php';
+require_once __DIR__ . '/scripts/rector/MakeGeneratedDtoFinalReadonlyRector.php';
 
 use Gando\Partner\Scripts\Rector\MakeGeneratedDtoFinalReadonlyRector;
 use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
@@ -17,7 +17,7 @@ use Rector\Set\ValueObject\SetList;
 
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
-      __DIR__ . '/src',
+        __DIR__ . '/src',
     ]);
 
     $rectorConfig->rules([

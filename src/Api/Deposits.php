@@ -13,6 +13,8 @@ use Gando\Partner\Models\Operations\PartnerDepositEmailsBody;
 use Gando\Partner\Models\Operations\PartnerPatchDepositBody;
 use Gando\Partner\Models\Operations\PartnerSendDepositMailBody;
 use Gando\Partner\Utils\Options;
+use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * Partner API deposits resource with safe defaults for {@see create()}.
@@ -21,6 +23,8 @@ final readonly class Deposits
 {
     public function __construct(
         private GeneratedDeposits $deposits,
+        private ?CacheInterface $cache = null,
+        private ?LoggerInterface $logger = null,
     ) {
     }
 
@@ -38,11 +42,38 @@ final readonly class Deposits
         ?string $idempotencyKey = null,
         ?Options $options = null,
     ): Operations\DepositsCreateResponse {
+        $resolvedKey = $this->resolveCreateIdempotencyKey($body, $idempotencyKey);
+
         return $this->deposits->create(
             $body,
-            IdempotencyMiddleware::resolveDepositsCreateKey($idempotencyKey),
+            $resolvedKey,
             $options,
         );
+    }
+
+    private function resolveCreateIdempotencyKey(PartnerCreateDepositBody $body, ?string $idempotencyKey): string
+    {
+        if ($idempotencyKey !== null && $idempotencyKey !== '') {
+            return $idempotencyKey;
+        }
+
+        if ($this->cache === null) {
+            return IdempotencyMiddleware::resolveDepositsCreateKey(null);
+        }
+
+        $cacheKey = 'gando_partner:idempotency:create:'.hash('sha256', serialize($body));
+        $cached = $this->cache->get($cacheKey);
+        if (is_string($cached) && $cached !== '') {
+            $this->logger?->debug('gando.idempotency.cache_hit', ['cache_key' => $cacheKey]);
+
+            return $cached;
+        }
+
+        $generated = IdempotencyMiddleware::resolveDepositsCreateKey(null);
+        $this->cache->set($cacheKey, $generated, 24 * 60 * 60);
+        $this->logger?->debug('gando.idempotency.cache_set', ['cache_key' => $cacheKey]);
+
+        return $generated;
     }
 
     public function cancel(

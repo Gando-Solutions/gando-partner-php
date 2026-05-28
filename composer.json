@@ -9,12 +9,21 @@
   "license": "MIT",
   "require": {
     "php": ">=8.2",
+    "brick/date-time": ">=0.7.0",
+    "brick/math": ">=0.12.1",
     "galbar/jsonpath": ">=3.0",
     "guzzlehttp/guzzle": "^7.0",
-    "speakeasy/serializer": "^4.0.3",
-    "brick/date-time": ">=0.7.0",
+    "php-http/discovery": "^1.20",
     "phpdocumentor/type-resolver": ">=1.8",
-    "brick/math": ">=0.12.1"
+    "psr/event-dispatcher": "^1.0",
+    "psr/http-client": "^1.0",
+    "psr/http-factory": "^1.0",
+    "psr/log": "^1.1 || ^2.0 || ^3.0",
+    "psr/simple-cache": "^1.0 || ^2.0 || ^3.0",
+    "speakeasy/serializer": "^4.0.3"
+  },
+  "suggest": {
+    "guzzlehttp/guzzle": "Required for Speakeasy transport bridge; also used by php-http/discovery when no other PSR-18 client is installed"
   },
   "require-dev": {
     "laravel/pint": "1.29.0",
@@ -29,7 +38,10 @@
     "optimize-autoloader": true,
     "classmap-authoritative": true,
     "sort-packages": true,
-    "process-timeout": 60
+    "process-timeout": 60,
+    "allow-plugins": {
+      "php-http/discovery": true
+    }
   },
   "scripts": {
     "cs-check": [
