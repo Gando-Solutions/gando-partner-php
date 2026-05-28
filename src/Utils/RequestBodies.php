@@ -72,7 +72,7 @@ class RequestBodies
 
             match ($type) {
                 'string' => $options['body'] = $value,
-                default => throw new \RuntimeException("Invalid request body type $type for field $fieldName")
+                default => throw new \RuntimeException("Invalid request body type $type for field $fieldName"),
             };
         }
 

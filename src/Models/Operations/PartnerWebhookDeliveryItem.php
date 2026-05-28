@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerWebhookDeliveryItem
+final readonly class PartnerWebhookDeliveryItem
 {
     /**
      * @phpstan-pure
@@ -56,7 +55,7 @@ class PartnerWebhookDeliveryItem
          * ISO 8601 timestamp of the next retry, if scheduled
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('nextRetryAt')]
-        public ?\DateTime $nextRetryAt = null
+        public ?\DateTime $nextRetryAt = null,
     ) {
     }
 }

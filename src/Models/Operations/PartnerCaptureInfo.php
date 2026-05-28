@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerCaptureInfo
+final readonly class PartnerCaptureInfo
 {
     /**
      * @phpstan-pure
@@ -40,7 +39,7 @@ class PartnerCaptureInfo
          * Capture reason if provided
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('reason')]
-        public ?string $reason = null
+        public ?string $reason = null,
     ) {
     }
 }

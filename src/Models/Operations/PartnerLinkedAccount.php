@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerLinkedAccount
+final readonly class PartnerLinkedAccount
 {
     /**
      * @phpstan-pure
@@ -51,7 +50,7 @@ class PartnerLinkedAccount
          * Primary contact email for the rental operator
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('email')]
-        public ?string $email = null
+        public ?string $email = null,
     ) {
     }
 }

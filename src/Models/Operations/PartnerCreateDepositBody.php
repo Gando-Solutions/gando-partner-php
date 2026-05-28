@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerCreateDepositBody
+final readonly class PartnerCreateDepositBody
 {
     /**
      * @phpstan-pure
@@ -58,7 +57,7 @@ class PartnerCreateDepositBody
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('return_url')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?string $returnUrl = null
+        public ?string $returnUrl = null,
     ) {
     }
 }

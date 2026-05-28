@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class Result
+final readonly class Result
 {
     /**
      * @phpstan-pure
@@ -25,7 +24,7 @@ class Result
          * Whether this recipient send succeeded
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-        public bool $success
+        public bool $success,
     ) {
     }
 }

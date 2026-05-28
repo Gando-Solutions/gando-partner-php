@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class PartnerWebhookListResponse
 {
     /**
@@ -27,7 +26,7 @@ class PartnerWebhookListResponse
          * Total webhook endpoints for this partner
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('total')]
-        public int $total
+        public int $total,
     ) {
     }
 }

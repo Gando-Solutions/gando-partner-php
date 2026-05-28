@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** DepositsCreateResponseBody - Deposit created */
-class DepositsCreateResponseBody
+final readonly class DepositsCreateResponseBody
 {
     /**
      * @phpstan-pure
@@ -30,7 +29,7 @@ class DepositsCreateResponseBody
          * Always `true` for successful responses
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-        public bool $success = true
+        public bool $success = true,
     ) {
     }
 }

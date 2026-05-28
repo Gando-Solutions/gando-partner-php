@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class WebhooksRotateSecretResponse
 {
     /**
@@ -31,7 +30,7 @@ class WebhooksRotateSecretResponse
         /**
          * New secret returned
          */
-        public ?WebhooksRotateSecretResponseBody $object = null
+        public ?WebhooksRotateSecretResponseBody $object = null,
     ) {
     }
 }

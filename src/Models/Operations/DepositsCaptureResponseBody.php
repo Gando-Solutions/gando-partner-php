@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** DepositsCaptureResponseBody - Capture processed (check `status` for outcome) */
-class DepositsCaptureResponseBody
+final readonly class DepositsCaptureResponseBody
 {
     /**
      * @phpstan-pure
@@ -30,7 +29,7 @@ class DepositsCaptureResponseBody
          * Always `true` for successful responses
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-        public bool $success = true
+        public bool $success = true,
     ) {
     }
 }

@@ -14,7 +14,6 @@ use Psr\Http\Message\RequestInterface;
 
 class Utils
 {
-
     /**
      * little function to adjust the return type from DateTime|false to DateTime
      */

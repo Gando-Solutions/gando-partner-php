@@ -10,7 +10,8 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class DepositsSendDepositMailRequest
+
+final readonly class DepositsSendDepositMailRequest
 {
     /**
      * @phpstan-pure
@@ -22,7 +23,7 @@ class DepositsSendDepositMailRequest
         #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
         public string $id,
         #[SpeakeasyMetadata('request:mediaType=application/json')]
-        public PartnerSendDepositMailBody $body
+        public PartnerSendDepositMailBody $body,
     ) {
     }
 }

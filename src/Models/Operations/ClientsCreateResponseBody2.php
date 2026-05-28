@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** ClientsCreateResponseBody2 - Client created */
-class ClientsCreateResponseBody2
+final readonly class ClientsCreateResponseBody2
 {
     /**
      * @phpstan-pure
@@ -30,7 +29,7 @@ class ClientsCreateResponseBody2
          * Always `true` for successful responses
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-        public bool $success = true
+        public bool $success = true,
     ) {
     }
 }

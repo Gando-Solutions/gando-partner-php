@@ -17,7 +17,7 @@ class FormMetadata
         public string $style,
         public bool $explode,
         public string $dateTimeFormat,
-        public bool $serializeToString
+        public bool $serializeToString,
     ) {
     }
 
@@ -61,7 +61,7 @@ class FormMetadata
             style: $style,
             explode: $explode,
             dateTimeFormat: $dateTimeFormat,
-            serializeToString: $serializeToString
+            serializeToString: $serializeToString,
         );
     }
 }

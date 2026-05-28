@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** PartnerDeleteDepositResponse - Deleted or archived */
 class PartnerDeleteDepositResponse
 {
@@ -27,7 +26,7 @@ class PartnerDeleteDepositResponse
          * Always true on success
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-        public bool $success = true
+        public bool $success = true,
     ) {
     }
 }

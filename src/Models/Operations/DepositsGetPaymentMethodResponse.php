@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class DepositsGetPaymentMethodResponse
 {
     /**
@@ -31,7 +30,7 @@ class DepositsGetPaymentMethodResponse
         /**
          * Masked PAN / brand
          */
-        public ?DepositsGetPaymentMethodResponseBody $object = null
+        public ?DepositsGetPaymentMethodResponseBody $object = null,
     ) {
     }
 }

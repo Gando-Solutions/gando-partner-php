@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class DepositsListResponse
 {
     /**
@@ -35,7 +34,7 @@ class DepositsListResponse
         /**
          * Paginated list (`items` + `total` + `numPages`; optional `counts`)
          */
-        public ?DepositsListResponseBody $object = null
+        public ?DepositsListResponseBody $object = null,
     ) {
     }
     /**

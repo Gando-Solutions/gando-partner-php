@@ -18,7 +18,7 @@ class ParamsMetadata
         public string $name,
         public string $serialization,
         public string $dateTimeFormat,
-        public bool $serializeToString
+        public bool $serializeToString,
     ) {
     }
 
@@ -78,7 +78,7 @@ class ParamsMetadata
             name: $name,
             serialization: $serialization,
             dateTimeFormat: $dateTimeFormat,
-            serializeToString: $serializeToString
+            serializeToString: $serializeToString,
         );
 
     }

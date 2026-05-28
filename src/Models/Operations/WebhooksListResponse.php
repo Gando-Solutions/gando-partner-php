@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class WebhooksListResponse
 {
     /**
@@ -35,7 +34,7 @@ class WebhooksListResponse
         /**
          * Paginated webhook endpoints (`items` + `total`)
          */
-        public ?WebhooksListResponseBody $object = null
+        public ?WebhooksListResponseBody $object = null,
     ) {
     }
     /**

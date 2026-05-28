@@ -10,7 +10,8 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class WebhooksGetSecretRequest
+
+final readonly class WebhooksGetSecretRequest
 {
     /**
      * @phpstan-pure
@@ -20,7 +21,7 @@ class WebhooksGetSecretRequest
          * Partner webhook endpoint id
          */
         #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
-        public string $id
+        public string $id,
     ) {
     }
 }

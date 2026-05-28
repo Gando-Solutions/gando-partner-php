@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Components;
 
-
 /** ProfessionnelPartnerClientPatch - Patch a business client. At least one field is required; `companyName` required when `clientType` is professionnel. */
-class ProfessionnelPartnerClientPatch
+final readonly class ProfessionnelPartnerClientPatch
 {
     /**
      * @phpstan-pure
@@ -83,7 +82,7 @@ class ProfessionnelPartnerClientPatch
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('postalCode')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?string $postalCode = null
+        public ?string $postalCode = null,
     ) {
     }
 }

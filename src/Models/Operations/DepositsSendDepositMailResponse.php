@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class DepositsSendDepositMailResponse
 {
     /**
@@ -31,7 +30,7 @@ class DepositsSendDepositMailResponse
         /**
          * Send result
          */
-        public ?DepositsSendDepositMailResponseBody $object = null
+        public ?DepositsSendDepositMailResponseBody $object = null,
     ) {
     }
 }

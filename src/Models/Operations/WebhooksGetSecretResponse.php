@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class WebhooksGetSecretResponse
 {
     /**
@@ -31,7 +30,7 @@ class WebhooksGetSecretResponse
         /**
          * Current secret returned
          */
-        public ?WebhooksGetSecretResponseBody $object = null
+        public ?WebhooksGetSecretResponseBody $object = null,
     ) {
     }
 }

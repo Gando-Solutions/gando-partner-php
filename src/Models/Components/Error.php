@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Components;
 
-
-class Error
+final readonly class Error
 {
     /**
      * @param  ?array<string, mixed>  $details
@@ -39,7 +38,7 @@ class Error
         #[\Speakeasy\Serializer\Annotation\SerializedName('details')]
         #[\Speakeasy\Serializer\Annotation\Type('array<string, mixed>|null')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?array $details = null
+        public ?array $details = null,
     ) {
     }
 }

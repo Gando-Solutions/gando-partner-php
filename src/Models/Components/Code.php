@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Components;
 
-
 /** Machine-readable error code — exhaustive enum in OpenAPI (`PartnerErrorCode`). */
 enum Code: string
 {

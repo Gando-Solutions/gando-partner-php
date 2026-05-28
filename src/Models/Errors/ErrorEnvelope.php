@@ -11,6 +11,7 @@ namespace Gando\Partner\Models\Errors;
 
 use Gando\Partner\Models\Components;
 use Gando\Partner\Utils;
+
 class ErrorEnvelope
 {
     /**
@@ -24,7 +25,7 @@ class ErrorEnvelope
          * Raw HTTP response; suitable for custom response parsing
          */
         #[\Speakeasy\Serializer\Annotation\Exclude]
-        public ?\Psr\Http\Message\ResponseInterface $rawResponse = null
+        public ?\Psr\Http\Message\ResponseInterface $rawResponse = null,
     ) {
     }
 

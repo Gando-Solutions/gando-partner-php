@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerDepositEmailsBody
+final readonly class PartnerDepositEmailsBody
 {
     /**
      * @param  array<string>  $emails
@@ -22,7 +21,7 @@ class PartnerDepositEmailsBody
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('emails')]
         #[\Speakeasy\Serializer\Annotation\Type('array<string>')]
-        public array $emails
+        public array $emails,
     ) {
     }
 }

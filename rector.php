@@ -5,6 +5,11 @@
  * @generated-id: 6615ad7e99dd
  */
 
+declare(strict_types=1);
+
+require_once __DIR__.'/scripts/rector/MakeGeneratedDtoFinalReadonlyRector.php';
+
+use Gando\Partner\Scripts\Rector\MakeGeneratedDtoFinalReadonlyRector;
 use Rector\CodeQuality\Rector\Class_\InlineConstructorDefaultToPropertyRector;
 use Rector\Config\RectorConfig;
 use Rector\Set\ValueObject\LevelSetList;
@@ -16,15 +21,16 @@ return static function (RectorConfig $rectorConfig): void {
     ]);
 
     $rectorConfig->rules([
-      InlineConstructorDefaultToPropertyRector::class,
+        InlineConstructorDefaultToPropertyRector::class,
+        MakeGeneratedDtoFinalReadonlyRector::class,
     ]);
 
     $rectorConfig->sets([
-      LevelSetList::UP_TO_PHP_82,
-      SetList::CODE_QUALITY,
-      SetList::DEAD_CODE,
-      SetList::EARLY_RETURN,
-      SetList::TYPE_DECLARATION,
-      SetList::PRIVATIZATION,
+        LevelSetList::UP_TO_PHP_82,
+        SetList::CODE_QUALITY,
+        SetList::DEAD_CODE,
+        SetList::EARLY_RETURN,
+        SetList::TYPE_DECLARATION,
+        SetList::PRIVATIZATION,
     ]);
 };

@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerCaptureResult
+final readonly class PartnerCaptureResult
 {
     /**
      * @phpstan-pure
@@ -25,7 +24,7 @@ class PartnerCaptureResult
          * Capture outcome status from the payment processor
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('status')]
-        public string $status
+        public string $status,
     ) {
     }
 }

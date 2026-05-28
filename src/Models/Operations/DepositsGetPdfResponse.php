@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class DepositsGetPdfResponse
 {
     /**
@@ -31,7 +30,7 @@ class DepositsGetPdfResponse
         /**
          * PDF document
          */
-        public ?string $bytes = null
+        public ?string $bytes = null,
     ) {
     }
 }

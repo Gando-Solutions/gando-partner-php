@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class ClientsCreateResponse
 {
     /**
@@ -35,7 +34,7 @@ class ClientsCreateResponse
         /**
          * Client created
          */
-        public ?ClientsCreateResponseBody2 $twoHundredAndOneApplicationJsonObject = null
+        public ?ClientsCreateResponseBody2 $twoHundredAndOneApplicationJsonObject = null,
     ) {
     }
 }

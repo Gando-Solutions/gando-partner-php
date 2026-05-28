@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** WebhooksRotateSecretResponseBody - New secret returned */
-class WebhooksRotateSecretResponseBody
+final readonly class WebhooksRotateSecretResponseBody
 {
     /**
      * @phpstan-pure
@@ -30,7 +29,7 @@ class WebhooksRotateSecretResponseBody
          * Always `true` for successful responses
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-        public bool $success = true
+        public bool $success = true,
     ) {
     }
 }

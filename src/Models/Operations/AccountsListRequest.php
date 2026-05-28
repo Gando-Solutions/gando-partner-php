@@ -11,7 +11,7 @@ namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
 
-class AccountsListRequest
+final readonly class AccountsListRequest
 {
     /**
      * @phpstan-pure
@@ -31,7 +31,7 @@ class AccountsListRequest
          * Items per page (max 100)
          */
         #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
-        public ?int $limit = 20
+        public ?int $limit = 20,
     ) {
     }
 }

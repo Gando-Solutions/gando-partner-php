@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Components;
 
-
 /** Individual (private) end customer */
 enum ParticulierPartnerClientPatchClientType: string
 {

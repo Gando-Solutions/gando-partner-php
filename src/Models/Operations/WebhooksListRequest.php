@@ -10,7 +10,8 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class WebhooksListRequest
+
+final readonly class WebhooksListRequest
 {
     /**
      * @phpstan-pure
@@ -25,7 +26,7 @@ class WebhooksListRequest
          * Items per page (max 100)
          */
         #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
-        public ?int $limit = 20
+        public ?int $limit = 20,
     ) {
     }
 }

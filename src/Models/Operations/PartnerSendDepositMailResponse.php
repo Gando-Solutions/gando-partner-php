@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class PartnerSendDepositMailResponse
 {
     /**
@@ -31,7 +30,7 @@ class PartnerSendDepositMailResponse
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('messageId')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?string $messageId = null
+        public ?string $messageId = null,
     ) {
     }
 }

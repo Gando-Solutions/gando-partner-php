@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class DepositsUpdatePartnerDepositMutationOk
+final readonly class DepositsUpdatePartnerDepositMutationOk
 {
     /**
      * @phpstan-pure
@@ -20,7 +19,7 @@ class DepositsUpdatePartnerDepositMutationOk
          * Operation completed successfully
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-        public bool $success = true
+        public bool $success = true,
     ) {
     }
 }

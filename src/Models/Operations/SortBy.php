@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** Field to sort deposit results by */
 enum SortBy: string
 {

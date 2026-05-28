@@ -10,7 +10,8 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class WebhooksGetDeliveriesRequest
+
+final readonly class WebhooksGetDeliveriesRequest
 {
     /**
      * @phpstan-pure
@@ -30,7 +31,7 @@ class WebhooksGetDeliveriesRequest
          * Number of deliveries to skip
          */
         #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=offset')]
-        public ?int $offset = null
+        public ?int $offset = null,
     ) {
     }
 }

@@ -17,7 +17,6 @@ use Psr\Http\Message\ResponseInterface;
 
 class RetryUtils
 {
-
     /**
      * A wrapper for http send function to handle retries if necessary.
      *

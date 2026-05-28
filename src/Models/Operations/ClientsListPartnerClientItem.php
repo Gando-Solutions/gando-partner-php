@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class ClientsListPartnerClientItem
+final readonly class ClientsListPartnerClientItem
 {
     /**
      * @phpstan-pure
@@ -104,7 +103,7 @@ class ClientsListPartnerClientItem
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('postalCode')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?string $postalCode = null
+        public ?string $postalCode = null,
     ) {
     }
 }

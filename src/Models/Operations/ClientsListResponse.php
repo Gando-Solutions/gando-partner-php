@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class ClientsListResponse
 {
     /**
@@ -31,7 +30,7 @@ class ClientsListResponse
         /**
          * Paginated clients
          */
-        public ?ClientsListResponseBody $object = null
+        public ?ClientsListResponseBody $object = null,
     ) {
     }
 }

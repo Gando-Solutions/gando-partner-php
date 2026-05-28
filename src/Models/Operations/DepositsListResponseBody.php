@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** DepositsListResponseBody - Paginated list (`items` + `total` + `numPages`; optional `counts`) */
-class DepositsListResponseBody
+final readonly class DepositsListResponseBody
 {
     /**
      * @phpstan-pure
@@ -30,7 +29,7 @@ class DepositsListResponseBody
          * Always `true` for successful responses
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-        public bool $success = true
+        public bool $success = true,
     ) {
     }
 }

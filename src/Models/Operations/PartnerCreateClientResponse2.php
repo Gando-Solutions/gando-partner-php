@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerCreateClientResponse2
+final readonly class PartnerCreateClientResponse2
 {
     /**
      * @phpstan-pure
@@ -20,7 +19,7 @@ class PartnerCreateClientResponse2
          * Created or existing client id (use as `client_id` on deposits)
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('id')]
-        public string $id
+        public string $id,
     ) {
     }
 }

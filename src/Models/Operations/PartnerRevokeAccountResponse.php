@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class PartnerRevokeAccountResponse
 {
     /**
@@ -26,7 +25,7 @@ class PartnerRevokeAccountResponse
          * ISO 8601 timestamp when the link was revoked
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('revoked_at')]
-        public \DateTime $revokedAt
+        public \DateTime $revokedAt,
     ) {
     }
 }

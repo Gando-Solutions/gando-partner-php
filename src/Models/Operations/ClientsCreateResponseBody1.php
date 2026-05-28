@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** ClientsCreateResponseBody1 - Client already exists (idempotent create) */
-class ClientsCreateResponseBody1
+final readonly class ClientsCreateResponseBody1
 {
     /**
      * @phpstan-pure
@@ -30,7 +29,7 @@ class ClientsCreateResponseBody1
          * Always `true` for successful responses
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-        public bool $success = true
+        public bool $success = true,
     ) {
     }
 }

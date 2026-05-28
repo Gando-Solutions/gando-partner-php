@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** AccountsRevokeResponseBody - Link revoked */
-class AccountsRevokeResponseBody
+final readonly class AccountsRevokeResponseBody
 {
     /**
      * @phpstan-pure
@@ -30,7 +29,7 @@ class AccountsRevokeResponseBody
          * Always `true` for successful responses
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-        public bool $success = true
+        public bool $success = true,
     ) {
     }
 }

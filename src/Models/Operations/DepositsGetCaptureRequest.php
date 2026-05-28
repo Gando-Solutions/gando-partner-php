@@ -10,7 +10,8 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class DepositsGetCaptureRequest
+
+final readonly class DepositsGetCaptureRequest
 {
     /**
      * @phpstan-pure
@@ -20,7 +21,7 @@ class DepositsGetCaptureRequest
          * Deposit (caution) unique identifier
          */
         #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
-        public string $id
+        public string $id,
     ) {
     }
 }

@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class WebhooksUpdateResponse
 {
     /**
@@ -31,7 +30,7 @@ class WebhooksUpdateResponse
         /**
          * Successfully updated webhook endpoint
          */
-        public ?WebhooksUpdateResponseBody $object = null
+        public ?WebhooksUpdateResponseBody $object = null,
     ) {
     }
 }

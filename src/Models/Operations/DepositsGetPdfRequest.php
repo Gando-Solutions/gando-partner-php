@@ -10,7 +10,8 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class DepositsGetPdfRequest
+
+final readonly class DepositsGetPdfRequest
 {
     /**
      * @phpstan-pure
@@ -20,7 +21,7 @@ class DepositsGetPdfRequest
          * Deposit (caution) unique identifier
          */
         #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
-        public string $id
+        public string $id,
     ) {
     }
 }

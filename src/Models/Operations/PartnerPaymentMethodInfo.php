@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerPaymentMethodInfo
+final readonly class PartnerPaymentMethodInfo
 {
     /**
      * @phpstan-pure
@@ -32,7 +31,7 @@ class PartnerPaymentMethodInfo
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('brand')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?string $brand = null
+        public ?string $brand = null,
     ) {
     }
 }

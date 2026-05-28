@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class WebhooksCreateResponse
 {
     /**
@@ -31,7 +30,7 @@ class WebhooksCreateResponse
         /**
          * Webhook endpoint created
          */
-        public ?WebhooksCreateResponseBody $object = null
+        public ?WebhooksCreateResponseBody $object = null,
     ) {
     }
 }

@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class PartnerDeleteWebhookResponse
 {
     /**
@@ -20,7 +19,7 @@ class PartnerDeleteWebhookResponse
          * Webhook endpoint was removed
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('deleted')]
-        public bool $deleted = true
+        public bool $deleted = true,
     ) {
     }
 }

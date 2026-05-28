@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class AccountsListResponse
 {
     /**
@@ -35,7 +34,7 @@ class AccountsListResponse
         /**
          * Linked accounts
          */
-        public ?AccountsListResponseBody $object = null
+        public ?AccountsListResponseBody $object = null,
     ) {
     }
     /**

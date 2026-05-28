@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class AccountsRevokeResponse
 {
     /**
@@ -31,7 +30,7 @@ class AccountsRevokeResponse
         /**
          * Link revoked
          */
-        public ?AccountsRevokeResponseBody $object = null
+        public ?AccountsRevokeResponseBody $object = null,
     ) {
     }
 }

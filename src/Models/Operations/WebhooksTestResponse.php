@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class WebhooksTestResponse
 {
     /**
@@ -31,7 +30,7 @@ class WebhooksTestResponse
         /**
          * Test delivery succeeded
          */
-        public ?WebhooksTestResponseBody $object = null
+        public ?WebhooksTestResponseBody $object = null,
     ) {
     }
 }

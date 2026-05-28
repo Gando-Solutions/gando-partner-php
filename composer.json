@@ -32,8 +32,15 @@
     "process-timeout": 60
   },
   "scripts": {
+    "cs-check": [
+      "./vendor/bin/pint --test"
+    ],
     "lint": [
       "./vendor/bin/pint"
+    ],
+    "rector": [
+      "./vendor/bin/rector process --ansi",
+      "php ./scripts/validate-generated-invariants.php"
     ],
     "test": [
       "./vendor/bin/phpunit --testdox --display-warnings --colors=always"

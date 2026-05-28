@@ -36,4 +36,3 @@ $body = new CreatePartnerWebhookSubscriptionBody(url: $url);
 $response = $api->webhooks->create($body);
 
 var_dump($response->object);
-

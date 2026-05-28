@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class PartnerWebhookGetSecretResponse
 {
     /**
@@ -20,7 +19,7 @@ class PartnerWebhookGetSecretResponse
          * Current plain signing secret for this webhook endpoint
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('secret')]
-        public string $secret
+        public string $secret,
     ) {
     }
 }

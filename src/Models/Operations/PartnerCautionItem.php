@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerCautionItem
+final readonly class PartnerCautionItem
 {
     /**
      * @phpstan-pure
@@ -108,7 +107,7 @@ class PartnerCautionItem
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('expiresAt')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?\DateTime $expiresAt = null
+        public ?\DateTime $expiresAt = null,
     ) {
     }
 }

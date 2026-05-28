@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Utils;
 
-
 use Speakeasy\Serializer\Handler\ArrayCollectionHandler;
 use Speakeasy\Serializer\Handler\HandlerRegistry;
 use Speakeasy\Serializer\Handler\IteratorHandler;
@@ -17,7 +16,6 @@ use Speakeasy\Serializer\Handler\StdClassHandler;
 use Speakeasy\Serializer\SerializationContext;
 use Speakeasy\Serializer\SerializerBuilder;
 use Speakeasy\Serializer\Visitor\Factory\JsonDeserializationVisitorFactory;
-
 
 class JSON
 {
@@ -38,9 +36,9 @@ class JSON
             },
         )->setDeserializationVisitor(
             'json',
-            (new JsonDeserializationVisitorFactory())->setOptions(JSON_BIGINT_AS_STRING)
+            (new JsonDeserializationVisitorFactory())->setOptions(JSON_BIGINT_AS_STRING),
         )->setTypeParser(
-            new PhpDocTypeParser()
+            new PhpDocTypeParser(),
         )->setSerializationContextFactory(fn (): \Speakeasy\Serializer\SerializationContext => SerializationContext::create()
             ->setSerializeNull(true))->build();
     }

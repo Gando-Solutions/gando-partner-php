@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class WebhooksDeleteResponse
 {
     /**
@@ -31,7 +30,7 @@ class WebhooksDeleteResponse
         /**
          * Webhook endpoint deleted
          */
-        public ?WebhooksDeleteResponseBody $object = null
+        public ?WebhooksDeleteResponseBody $object = null,
     ) {
     }
 }

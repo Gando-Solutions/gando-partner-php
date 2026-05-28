@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerSendDepositMailBody
+final readonly class PartnerSendDepositMailBody
 {
     /**
      * @phpstan-pure
@@ -20,7 +19,7 @@ class PartnerSendDepositMailBody
          * Single recipient for the deposit completion link
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('email')]
-        public string $email
+        public string $email,
     ) {
     }
 }

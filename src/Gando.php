@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner;
 
-
-
 /** Gando - Gando Partner API: API for **rental management software** and **multi–rental-operator platforms** integrating Gando on behalf of linked rental operators. Use **`gando_pk_`** keys (`x-api-key` or `Authorization: Bearer`) on `/api/partner/*`. */
 class Gando
 {

@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** PartnerDepositListCounts - Present only when `include_counts=true` and `account_id` is set */
-class PartnerDepositListCounts
+final readonly class PartnerDepositListCounts
 {
     /**
      * @param  array<string, int>  $byStatus
@@ -28,7 +27,7 @@ class PartnerDepositListCounts
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('byStatus')]
         #[\Speakeasy\Serializer\Annotation\Type('array<string, int>')]
-        public array $byStatus
+        public array $byStatus,
     ) {
     }
 }

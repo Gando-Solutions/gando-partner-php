@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** WebhooksGetDeliveriesResponseBody - Delivery history */
-class WebhooksGetDeliveriesResponseBody
+final readonly class WebhooksGetDeliveriesResponseBody
 {
     /**
      * @param  array<\Gando\Partner\Models\Operations\PartnerWebhookDeliveryItem>  $data
@@ -34,7 +33,7 @@ class WebhooksGetDeliveriesResponseBody
          * Always `true` for successful responses
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-        public bool $success = true
+        public bool $success = true,
     ) {
     }
 }

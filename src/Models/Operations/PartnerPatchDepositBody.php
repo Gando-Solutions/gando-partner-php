@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerPatchDepositBody
+final readonly class PartnerPatchDepositBody
 {
     /**
      * @phpstan-pure
@@ -28,7 +27,7 @@ class PartnerPatchDepositBody
         #[\Speakeasy\Serializer\Annotation\SerializedName('action')]
         #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\Action|null')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?Action $action = null
+        public ?Action $action = null,
     ) {
     }
 }

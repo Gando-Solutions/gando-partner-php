@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Components;
 
-
 /** ProfessionnelClient - Create a business client. `companyName` is required. */
-class ProfessionnelClient
+final readonly class ProfessionnelClient
 {
     /**
      * @phpstan-pure
@@ -90,7 +89,7 @@ class ProfessionnelClient
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('postalCode')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?string $postalCode = null
+        public ?string $postalCode = null,
     ) {
     }
 }

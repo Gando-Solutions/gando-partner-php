@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** Sort direction: ascending or descending */
 enum SortOrder: string
 {

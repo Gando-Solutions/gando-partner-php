@@ -44,4 +44,3 @@ $clientId = $response->twoHundredAndOneApplicationJsonObject?->data->id
     ?? $response->twoHundredApplicationJsonObject?->data->id;
 
 var_dump($clientId);
-

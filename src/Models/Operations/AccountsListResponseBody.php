@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** AccountsListResponseBody - Linked accounts */
-class AccountsListResponseBody
+final readonly class AccountsListResponseBody
 {
     /**
      * @phpstan-pure
@@ -30,7 +29,7 @@ class AccountsListResponseBody
          * Always `true` for successful responses
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-        public bool $success = true
+        public bool $success = true,
     ) {
     }
 }

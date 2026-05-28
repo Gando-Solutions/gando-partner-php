@@ -8,6 +8,7 @@
 declare(strict_types=1);
 
 namespace Gando\Partner;
+
 use Gando\Partner\Utils\Retry\RetryConfig;
 
 class SDKConfiguration

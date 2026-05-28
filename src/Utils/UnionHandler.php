@@ -57,7 +57,7 @@ final class UnionHandler implements SubscribingHandlerInterface
         SerializationVisitorInterface $visitor,
         mixed $data,
         array $type,
-        SerializationContext $context
+        SerializationContext $context,
     ): mixed {
         if ($this->isPrimitiveType(gettype($data))) {
             return $this->matchSimpleType($data, $type, $context);

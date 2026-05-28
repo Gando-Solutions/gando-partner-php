@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class PartnerClientsListResponse
 {
     /**
@@ -28,7 +27,7 @@ class PartnerClientsListResponse
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('pagination')]
         #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\Pagination::class)]
-        public Pagination $pagination
+        public Pagination $pagination,
     ) {
     }
 }

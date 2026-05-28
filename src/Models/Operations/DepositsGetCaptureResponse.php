@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class DepositsGetCaptureResponse
 {
     /**
@@ -31,7 +30,7 @@ class DepositsGetCaptureResponse
         /**
          * Capture summary
          */
-        public ?DepositsGetCaptureResponseBody $object = null
+        public ?DepositsGetCaptureResponseBody $object = null,
     ) {
     }
 }

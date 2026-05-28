@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class PartnerCreateDepositResponse
 {
     /**
@@ -47,7 +46,7 @@ class PartnerCreateDepositResponse
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('deposit_url')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?string $depositUrl = null
+        public ?string $depositUrl = null,
     ) {
     }
 }

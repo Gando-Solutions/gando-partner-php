@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class WebhooksListPartnerWebhookSubscriptionItem
+final readonly class WebhooksListPartnerWebhookSubscriptionItem
 {
     /**
      * @param  array<\Gando\Partner\Models\Operations\WebhooksListEvent>  $events
@@ -47,7 +46,7 @@ class WebhooksListPartnerWebhookSubscriptionItem
          * Last update timestamp (ISO 8601)
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('updatedAt')]
-        public \DateTime $updatedAt
+        public \DateTime $updatedAt,
     ) {
     }
 }

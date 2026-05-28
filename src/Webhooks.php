@@ -59,11 +59,11 @@ class Webhooks
             $retryConfig = $this->sdkConfiguration->retryConfig;
         } else {
             $retryConfig = new Retry\RetryConfigBackoff(
-                exponent: 1.5,
-                retryConnectionErrors: true,
                 initialInterval: 500,
                 maxInterval: 60000,
+                exponent: 1.5,
                 maxElapsedTime: 30000,
+                retryConnectionErrors: true,
             );
         }
         $retryCodes = null;
@@ -92,7 +92,7 @@ class Webhooks
         $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
         $httpRequest = Utils\Utils::removeHeaders($httpRequest);
         try {
-            $httpResponse = RetryUtils::retryWrapper(fn(): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
+            $httpResponse = RetryUtils::retryWrapper(fn (): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
         } catch (\GuzzleHttp\Exception\GuzzleException $error) {
             $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), null, $error);
             $httpResponse = $res;
@@ -117,7 +117,7 @@ class Webhooks
                     contentType: $contentType,
                     statusCode: $statusCode,
                     rawResponse: $httpResponse,
-                    object: $obj
+                    object: $obj,
                 );
             }
             throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
@@ -172,11 +172,11 @@ class Webhooks
             $retryConfig = $this->sdkConfiguration->retryConfig;
         } else {
             $retryConfig = new Retry\RetryConfigBackoff(
-                exponent: 1.5,
-                retryConnectionErrors: true,
                 initialInterval: 500,
                 maxInterval: 60000,
+                exponent: 1.5,
                 maxElapsedTime: 30000,
+                retryConnectionErrors: true,
             );
         }
         $retryCodes = null;
@@ -203,7 +203,7 @@ class Webhooks
         $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
         $httpRequest = Utils\Utils::removeHeaders($httpRequest);
         try {
-            $httpResponse = RetryUtils::retryWrapper(fn(): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
+            $httpResponse = RetryUtils::retryWrapper(fn (): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
         } catch (\GuzzleHttp\Exception\GuzzleException $error) {
             $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), null, $error);
             $httpResponse = $res;
@@ -228,7 +228,7 @@ class Webhooks
                     contentType: $contentType,
                     statusCode: $statusCode,
                     rawResponse: $httpResponse,
-                    object: $obj
+                    object: $obj,
                 );
             }
             throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
@@ -283,11 +283,11 @@ class Webhooks
             $retryConfig = $this->sdkConfiguration->retryConfig;
         } else {
             $retryConfig = new Retry\RetryConfigBackoff(
-                exponent: 1.5,
-                retryConnectionErrors: true,
                 initialInterval: 500,
                 maxInterval: 60000,
+                exponent: 1.5,
                 maxElapsedTime: 30000,
+                retryConnectionErrors: true,
             );
         }
         $retryCodes = null;
@@ -320,7 +320,7 @@ class Webhooks
         $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
         $httpRequest = Utils\Utils::removeHeaders($httpRequest);
         try {
-            $httpResponse = RetryUtils::retryWrapper(fn(): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
+            $httpResponse = RetryUtils::retryWrapper(fn (): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
         } catch (\GuzzleHttp\Exception\GuzzleException $error) {
             $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), null, $error);
             $httpResponse = $res;
@@ -345,7 +345,7 @@ class Webhooks
                     contentType: $contentType,
                     statusCode: $statusCode,
                     rawResponse: $httpResponse,
-                    object: $obj
+                    object: $obj,
                 );
             }
             throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
@@ -400,11 +400,11 @@ class Webhooks
             $retryConfig = $this->sdkConfiguration->retryConfig;
         } else {
             $retryConfig = new Retry\RetryConfigBackoff(
-                exponent: 1.5,
-                retryConnectionErrors: true,
                 initialInterval: 500,
                 maxInterval: 60000,
+                exponent: 1.5,
                 maxElapsedTime: 30000,
+                retryConnectionErrors: true,
             );
         }
         $retryCodes = null;
@@ -431,7 +431,7 @@ class Webhooks
         $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
         $httpRequest = Utils\Utils::removeHeaders($httpRequest);
         try {
-            $httpResponse = RetryUtils::retryWrapper(fn(): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
+            $httpResponse = RetryUtils::retryWrapper(fn (): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
         } catch (\GuzzleHttp\Exception\GuzzleException $error) {
             $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), null, $error);
             $httpResponse = $res;
@@ -456,7 +456,7 @@ class Webhooks
                     contentType: $contentType,
                     statusCode: $statusCode,
                     rawResponse: $httpResponse,
-                    object: $obj
+                    object: $obj,
                 );
             }
             throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
@@ -511,11 +511,11 @@ class Webhooks
             $retryConfig = $this->sdkConfiguration->retryConfig;
         } else {
             $retryConfig = new Retry\RetryConfigBackoff(
-                exponent: 1.5,
-                retryConnectionErrors: true,
                 initialInterval: 500,
                 maxInterval: 60000,
+                exponent: 1.5,
                 maxElapsedTime: 30000,
+                retryConnectionErrors: true,
             );
         }
         $retryCodes = null;
@@ -547,7 +547,7 @@ class Webhooks
         $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
         $httpRequest = Utils\Utils::removeHeaders($httpRequest);
         try {
-            $httpResponse = RetryUtils::retryWrapper(fn(): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
+            $httpResponse = RetryUtils::retryWrapper(fn (): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
         } catch (\GuzzleHttp\Exception\GuzzleException $error) {
             $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), null, $error);
             $httpResponse = $res;
@@ -571,7 +571,7 @@ class Webhooks
                     contentType: $contentType,
                     statusCode: $statusCode,
                     rawResponse: $httpResponse,
-                    object: $obj
+                    object: $obj,
                 );
                 $sdk = $this;
 
@@ -672,11 +672,11 @@ class Webhooks
             $retryConfig = $this->sdkConfiguration->retryConfig;
         } else {
             $retryConfig = new Retry\RetryConfigBackoff(
-                exponent: 1.5,
-                retryConnectionErrors: true,
                 initialInterval: 500,
                 maxInterval: 60000,
+                exponent: 1.5,
                 maxElapsedTime: 30000,
+                retryConnectionErrors: true,
             );
         }
         $retryCodes = null;
@@ -703,7 +703,7 @@ class Webhooks
         $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
         $httpRequest = Utils\Utils::removeHeaders($httpRequest);
         try {
-            $httpResponse = RetryUtils::retryWrapper(fn(): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
+            $httpResponse = RetryUtils::retryWrapper(fn (): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
         } catch (\GuzzleHttp\Exception\GuzzleException $error) {
             $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), null, $error);
             $httpResponse = $res;
@@ -728,7 +728,7 @@ class Webhooks
                     contentType: $contentType,
                     statusCode: $statusCode,
                     rawResponse: $httpResponse,
-                    object: $obj
+                    object: $obj,
                 );
             }
             throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
@@ -810,11 +810,11 @@ class Webhooks
             $retryConfig = $this->sdkConfiguration->retryConfig;
         } else {
             $retryConfig = new Retry\RetryConfigBackoff(
-                exponent: 1.5,
-                retryConnectionErrors: true,
                 initialInterval: 500,
                 maxInterval: 60000,
+                exponent: 1.5,
                 maxElapsedTime: 30000,
+                retryConnectionErrors: true,
             );
         }
         $retryCodes = null;
@@ -841,7 +841,7 @@ class Webhooks
         $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
         $httpRequest = Utils\Utils::removeHeaders($httpRequest);
         try {
-            $httpResponse = RetryUtils::retryWrapper(fn(): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
+            $httpResponse = RetryUtils::retryWrapper(fn (): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
         } catch (\GuzzleHttp\Exception\GuzzleException $error) {
             $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), null, $error);
             $httpResponse = $res;
@@ -866,7 +866,7 @@ class Webhooks
                     contentType: $contentType,
                     statusCode: $statusCode,
                     rawResponse: $httpResponse,
-                    object: $obj
+                    object: $obj,
                 );
             }
             throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
@@ -921,11 +921,11 @@ class Webhooks
             $retryConfig = $this->sdkConfiguration->retryConfig;
         } else {
             $retryConfig = new Retry\RetryConfigBackoff(
-                exponent: 1.5,
-                retryConnectionErrors: true,
                 initialInterval: 500,
                 maxInterval: 60000,
+                exponent: 1.5,
                 maxElapsedTime: 30000,
+                retryConnectionErrors: true,
             );
         }
         $retryCodes = null;
@@ -958,7 +958,7 @@ class Webhooks
         $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
         $httpRequest = Utils\Utils::removeHeaders($httpRequest);
         try {
-            $httpResponse = RetryUtils::retryWrapper(fn(): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
+            $httpResponse = RetryUtils::retryWrapper(fn (): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
         } catch (\GuzzleHttp\Exception\GuzzleException $error) {
             $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), null, $error);
             $httpResponse = $res;
@@ -983,7 +983,7 @@ class Webhooks
                     contentType: $contentType,
                     statusCode: $statusCode,
                     rawResponse: $httpResponse,
-                    object: $obj
+                    object: $obj,
                 );
             }
             throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);

@@ -17,11 +17,10 @@ use Speakeasy\Serializer\Type\ParserInterface;
  *
  * This class translates from types in the formats supported byphpDocumentor
  * to the nested array format used by JMS/serializer.
- * 
+ *
  */
 class PhpDocTypeParser implements ParserInterface
 {
-
     private readonly \phpDocumentor\Reflection\TypeResolver $typeResolver;
     public function __construct()
     {

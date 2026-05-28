@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** UpdatePartnerWebhookSubscriptionBody - Partner webhook endpoint update payload */
-class UpdatePartnerWebhookSubscriptionBody
+final readonly class UpdatePartnerWebhookSubscriptionBody
 {
     /**
      * @param  ?array<\Gando\Partner\Models\Operations\WebhooksUpdateEventRequest>  $events
@@ -36,7 +35,7 @@ class UpdatePartnerWebhookSubscriptionBody
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('isActive')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?bool $isActive = null
+        public ?bool $isActive = null,
     ) {
     }
 }

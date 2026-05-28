@@ -16,7 +16,6 @@ use Psr\Http\Message\UriInterface;
 
 class DefaultRequest implements RequestInterface
 {
-
     public function getRequestTarget(): string
     {
         return '';

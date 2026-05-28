@@ -17,7 +17,7 @@ class MultipartMetadata
         public bool $content,
         public bool $json,
         public string $dateTimeFormat,
-        public bool $serializeToString
+        public bool $serializeToString,
     ) {
     }
 
@@ -61,7 +61,7 @@ class MultipartMetadata
             content: $content,
             json: $json,
             dateTimeFormat: $dateTimeFormat,
-            serializeToString: $serializeToString
+            serializeToString: $serializeToString,
         );
     }
 }

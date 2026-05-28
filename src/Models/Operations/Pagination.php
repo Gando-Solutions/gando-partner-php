@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** Pagination - Pagination metadata */
-class Pagination
+final readonly class Pagination
 {
     /**
      * @phpstan-pure
@@ -36,7 +35,7 @@ class Pagination
          * Total number of pages
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('totalPages')]
-        public float $totalPages
+        public float $totalPages,
     ) {
     }
 }

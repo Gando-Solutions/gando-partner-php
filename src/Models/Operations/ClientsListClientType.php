@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** Type of client: particulier (individual) or professionnel (business) */
 enum ClientsListClientType: string
 {

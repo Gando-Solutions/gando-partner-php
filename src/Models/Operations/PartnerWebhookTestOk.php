@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerWebhookTestOk
+final readonly class PartnerWebhookTestOk
 {
     /**
      * @phpstan-pure
@@ -20,7 +19,7 @@ class PartnerWebhookTestOk
          * HTTP status code returned by your webhook URL
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('statusCode')]
-        public int $statusCode
+        public int $statusCode,
     ) {
     }
 }

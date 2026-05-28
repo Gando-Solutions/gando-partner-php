@@ -11,7 +11,8 @@ namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Models\Components;
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class ClientsUpdateRequest
+
+final readonly class ClientsUpdateRequest
 {
     /**
      * @phpstan-pure
@@ -23,7 +24,7 @@ class ClientsUpdateRequest
         #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
         public string $id,
         #[SpeakeasyMetadata('request:mediaType=application/json')]
-        public Components\ParticulierPartnerClientPatch|Components\ProfessionnelPartnerClientPatch $body
+        public Components\ParticulierPartnerClientPatch|Components\ProfessionnelPartnerClientPatch $body,
     ) {
     }
 }

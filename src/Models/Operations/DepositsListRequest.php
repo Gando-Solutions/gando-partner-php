@@ -10,7 +10,8 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class DepositsListRequest
+
+final readonly class DepositsListRequest
 {
     /**
      * @param  ?array<\Gando\Partner\Models\Operations\DepositsListQueryParamStatus>  $status
@@ -86,7 +87,7 @@ class DepositsListRequest
          * Items per page (max 100)
          */
         #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
-        public ?int $limit = 20
+        public ?int $limit = 20,
     ) {
     }
 }

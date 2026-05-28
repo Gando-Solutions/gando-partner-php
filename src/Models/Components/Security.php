@@ -10,7 +10,8 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Components;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class Security
+
+final readonly class Security
 {
     /**
      * @phpstan-pure
@@ -19,7 +20,7 @@ class Security
         #[SpeakeasyMetadata('security:scheme=true,type=apiKey,subtype=header,name=x-api-key')]
         public ?string $partnerApiKeyAuth = null,
         #[SpeakeasyMetadata('security:scheme=true,type=http,subtype=bearer,name=Authorization')]
-        public ?string $partnerBearerAuth = null
+        public ?string $partnerBearerAuth = null,
     ) {
     }
 }

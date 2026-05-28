@@ -10,7 +10,8 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class DepositsCreateRequest
+
+final readonly class DepositsCreateRequest
 {
     /**
      * @phpstan-pure
@@ -22,7 +23,7 @@ class DepositsCreateRequest
          * Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`.
          */
         #[SpeakeasyMetadata('header:style=simple,explode=false,name=Idempotency-Key')]
-        public ?string $idempotencyKey = null
+        public ?string $idempotencyKey = null,
     ) {
     }
 }

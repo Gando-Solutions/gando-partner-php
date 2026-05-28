@@ -9,6 +9,7 @@
 declare(strict_types=1);
 
 namespace Gando\Partner\Hooks;
+
 use Psr\Http\Message\ResponseInterface;
 
 class ErrorResponseContext

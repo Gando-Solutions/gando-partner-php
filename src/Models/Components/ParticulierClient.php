@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Components;
 
-
 /** ParticulierClient - Create an individual (private) client */
-class ParticulierClient
+final readonly class ParticulierClient
 {
     /**
      * @phpstan-pure
@@ -93,7 +92,7 @@ class ParticulierClient
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('companyName')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?string $companyName = null
+        public ?string $companyName = null,
     ) {
     }
 }

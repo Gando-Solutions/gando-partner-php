@@ -38,4 +38,3 @@ $signupUrl = $builder->signupUrl(
 );
 
 echo $signupUrl."\n";
-

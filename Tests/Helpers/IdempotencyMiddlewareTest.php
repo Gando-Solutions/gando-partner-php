@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Tests\Helpers;
 
+use Gando\Partner\Helpers\IdempotencyMiddleware;
 use Gando\Partner\Hooks\BeforeRequestContext;
 use Gando\Partner\Hooks\HookContext;
-use Gando\Partner\Helpers\IdempotencyMiddleware;
 use Gando\Partner\SDKConfiguration;
 use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\TestCase;

@@ -9,8 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerAccountList
+final readonly class PartnerAccountList
 {
     /**
      * @param  array<\Gando\Partner\Models\Operations\PartnerLinkedAccount>  $accounts
@@ -27,7 +26,7 @@ class PartnerAccountList
          * Total number of accounts matching the filter
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('total')]
-        public int $total
+        public int $total,
     ) {
     }
 }

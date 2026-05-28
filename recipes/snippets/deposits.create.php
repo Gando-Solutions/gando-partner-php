@@ -43,4 +43,3 @@ $body = new PartnerCreateDepositBody(
 $response = $api->deposits->create($body);
 
 var_dump($response->object);
-

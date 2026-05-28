@@ -28,4 +28,3 @@ $api = new Client(
 $response = $api->webhooks->list();
 
 var_dump($response->object);
-

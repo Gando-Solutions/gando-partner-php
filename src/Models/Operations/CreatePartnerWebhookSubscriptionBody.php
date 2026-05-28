@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** CreatePartnerWebhookSubscriptionBody - Partner webhook endpoint creation payload */
-class CreatePartnerWebhookSubscriptionBody
+final readonly class CreatePartnerWebhookSubscriptionBody
 {
     /**
      * @param  ?array<\Gando\Partner\Models\Operations\WebhooksCreateEventRequest>  $events
@@ -29,7 +28,7 @@ class CreatePartnerWebhookSubscriptionBody
         #[\Speakeasy\Serializer\Annotation\SerializedName('events')]
         #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\WebhooksCreateEventRequest>|null')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?array $events = null
+        public ?array $events = null,
     ) {
     }
 }

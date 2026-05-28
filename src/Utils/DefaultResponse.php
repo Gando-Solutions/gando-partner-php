@@ -15,7 +15,6 @@ use Psr\Http\Message\StreamInterface;
 
 class DefaultResponse implements ResponseInterface
 {
-
     public function getStatusCode(): int
     {
         return 0;

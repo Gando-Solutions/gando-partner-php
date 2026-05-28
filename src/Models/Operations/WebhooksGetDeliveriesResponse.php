@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class WebhooksGetDeliveriesResponse
 {
     /**
@@ -31,7 +30,7 @@ class WebhooksGetDeliveriesResponse
         /**
          * Delivery history
          */
-        public ?WebhooksGetDeliveriesResponseBody $object = null
+        public ?WebhooksGetDeliveriesResponseBody $object = null,
     ) {
     }
 }

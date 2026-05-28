@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class PartnerDepositEmailsResponse
 {
     /**
@@ -27,7 +26,7 @@ class PartnerDepositEmailsResponse
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('results')]
         #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\Result>')]
-        public array $results
+        public array $results,
     ) {
     }
 }

@@ -10,7 +10,8 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class WebhooksDeleteRequest
+
+final readonly class WebhooksDeleteRequest
 {
     /**
      * @phpstan-pure
@@ -20,7 +21,7 @@ class WebhooksDeleteRequest
          * Partner webhook endpoint id
          */
         #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
-        public string $id
+        public string $id,
     ) {
     }
 }

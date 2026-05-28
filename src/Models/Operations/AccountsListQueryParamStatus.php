@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** Filter linked accounts: `active` (default, operable links), `revoked` (disconnected), or `all`. */
 enum AccountsListQueryParamStatus: string
 {

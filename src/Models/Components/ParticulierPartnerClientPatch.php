@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Components;
 
-
 /** ParticulierPartnerClientPatch - Patch an individual client. At least one field is required. */
-class ParticulierPartnerClientPatch
+final readonly class ParticulierPartnerClientPatch
 {
     /**
      * @phpstan-pure
@@ -83,7 +82,7 @@ class ParticulierPartnerClientPatch
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('companyName')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?string $companyName = null
+        public ?string $companyName = null,
     ) {
     }
 }

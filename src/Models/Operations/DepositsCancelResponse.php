@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class DepositsCancelResponse
 {
     /**
@@ -31,7 +30,7 @@ class DepositsCancelResponse
         /**
          * Closed
          */
-        public ?DepositsCancelResponseBody $object = null
+        public ?DepositsCancelResponseBody $object = null,
     ) {
     }
 }

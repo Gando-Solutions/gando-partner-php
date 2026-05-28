@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class DepositsDeleteResponse
 {
     /**
@@ -31,7 +30,7 @@ class DepositsDeleteResponse
         /**
          * Deleted or archived
          */
-        public ?PartnerDeleteDepositResponse $partnerDeleteDepositResponse = null
+        public ?PartnerDeleteDepositResponse $partnerDeleteDepositResponse = null,
     ) {
     }
 }
