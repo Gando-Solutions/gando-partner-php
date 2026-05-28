@@ -13,7 +13,7 @@ use ReflectionProperty;
 
 class RequestBodies
 {
-    const SERIALIZATION_METHOD_TO_CONTENT_TYPE = [
+    public const SERIALIZATION_METHOD_TO_CONTENT_TYPE = [
         'json' => 'application/json',
         'form' => 'application/x-www-form-urlencoded',
         'multipart' => 'multipart/form-data',

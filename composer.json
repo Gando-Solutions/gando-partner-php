@@ -31,6 +31,9 @@
     "process-timeout": 60
   },
   "scripts": {
+    "lint": [
+      "./vendor/bin/pint"
+    ],
     "test": [
       "./vendor/bin/phpunit --testdox --display-warnings --colors=always"
     ],

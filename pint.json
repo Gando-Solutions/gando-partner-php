@@ -1,5 +1,5 @@
 {
-    "preset": "laravel",
+    "preset": "psr12",
     "rules": {
         "no_superfluous_phpdoc_tags": false,
         "phpdoc_separation": false,

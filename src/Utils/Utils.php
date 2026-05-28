@@ -452,6 +452,7 @@ function valToString(mixed $val, array $extras): string
 
                     return var_export($val, true);
             }
+            // no break
         default:
             return var_export($val, true);
     }

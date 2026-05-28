@@ -134,7 +134,8 @@ class Clients
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    twoHundredApplicationJsonObject: $obj);
+                    twoHundredApplicationJsonObject: $obj
+                );
 
                 return $response;
             } else {
@@ -151,7 +152,8 @@ class Clients
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    twoHundredAndOneApplicationJsonObject: $obj);
+                    twoHundredAndOneApplicationJsonObject: $obj
+                );
 
                 return $response;
             } else {
@@ -274,7 +276,8 @@ class Clients
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -395,7 +398,8 @@ class Clients
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {

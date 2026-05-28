@@ -98,6 +98,7 @@ class Headers
 
                     return implode(',', $items);
                 }
+                // no break
             default:
                 return valToString($value, []);
         }

@@ -128,7 +128,8 @@ class Deposits
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -255,7 +256,8 @@ class Deposits
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -386,7 +388,8 @@ class Deposits
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -500,7 +503,8 @@ class Deposits
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    partnerDeleteDepositResponse: $obj);
+                    partnerDeleteDepositResponse: $obj
+                );
 
                 return $response;
             } else {
@@ -614,7 +618,8 @@ class Deposits
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -728,7 +733,8 @@ class Deposits
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -841,7 +847,8 @@ class Deposits
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    bytes: $obj);
+                    bytes: $obj
+                );
             } else {
                 throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
             }
@@ -959,7 +966,8 @@ class Deposits
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
                 $sdk = $this;
 
                 $response->next = function () use ($sdk, $request, $responseData): ?Operations\DepositsListResponse {
@@ -1130,7 +1138,8 @@ class Deposits
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -1251,7 +1260,8 @@ class Deposits
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -1372,7 +1382,8 @@ class Deposits
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -1495,7 +1506,8 @@ class Deposits
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {

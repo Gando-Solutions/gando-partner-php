@@ -36,8 +36,11 @@ class JSON
                 $registry->registerSubscribingHandler(new BigIntHandler());
                 $registry->registerSubscribingHandler(new BigDecimalHandler());
             },
-        )->setDeserializationVisitor('json', (new JsonDeserializationVisitorFactory())->setOptions(JSON_BIGINT_AS_STRING)
-        )->setTypeParser(new PhpDocTypeParser()
+        )->setDeserializationVisitor(
+            'json',
+            (new JsonDeserializationVisitorFactory())->setOptions(JSON_BIGINT_AS_STRING)
+        )->setTypeParser(
+            new PhpDocTypeParser()
         )->setSerializationContextFactory(function () {
             return SerializationContext::create()
                 ->setSerializeNull(true);
