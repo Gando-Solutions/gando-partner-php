@@ -37,7 +37,17 @@ final class DepositsIdempotencyTest extends TestCase
         ], JSON_THROW_ON_ERROR);
 
         $mock = new MockHandler([
-            new Response(503),
+            new Response(
+                429,
+                ['Content-Type' => ['application/json']],
+                json_encode([
+                    'error' => [
+                        'code' => 'rate_limited',
+                        'message' => 'retry later',
+                        'requestId' => 'req_retry_429',
+                    ],
+                ], JSON_THROW_ON_ERROR),
+            ),
             new Response(201, ['Content-Type' => ['application/json']], $successBody),
         ]);
 
