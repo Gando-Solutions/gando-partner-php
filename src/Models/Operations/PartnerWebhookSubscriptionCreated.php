@@ -13,60 +13,36 @@ namespace Gando\Partner\Models\Operations;
 class PartnerWebhookSubscriptionCreated
 {
     /**
-     * Partner webhook endpoint id (use as `{id}` in follow-up routes)
-     *
-     * @var string $id
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('id')]
-    public string $id;
-
-    /**
-     * Destination URL for webhook deliveries
-     *
-     * @var string $url
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('url')]
-    public string $url;
-
-    /**
-     * Subscribed event list
-     *
-     * @var array<\Gando\Partner\Models\Operations\WebhooksCreateEventResponse> $events
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('events')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\WebhooksCreateEventResponse>')]
-    public array $events;
-
-    /**
-     * Creation date and time (ISO 8601)
-     *
-     * @var \DateTime $createdAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('createdAt')]
-    public \DateTime $createdAt;
-
-    /**
-     * Plain signing secret. Returned only once at creation (store it securely).
-     *
-     * @var string $secret
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('secret')]
-    public string $secret;
-
-    /**
-     * @param  string  $id
-     * @param  string  $url
      * @param  array<\Gando\Partner\Models\Operations\WebhooksCreateEventResponse>  $events
-     * @param  \DateTime  $createdAt
-     * @param  string  $secret
      * @phpstan-pure
      */
-    public function __construct(string $id, string $url, array $events, \DateTime $createdAt, string $secret)
-    {
-        $this->id = $id;
-        $this->url = $url;
-        $this->events = $events;
-        $this->createdAt = $createdAt;
-        $this->secret = $secret;
+    public function __construct(
+        /**
+         * Partner webhook endpoint id (use as `{id}` in follow-up routes)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('id')]
+        public string $id,
+        /**
+         * Destination URL for webhook deliveries
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('url')]
+        public string $url,
+        /**
+         * Subscribed event list
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('events')]
+        #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\WebhooksCreateEventResponse>')]
+        public array $events,
+        /**
+         * Creation date and time (ISO 8601)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('createdAt')]
+        public \DateTime $createdAt,
+        /**
+         * Plain signing secret. Returned only once at creation (store it securely).
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('secret')]
+        public string $secret
+    ) {
     }
 }

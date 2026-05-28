@@ -14,7 +14,6 @@ use ReflectionProperty;
 class Headers
 {
     /**
-     * @param  mixed  $headers
      * @param  array<string,array<string,array<string,string>>>|null  $globals
      * @return array<string,string>
      */
@@ -36,13 +35,15 @@ class Headers
             }
 
             $metadata = $this->parseHeaderMetadata(new ReflectionProperty($headers::class, $field));
-            if ($metadata === null) {
+            if (!$metadata instanceof \Gando\Partner\Utils\ParamsMetadata) {
                 continue;
             }
 
             $value = $this->serializeHeader($metadata, $value);
-
-            if (empty($value)) {
+            if ($value === '') {
+                continue;
+            }
+            if ($value === '0') {
                 continue;
             }
 
@@ -64,7 +65,13 @@ class Headers
                     }
 
                     $fieldMetadata = $this->parseHeaderMetadata(new ReflectionProperty($value::class, $field));
-                    if ($fieldMetadata === null || empty($fieldMetadata->name)) {
+                    if (!$fieldMetadata instanceof \Gando\Partner\Utils\ParamsMetadata) {
+                        continue;
+                    }
+                    if ($fieldMetadata->name === '') {
+                        continue;
+                    }
+                    if ($fieldMetadata->name === '0') {
                         continue;
                     }
 
@@ -79,26 +86,22 @@ class Headers
                 return implode(',', $items);
             case 'array':
                 if (array_is_list($value)) {
-                    return implode(',', array_map(fn ($v) => valToString($v, []), $value));
-                } else {
-                    $items = [];
-
-                    foreach ($value as $field => $fieldValue) {
-                        if ($fieldValue === null) {
-                            continue;
-                        }
-
-                        if ($metadata->explode) {
-                            $items[] = $field.'='.valToString($fieldValue, []);
-                        } else {
-                            $items[] = $field;
-                            $items[] = valToString($fieldValue, []);
-                        }
+                    return implode(',', array_map(fn ($v): string => valToString($v, []), $value));
+                }
+                $items = [];
+                foreach ($value as $field => $fieldValue) {
+                    if ($fieldValue === null) {
+                        continue;
                     }
 
-                    return implode(',', $items);
+                    if ($metadata->explode) {
+                        $items[] = $field.'='.valToString($fieldValue, []);
+                    } else {
+                        $items[] = $field;
+                        $items[] = valToString($fieldValue, []);
+                    }
                 }
-                // no break
+                return implode(',', $items);
             default:
                 return valToString($value, []);
         }
@@ -111,11 +114,6 @@ class Headers
             return null;
         }
 
-        $metadata = ParamsMetadata::parse($metadataStr);
-        if ($metadata === null) {
-            return null;
-        }
-
-        return $metadata;
+        return ParamsMetadata::parse($metadataStr);
     }
 }

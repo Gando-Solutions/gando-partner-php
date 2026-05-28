@@ -13,70 +13,41 @@ namespace Gando\Partner\Models\Operations;
 class WebhooksUpdatePartnerWebhookSubscriptionItem
 {
     /**
-     * Partner webhook endpoint id; path parameter `{id}` in update/delete/test/deliveries routes
-     *
-     * @var string $id
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('id')]
-    public string $id;
-
-    /**
-     * Destination URL for webhook deliveries
-     *
-     * @var string $url
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('url')]
-    public string $url;
-
-    /**
-     * Subscribed event types for this endpoint
-     *
-     * @var array<\Gando\Partner\Models\Operations\WebhooksUpdateEventResponse> $events
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('events')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\WebhooksUpdateEventResponse>')]
-    public array $events;
-
-    /**
-     * Whether this endpoint receives deliveries
-     *
-     * @var bool $isActive
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('isActive')]
-    public bool $isActive;
-
-    /**
-     * Creation timestamp (ISO 8601)
-     *
-     * @var \DateTime $createdAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('createdAt')]
-    public \DateTime $createdAt;
-
-    /**
-     * Last update timestamp (ISO 8601)
-     *
-     * @var \DateTime $updatedAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('updatedAt')]
-    public \DateTime $updatedAt;
-
-    /**
-     * @param  string  $id
-     * @param  string  $url
      * @param  array<\Gando\Partner\Models\Operations\WebhooksUpdateEventResponse>  $events
-     * @param  bool  $isActive
-     * @param  \DateTime  $createdAt
-     * @param  \DateTime  $updatedAt
      * @phpstan-pure
      */
-    public function __construct(string $id, string $url, array $events, bool $isActive, \DateTime $createdAt, \DateTime $updatedAt)
-    {
-        $this->id = $id;
-        $this->url = $url;
-        $this->events = $events;
-        $this->isActive = $isActive;
-        $this->createdAt = $createdAt;
-        $this->updatedAt = $updatedAt;
+    public function __construct(
+        /**
+         * Partner webhook endpoint id; path parameter `{id}` in update/delete/test/deliveries routes
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('id')]
+        public string $id,
+        /**
+         * Destination URL for webhook deliveries
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('url')]
+        public string $url,
+        /**
+         * Subscribed event types for this endpoint
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('events')]
+        #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\WebhooksUpdateEventResponse>')]
+        public array $events,
+        /**
+         * Whether this endpoint receives deliveries
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('isActive')]
+        public bool $isActive,
+        /**
+         * Creation timestamp (ISO 8601)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('createdAt')]
+        public \DateTime $createdAt,
+        /**
+         * Last update timestamp (ISO 8601)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('updatedAt')]
+        public \DateTime $updatedAt
+    ) {
     }
 }

@@ -13,19 +13,14 @@ namespace Gando\Partner\Models\Operations;
 class PartnerWebhookTestOk
 {
     /**
-     * HTTP status code returned by your webhook URL
-     *
-     * @var int $statusCode
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('statusCode')]
-    public int $statusCode;
-
-    /**
-     * @param  int  $statusCode
      * @phpstan-pure
      */
-    public function __construct(int $statusCode)
-    {
-        $this->statusCode = $statusCode;
+    public function __construct(
+        /**
+         * HTTP status code returned by your webhook URL
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('statusCode')]
+        public int $statusCode
+    ) {
     }
 }

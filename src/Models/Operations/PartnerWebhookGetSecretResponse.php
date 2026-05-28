@@ -13,19 +13,14 @@ namespace Gando\Partner\Models\Operations;
 class PartnerWebhookGetSecretResponse
 {
     /**
-     * Current plain signing secret for this webhook endpoint
-     *
-     * @var string $secret
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('secret')]
-    public string $secret;
-
-    /**
-     * @param  string  $secret
      * @phpstan-pure
      */
-    public function __construct(string $secret)
-    {
-        $this->secret = $secret;
+    public function __construct(
+        /**
+         * Current plain signing secret for this webhook endpoint
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('secret')]
+        public string $secret
+    ) {
     }
 }

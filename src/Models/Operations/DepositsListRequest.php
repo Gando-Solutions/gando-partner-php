@@ -13,149 +13,80 @@ use Gando\Partner\Utils\SpeakeasyMetadata;
 class DepositsListRequest
 {
     /**
-     * When set, only deposits for this linked rental operator account (`account_id`)
-     *
-     * @var ?string $accountId
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=account_id')]
-    public ?string $accountId = null;
-
-    /**
-     * Field to sort deposit results by
-     *
-     * @var ?\Gando\Partner\Models\Operations\SortBy $sortBy
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=sortBy')]
-    public ?SortBy $sortBy = null;
-
-    /**
-     * Sort direction: ascending or descending
-     *
-     * @var ?\Gando\Partner\Models\Operations\SortOrder $sortOrder
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=sortOrder')]
-    public ?SortOrder $sortOrder = null;
-
-    /**
-     * Repeat `status` to filter by multiple deposit statuses
-     *
-     * @var ?array<\Gando\Partner\Models\Operations\DepositsListQueryParamStatus> $status
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=status')]
-    public ?array $status = null;
-
-    /**
-     * Filter deposits assigned to this client id
-     *
-     * @var ?string $clientId
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=client_id')]
-    public ?string $clientId = null;
-
-    /**
-     * Filter: contract/start date on or after (ISO 8601)
-     *
-     * @var ?string $startAtFrom
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=start_at_from')]
-    public ?string $startAtFrom = null;
-
-    /**
-     * Filter: contract/start date on or before (ISO 8601)
-     *
-     * @var ?string $startAtTo
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=start_at_to')]
-    public ?string $startAtTo = null;
-
-    /**
-     * Filter: expiry date on or after (ISO 8601)
-     *
-     * @var ?string $expiresAtFrom
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=expires_at_from')]
-    public ?string $expiresAtFrom = null;
-
-    /**
-     * Filter: expiry date on or before (ISO 8601)
-     *
-     * @var ?string $expiresAtTo
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=expires_at_to')]
-    public ?string $expiresAtTo = null;
-
-    /**
-     * When `true` or `1`, include per-status counts (requires `account_id`)
-     *
-     * @var ?\Gando\Partner\Models\Operations\IncludeCounts $includeCounts
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=include_counts')]
-    public ?IncludeCounts $includeCounts = null;
-
-    /**
-     * Minimum deposit amount in euros (inclusive)
-     *
-     * @var ?float $amountMin
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=amount_min')]
-    public ?float $amountMin = null;
-
-    /**
-     * Maximum deposit amount in euros (inclusive)
-     *
-     * @var ?float $amountMax
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=amount_max')]
-    public ?float $amountMax = null;
-
-    /**
-     * Page number (1-based)
-     *
-     * @var ?int $page
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=page')]
-    public ?int $page = null;
-
-    /**
-     * Items per page (max 100)
-     *
-     * @var ?int $limit
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
-    public ?int $limit = null;
-
-    /**
-     * @param  ?string  $accountId
-     * @param  ?int  $page
-     * @param  ?int  $limit
-     * @param  ?\Gando\Partner\Models\Operations\SortBy  $sortBy
-     * @param  ?\Gando\Partner\Models\Operations\SortOrder  $sortOrder
      * @param  ?array<\Gando\Partner\Models\Operations\DepositsListQueryParamStatus>  $status
-     * @param  ?string  $clientId
-     * @param  ?string  $startAtFrom
-     * @param  ?string  $startAtTo
-     * @param  ?string  $expiresAtFrom
-     * @param  ?string  $expiresAtTo
-     * @param  ?\Gando\Partner\Models\Operations\IncludeCounts  $includeCounts
-     * @param  ?float  $amountMin
-     * @param  ?float  $amountMax
      * @phpstan-pure
      */
-    public function __construct(?string $accountId = null, ?SortBy $sortBy = null, ?SortOrder $sortOrder = null, ?array $status = null, ?string $clientId = null, ?string $startAtFrom = null, ?string $startAtTo = null, ?string $expiresAtFrom = null, ?string $expiresAtTo = null, ?IncludeCounts $includeCounts = null, ?float $amountMin = null, ?float $amountMax = null, ?int $page = 1, ?int $limit = 20)
-    {
-        $this->accountId = $accountId;
-        $this->sortBy = $sortBy;
-        $this->sortOrder = $sortOrder;
-        $this->status = $status;
-        $this->clientId = $clientId;
-        $this->startAtFrom = $startAtFrom;
-        $this->startAtTo = $startAtTo;
-        $this->expiresAtFrom = $expiresAtFrom;
-        $this->expiresAtTo = $expiresAtTo;
-        $this->includeCounts = $includeCounts;
-        $this->amountMin = $amountMin;
-        $this->amountMax = $amountMax;
-        $this->page = $page;
-        $this->limit = $limit;
+    public function __construct(
+        /**
+         * When set, only deposits for this linked rental operator account (`account_id`)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=account_id')]
+        public ?string $accountId = null,
+        /**
+         * Field to sort deposit results by
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=sortBy')]
+        public ?SortBy $sortBy = null,
+        /**
+         * Sort direction: ascending or descending
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=sortOrder')]
+        public ?SortOrder $sortOrder = null,
+        /**
+         * Repeat `status` to filter by multiple deposit statuses
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=status')]
+        public ?array $status = null,
+        /**
+         * Filter deposits assigned to this client id
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=client_id')]
+        public ?string $clientId = null,
+        /**
+         * Filter: contract/start date on or after (ISO 8601)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=start_at_from')]
+        public ?string $startAtFrom = null,
+        /**
+         * Filter: contract/start date on or before (ISO 8601)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=start_at_to')]
+        public ?string $startAtTo = null,
+        /**
+         * Filter: expiry date on or after (ISO 8601)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=expires_at_from')]
+        public ?string $expiresAtFrom = null,
+        /**
+         * Filter: expiry date on or before (ISO 8601)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=expires_at_to')]
+        public ?string $expiresAtTo = null,
+        /**
+         * When `true` or `1`, include per-status counts (requires `account_id`)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=include_counts')]
+        public ?IncludeCounts $includeCounts = null,
+        /**
+         * Minimum deposit amount in euros (inclusive)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=amount_min')]
+        public ?float $amountMin = null,
+        /**
+         * Maximum deposit amount in euros (inclusive)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=amount_max')]
+        public ?float $amountMax = null,
+        /**
+         * Page number (1-based)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=page')]
+        public ?int $page = 1,
+        /**
+         * Items per page (max 100)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
+        public ?int $limit = 20
+    ) {
     }
 }

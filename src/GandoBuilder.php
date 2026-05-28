@@ -17,15 +17,12 @@ use Gando\Partner\Utils\Retry;
 class GandoBuilder
 {
     public function __construct(
-        private SDKConfiguration $sdkConfig = new SDKConfiguration(),
+        private readonly SDKConfiguration $sdkConfig = new SDKConfiguration(),
     ) {
     }
 
     /**
      * setClient allows setting a custom Guzzle client for the SDK to make requests with.
-     *
-     * @param  \GuzzleHttp\ClientInterface  $client
-     * @return GandoBuilder
      */
     public function setClient(\GuzzleHttp\ClientInterface $client): GandoBuilder
     {
@@ -36,13 +33,10 @@ class GandoBuilder
 
     /**
      * setSecurity is used to configure the security required for the SDK.
-     *
-     * @param  Models\Components\Security  $security
-     * @return GandoBuilder
      */
     public function setSecurity(Models\Components\Security $security): GandoBuilder
     {
-        $this->sdkConfig->securitySource = fn () => $security;
+        $this->sdkConfig->securitySource = fn (): \Gando\Partner\Models\Components\Security => $security;
 
         return $this;
     }
@@ -52,7 +46,6 @@ class GandoBuilder
      * unlike setSecurity, setSecuritySource accepts a closure that will be called to retrieve the security information.
      *
      * @param  pure-Closure(): Models\Components\Security  $securitySource
-     * @return GandoBuilder
      */
     public function setSecuritySource(\Closure $securitySource): GandoBuilder
     {
@@ -64,9 +57,7 @@ class GandoBuilder
     /**
      * setServerUrl is used to configure the server URL for the SDK, and optionally template any parameters in the URL.
      *
-     * @param  string  $serverUrl
      * @param  array<string, string>  $params
-     * @return GandoBuilder
      */
     public function setServerUrl(string $serverUrl, ?array $params = null): GandoBuilder
     {
@@ -77,9 +68,6 @@ class GandoBuilder
 
     /**
      * setServer is used to configure the server for the SDK
-     *
-     * @param  int  $serverIdx
-     * @return GandoBuilder
      */
     public function setServerIndex(int $serverIdx): GandoBuilder
     {
@@ -97,12 +85,10 @@ class GandoBuilder
 
     /**
      * build is used to build the SDK with any of the configured options.
-     *
-     * @return Gando
      */
     public function build(): Gando
     {
-        if ($this->sdkConfig->client === null) {
+        if (!$this->sdkConfig->client instanceof \GuzzleHttp\ClientInterface) {
             $this->sdkConfig->client = new \GuzzleHttp\Client([
                 'timeout' => 60,
             ]);

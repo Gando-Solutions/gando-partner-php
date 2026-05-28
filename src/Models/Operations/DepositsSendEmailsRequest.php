@@ -13,28 +13,16 @@ use Gando\Partner\Utils\SpeakeasyMetadata;
 class DepositsSendEmailsRequest
 {
     /**
-     * Deposit (caution) unique identifier
-     *
-     * @var string $id
-     */
-    #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
-    public string $id;
-
-    /**
-     *
-     * @var \Gando\Partner\Models\Operations\PartnerDepositEmailsBody $body
-     */
-    #[SpeakeasyMetadata('request:mediaType=application/json')]
-    public PartnerDepositEmailsBody $body;
-
-    /**
-     * @param  string  $id
-     * @param  \Gando\Partner\Models\Operations\PartnerDepositEmailsBody  $body
      * @phpstan-pure
      */
-    public function __construct(string $id, PartnerDepositEmailsBody $body)
-    {
-        $this->id = $id;
-        $this->body = $body;
+    public function __construct(
+        /**
+         * Deposit (caution) unique identifier
+         */
+        #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
+        public string $id,
+        #[SpeakeasyMetadata('request:mediaType=application/json')]
+        public PartnerDepositEmailsBody $body
+    ) {
     }
 }

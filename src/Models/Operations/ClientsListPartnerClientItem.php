@@ -13,178 +13,98 @@ namespace Gando\Partner\Models\Operations;
 class ClientsListPartnerClientItem
 {
     /**
-     * Unique identifier of the client
-     *
-     * @var string $id
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('id')]
-    public string $id;
-
-    /**
-     * Email address of the client
-     *
-     * @var string $email
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('email')]
-    public string $email;
-
-    /**
-     * First name of the client
-     *
-     * @var string $firstName
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('firstName')]
-    public string $firstName;
-
-    /**
-     * Last name of the client
-     *
-     * @var string $lastName
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('lastName')]
-    public string $lastName;
-
-    /**
-     * Type of client: particulier (individual) or professionnel (business)
-     *
-     * @var \Gando\Partner\Models\Operations\ClientsListClientType $clientType
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('clientType')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\ClientsListClientType')]
-    public ClientsListClientType $clientType;
-
-    /**
-     * Whether the client is archived
-     *
-     * @var bool $isArchived
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('isArchived')]
-    public bool $isArchived;
-
-    /**
-     * Creation date and time (ISO 8601 format)
-     *
-     * @var \DateTime $createdAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('createdAt')]
-    public \DateTime $createdAt;
-
-    /**
-     * Last update date and time (ISO 8601 format)
-     *
-     * @var \DateTime $updatedAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('updatedAt')]
-    public \DateTime $updatedAt;
-
-    /**
-     * Phone number of the client (optional)
-     *
-     * @var ?string $phone
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('phone')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $phone = null;
-
-    /**
-     * Company name (required if clientType is professionnel)
-     *
-     * @var ?string $companyName
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('companyName')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $companyName = null;
-
-    /**
-     * SIREN number for French businesses (optional)
-     *
-     * @var ?string $siren
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('siren')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $siren = null;
-
-    /**
-     * VAT/TVA number (optional)
-     *
-     * @var ?string $tvaNumber
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('tvaNumber')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $tvaNumber = null;
-
-    /**
-     * Country (optional)
-     *
-     * @var ?string $country
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('country')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $country = null;
-
-    /**
-     * Street address (optional)
-     *
-     * @var ?string $street
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('street')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $street = null;
-
-    /**
-     * City (optional)
-     *
-     * @var ?string $city
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('city')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $city = null;
-
-    /**
-     * Postal code (optional)
-     *
-     * @var ?string $postalCode
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('postalCode')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $postalCode = null;
-
-    /**
-     * @param  string  $id
-     * @param  string  $email
-     * @param  string  $firstName
-     * @param  string  $lastName
-     * @param  \Gando\Partner\Models\Operations\ClientsListClientType  $clientType
-     * @param  bool  $isArchived
-     * @param  \DateTime  $createdAt
-     * @param  \DateTime  $updatedAt
-     * @param  ?string  $phone
-     * @param  ?string  $companyName
-     * @param  ?string  $siren
-     * @param  ?string  $tvaNumber
-     * @param  ?string  $country
-     * @param  ?string  $street
-     * @param  ?string  $city
-     * @param  ?string  $postalCode
      * @phpstan-pure
      */
-    public function __construct(string $id, string $email, string $firstName, string $lastName, ClientsListClientType $clientType, bool $isArchived, \DateTime $createdAt, \DateTime $updatedAt, ?string $phone = null, ?string $companyName = null, ?string $siren = null, ?string $tvaNumber = null, ?string $country = null, ?string $street = null, ?string $city = null, ?string $postalCode = null)
-    {
-        $this->id = $id;
-        $this->email = $email;
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-        $this->clientType = $clientType;
-        $this->isArchived = $isArchived;
-        $this->createdAt = $createdAt;
-        $this->updatedAt = $updatedAt;
-        $this->phone = $phone;
-        $this->companyName = $companyName;
-        $this->siren = $siren;
-        $this->tvaNumber = $tvaNumber;
-        $this->country = $country;
-        $this->street = $street;
-        $this->city = $city;
-        $this->postalCode = $postalCode;
+    public function __construct(
+        /**
+         * Unique identifier of the client
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('id')]
+        public string $id,
+        /**
+         * Email address of the client
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('email')]
+        public string $email,
+        /**
+         * First name of the client
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('firstName')]
+        public string $firstName,
+        /**
+         * Last name of the client
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('lastName')]
+        public string $lastName,
+        /**
+         * Type of client: particulier (individual) or professionnel (business)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('clientType')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\ClientsListClientType::class)]
+        public ClientsListClientType $clientType,
+        /**
+         * Whether the client is archived
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('isArchived')]
+        public bool $isArchived,
+        /**
+         * Creation date and time (ISO 8601 format)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('createdAt')]
+        public \DateTime $createdAt,
+        /**
+         * Last update date and time (ISO 8601 format)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('updatedAt')]
+        public \DateTime $updatedAt,
+        /**
+         * Phone number of the client (optional)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('phone')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $phone = null,
+        /**
+         * Company name (required if clientType is professionnel)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('companyName')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $companyName = null,
+        /**
+         * SIREN number for French businesses (optional)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('siren')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $siren = null,
+        /**
+         * VAT/TVA number (optional)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('tvaNumber')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $tvaNumber = null,
+        /**
+         * Country (optional)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('country')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $country = null,
+        /**
+         * Street address (optional)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('street')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $street = null,
+        /**
+         * City (optional)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('city')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $city = null,
+        /**
+         * Postal code (optional)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('postalCode')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $postalCode = null
+    ) {
     }
 }

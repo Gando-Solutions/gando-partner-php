@@ -17,10 +17,10 @@ use Gando\Partner\Utils\Options;
 /**
  * Partner API deposits resource with safe defaults for {@see create()}.
  */
-final class Deposits
+final readonly class Deposits
 {
     public function __construct(
-        private readonly GeneratedDeposits $deposits,
+        private GeneratedDeposits $deposits,
     ) {
     }
 
@@ -31,7 +31,6 @@ final class Deposits
      * Idempotency-Key. The same key is reused if the SDK retries the HTTP call, so a transient
      * failure does not create two deposits (API deduplication requires this header).
      *
-     * @param  PartnerCreateDepositBody  $body
      * @param  ?string  $idempotencyKey  Optional UUID v4; auto-generated when null
      */
     public function create(

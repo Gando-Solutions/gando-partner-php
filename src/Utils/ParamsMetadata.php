@@ -46,9 +46,6 @@ class ParamsMetadata
                 $explode = true;
                 break;
             case 'header':
-                $style = 'simple';
-                $explode = false;
-                break;
             case 'pathParam':
                 $style = 'simple';
                 $explode = false;
@@ -59,7 +56,7 @@ class ParamsMetadata
 
         foreach ($options as $opt) {
             $parts = explode('=', $opt);
-            if (count($parts) < 1 || count($parts) > 2) { /** @phpstan-ignore-line */
+            if (count($parts) > 2) { /** @phpstan-ignore-line */
                 continue;
             }
 

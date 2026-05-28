@@ -13,92 +13,52 @@ namespace Gando\Partner\Models\Operations;
 class PartnerCreateDepositBody
 {
     /**
-     * Rental operator account id. Must be actively linked to your partner.
-     *
-     * @var string $accountId
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('account_id')]
-    public string $accountId;
-
-    /**
-     * Deposit amount in euros (70–2500, same rules as the rental operator API)
-     *
-     * @var float $amount
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('amount')]
-    public float $amount;
-
-    /**
-     * Your rental contract or booking reference for reconciliation
-     *
-     * @var string $rentalContract
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('rental_contract')]
-    public string $rentalContract;
-
-    /**
-     * Contract start date (ISO 8601 or parseable date string)
-     *
-     * @var string $contractStartAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('contract_start_at')]
-    public string $contractStartAt;
-
-    /**
-     * Contract end date. Must be on or after `contract_start_at`
-     *
-     * @var string $contractEndAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('contract_end_at')]
-    public string $contractEndAt;
-
-    /**
-     * Optional client id from `POST /api/partner/clients` on the same rental operator account
-     *
-     * @var ?string $clientId
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('client_id')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $clientId = null;
-
-    /**
-     * When true, response includes `deposit_url` for immediate tenant redirect
-     *
-     * @var ?bool $inlineRedirect
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('inline_redirect')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?bool $inlineRedirect = null;
-
-    /**
-     * HTTPS return URL (localhost allowed). Required with inline checkout; Gando appends `caution_id` and `caution_status` query params
-     *
-     * @var ?string $returnUrl
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('return_url')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $returnUrl = null;
-
-    /**
-     * @param  string  $accountId
-     * @param  float  $amount
-     * @param  string  $rentalContract
-     * @param  string  $contractStartAt
-     * @param  string  $contractEndAt
-     * @param  ?string  $clientId
-     * @param  ?bool  $inlineRedirect
-     * @param  ?string  $returnUrl
      * @phpstan-pure
      */
-    public function __construct(string $accountId, float $amount, string $rentalContract, string $contractStartAt, string $contractEndAt, ?string $clientId = null, ?bool $inlineRedirect = null, ?string $returnUrl = null)
-    {
-        $this->accountId = $accountId;
-        $this->amount = $amount;
-        $this->rentalContract = $rentalContract;
-        $this->contractStartAt = $contractStartAt;
-        $this->contractEndAt = $contractEndAt;
-        $this->clientId = $clientId;
-        $this->inlineRedirect = $inlineRedirect;
-        $this->returnUrl = $returnUrl;
+    public function __construct(
+        /**
+         * Rental operator account id. Must be actively linked to your partner.
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('account_id')]
+        public string $accountId,
+        /**
+         * Deposit amount in euros (70–2500, same rules as the rental operator API)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('amount')]
+        public float $amount,
+        /**
+         * Your rental contract or booking reference for reconciliation
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('rental_contract')]
+        public string $rentalContract,
+        /**
+         * Contract start date (ISO 8601 or parseable date string)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('contract_start_at')]
+        public string $contractStartAt,
+        /**
+         * Contract end date. Must be on or after `contract_start_at`
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('contract_end_at')]
+        public string $contractEndAt,
+        /**
+         * Optional client id from `POST /api/partner/clients` on the same rental operator account
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('client_id')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $clientId = null,
+        /**
+         * When true, response includes `deposit_url` for immediate tenant redirect
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('inline_redirect')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?bool $inlineRedirect = null,
+        /**
+         * HTTPS return URL (localhost allowed). Required with inline checkout; Gando appends `caution_id` and `caution_status` query params
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('return_url')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $returnUrl = null
+    ) {
     }
 }

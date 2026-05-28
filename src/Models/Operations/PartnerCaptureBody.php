@@ -13,30 +13,20 @@ namespace Gando\Partner\Models\Operations;
 class PartnerCaptureBody
 {
     /**
-     * Amount to capture in EUR cents (minimum 1000 = €10.00)
-     *
-     * @var int $amount
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('amount')]
-    public int $amount;
-
-    /**
-     * Optional reason shown in capture records and reporting
-     *
-     * @var ?string $reason
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('reason')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $reason = null;
-
-    /**
-     * @param  int  $amount
-     * @param  ?string  $reason
      * @phpstan-pure
      */
-    public function __construct(int $amount, ?string $reason = null)
-    {
-        $this->amount = $amount;
-        $this->reason = $reason;
+    public function __construct(
+        /**
+         * Amount to capture in EUR cents (minimum 1000 = €10.00)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('amount')]
+        public int $amount,
+        /**
+         * Optional reason shown in capture records and reporting
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('reason')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $reason = null
+    ) {
     }
 }

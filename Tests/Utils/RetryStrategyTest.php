@@ -27,10 +27,10 @@ final class RetryStrategyTest extends TestCase
                 };
             },
             new RetryConfigBackoff(
-                initialIntervalMs: 0,
-                maxIntervalMs: 2000,
+                initialInterval: 0,
+                maxInterval: 2000,
                 exponent: 1.5,
-                maxElapsedTimeMs: 10_000,
+                maxElapsedTime: 10_000,
                 retryConnectionErrors: true,
             ),
             ['429', '5xx'],

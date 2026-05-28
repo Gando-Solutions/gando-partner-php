@@ -13,19 +13,14 @@ namespace Gando\Partner\Models\Operations;
 class DepositsUpdatePartnerDepositMutationOk
 {
     /**
-     * Operation completed successfully
-     *
-     * @var bool $success
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-    public bool $success;
-
-    /**
-     * @param  bool  $success
      * @phpstan-pure
      */
-    public function __construct(bool $success = true)
-    {
-        $this->success = $success;
+    public function __construct(
+        /**
+         * Operation completed successfully
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
+        public bool $success = true
+    ) {
     }
 }

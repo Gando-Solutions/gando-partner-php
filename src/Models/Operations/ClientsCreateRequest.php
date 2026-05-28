@@ -14,28 +14,16 @@ use Gando\Partner\Utils\SpeakeasyMetadata;
 class ClientsCreateRequest
 {
     /**
-     *
-     * @var \Gando\Partner\Models\Components\ParticulierClient|\Gando\Partner\Models\Components\ProfessionnelClient $body
-     */
-    #[SpeakeasyMetadata('request:mediaType=application/json')]
-    public Components\ParticulierClient|Components\ProfessionnelClient $body;
-
-    /**
-     * Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`.
-     *
-     * @var ?string $idempotencyKey
-     */
-    #[SpeakeasyMetadata('header:style=simple,explode=false,name=Idempotency-Key')]
-    public ?string $idempotencyKey = null;
-
-    /**
-     * @param  \Gando\Partner\Models\Components\ParticulierClient|\Gando\Partner\Models\Components\ProfessionnelClient  $body
-     * @param  ?string  $idempotencyKey
      * @phpstan-pure
      */
-    public function __construct(Components\ParticulierClient|Components\ProfessionnelClient $body, ?string $idempotencyKey = null)
-    {
-        $this->body = $body;
-        $this->idempotencyKey = $idempotencyKey;
+    public function __construct(
+        #[SpeakeasyMetadata('request:mediaType=application/json')]
+        public Components\ParticulierClient|Components\ProfessionnelClient $body,
+        /**
+         * Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`.
+         */
+        #[SpeakeasyMetadata('header:style=simple,explode=false,name=Idempotency-Key')]
+        public ?string $idempotencyKey = null
+    ) {
     }
 }

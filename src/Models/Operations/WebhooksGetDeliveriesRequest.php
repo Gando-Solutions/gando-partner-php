@@ -13,39 +13,24 @@ use Gando\Partner\Utils\SpeakeasyMetadata;
 class WebhooksGetDeliveriesRequest
 {
     /**
-     * Partner webhook endpoint id
-     *
-     * @var string $id
-     */
-    #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
-    public string $id;
-
-    /**
-     * Page size (1–100, default 20)
-     *
-     * @var ?int $limit
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
-    public ?int $limit = null;
-
-    /**
-     * Number of deliveries to skip
-     *
-     * @var ?int $offset
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=offset')]
-    public ?int $offset = null;
-
-    /**
-     * @param  string  $id
-     * @param  ?int  $limit
-     * @param  ?int  $offset
      * @phpstan-pure
      */
-    public function __construct(string $id, ?int $limit = null, ?int $offset = null)
-    {
-        $this->id = $id;
-        $this->limit = $limit;
-        $this->offset = $offset;
+    public function __construct(
+        /**
+         * Partner webhook endpoint id
+         */
+        #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
+        public string $id,
+        /**
+         * Page size (1–100, default 20)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
+        public ?int $limit = null,
+        /**
+         * Number of deliveries to skip
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=offset')]
+        public ?int $offset = null
+    ) {
     }
 }

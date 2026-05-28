@@ -13,19 +13,14 @@ namespace Gando\Partner\Models\Operations;
 class PartnerSendDepositMailBody
 {
     /**
-     * Single recipient for the deposit completion link
-     *
-     * @var string $email
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('email')]
-    public string $email;
-
-    /**
-     * @param  string  $email
      * @phpstan-pure
      */
-    public function __construct(string $email)
-    {
-        $this->email = $email;
+    public function __construct(
+        /**
+         * Single recipient for the deposit completion link
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('email')]
+        public string $email
+    ) {
     }
 }

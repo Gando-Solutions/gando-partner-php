@@ -49,13 +49,12 @@ class SDKConfiguration
 
         if (isset(Gando::SERVERS[$this->serverIndex])) {
             return Gando::SERVERS[$this->serverIndex];
-        } else {
-            throw new \OutOfBoundsException('Server index '.$this->serverIndex.' is out of bounds');
         }
+        throw new \OutOfBoundsException('Server index '.$this->serverIndex.' is out of bounds');
     }
     public function hasSecurity(): bool
     {
-        return $this->securitySource !== null;
+        return $this->securitySource instanceof \Closure;
     }
 
     public function getSecurity(): ?Models\Components\Security
@@ -63,9 +62,6 @@ class SDKConfiguration
         return $this->securitySource->call($this);
     }
 
-    /**
-     * @return Utils\ServerDetails
-     */
     public function getServerDetails(): Utils\ServerDetails
     {
         if ($this->serverUrl !== '') {
@@ -81,7 +77,7 @@ class SDKConfiguration
 
     public function getTemplatedServerUrl(): string
     {
-        if ($this->serverUrl) {
+        if ($this->serverUrl !== '' && $this->serverUrl !== '0') {
             return Utils\Utils::templateUrl($this->serverUrl.trim('/'), []);
         }
 

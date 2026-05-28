@@ -13,29 +13,19 @@ use Gando\Partner\Utils\SpeakeasyMetadata;
 class WebhooksListRequest
 {
     /**
-     * Page number (1-based)
-     *
-     * @var ?int $page
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=page')]
-    public ?int $page = null;
-
-    /**
-     * Items per page (max 100)
-     *
-     * @var ?int $limit
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
-    public ?int $limit = null;
-
-    /**
-     * @param  ?int  $page
-     * @param  ?int  $limit
      * @phpstan-pure
      */
-    public function __construct(?int $page = 1, ?int $limit = 20)
-    {
-        $this->page = $page;
-        $this->limit = $limit;
+    public function __construct(
+        /**
+         * Page number (1-based)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=page')]
+        public ?int $page = 1,
+        /**
+         * Items per page (max 100)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
+        public ?int $limit = 20
+    ) {
     }
 }

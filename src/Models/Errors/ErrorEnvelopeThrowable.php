@@ -11,11 +11,8 @@ namespace Gando\Partner\Models\Errors;
 
 class ErrorEnvelopeThrowable extends \RuntimeException
 {
-    public ErrorEnvelope $container;
-
-    public function __construct(string $message, int $statusCode, ErrorEnvelope $container)
+    public function __construct(string $message, int $statusCode, public ErrorEnvelope $container)
     {
         parent::__construct($message, $statusCode);
-        $this->container = $container;
     }
 }

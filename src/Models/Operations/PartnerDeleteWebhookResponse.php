@@ -13,19 +13,14 @@ namespace Gando\Partner\Models\Operations;
 class PartnerDeleteWebhookResponse
 {
     /**
-     * Webhook endpoint was removed
-     *
-     * @var bool $deleted
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('deleted')]
-    public bool $deleted;
-
-    /**
-     * @param  bool  $deleted
      * @phpstan-pure
      */
-    public function __construct(bool $deleted = true)
-    {
-        $this->deleted = $deleted;
+    public function __construct(
+        /**
+         * Webhook endpoint was removed
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('deleted')]
+        public bool $deleted = true
+    ) {
     }
 }

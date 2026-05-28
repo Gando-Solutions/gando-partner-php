@@ -13,20 +13,16 @@ namespace Gando\Partner\Models\Operations;
 class PartnerDepositEmailsBody
 {
     /**
-     * Recipient email addresses for the deposit completion link
-     *
-     * @var array<string> $emails
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('emails')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<string>')]
-    public array $emails;
-
-    /**
      * @param  array<string>  $emails
      * @phpstan-pure
      */
-    public function __construct(array $emails)
-    {
-        $this->emails = $emails;
+    public function __construct(
+        /**
+         * Recipient email addresses for the deposit completion link
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('emails')]
+        #[\Speakeasy\Serializer\Annotation\Type('array<string>')]
+        public array $emails
+    ) {
     }
 }

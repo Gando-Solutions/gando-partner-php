@@ -13,40 +13,25 @@ namespace Gando\Partner\Models\Operations;
 class PartnerSendDepositMailResponse
 {
     /**
-     * Deposit completion URL
-     *
-     * @var string $link
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('link')]
-    public string $link;
-
-    /**
-     * Whether the email was accepted by the provider
-     *
-     * @var bool $success
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-    public bool $success;
-
-    /**
-     * Transactional email provider message id, when available
-     *
-     * @var ?string $messageId
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('messageId')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $messageId = null;
-
-    /**
-     * @param  string  $link
-     * @param  bool  $success
-     * @param  ?string  $messageId
      * @phpstan-pure
      */
-    public function __construct(string $link, bool $success, ?string $messageId = null)
-    {
-        $this->link = $link;
-        $this->success = $success;
-        $this->messageId = $messageId;
+    public function __construct(
+        /**
+         * Deposit completion URL
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('link')]
+        public string $link,
+        /**
+         * Whether the email was accepted by the provider
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
+        public bool $success,
+        /**
+         * Transactional email provider message id, when available
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('messageId')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $messageId = null
+    ) {
     }
 }

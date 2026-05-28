@@ -13,29 +13,19 @@ namespace Gando\Partner\Models\Operations;
 class PartnerCaptureResult
 {
     /**
-     * Captured amount in EUR cents
-     *
-     * @var int $capturedAmount
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('capturedAmount')]
-    public int $capturedAmount;
-
-    /**
-     * Capture outcome status from the payment processor
-     *
-     * @var string $status
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('status')]
-    public string $status;
-
-    /**
-     * @param  int  $capturedAmount
-     * @param  string  $status
      * @phpstan-pure
      */
-    public function __construct(int $capturedAmount, string $status)
-    {
-        $this->capturedAmount = $capturedAmount;
-        $this->status = $status;
+    public function __construct(
+        /**
+         * Captured amount in EUR cents
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('capturedAmount')]
+        public int $capturedAmount,
+        /**
+         * Capture outcome status from the payment processor
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('status')]
+        public string $status
+    ) {
     }
 }

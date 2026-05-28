@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Connect;
 
-final class UrlBuilder
+final readonly class UrlBuilder
 {
     public function __construct(
-        private readonly string $connectSecret,
-        private readonly string $partnerSlug,
-        private readonly string $baseUrl,
+        private string $connectSecret,
+        private string $partnerSlug,
+        private string $baseUrl,
     ) {
     }
 

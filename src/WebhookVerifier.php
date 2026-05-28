@@ -36,7 +36,7 @@ class WebhookVerifier
             throw new WebhookSignatureException('expired');
         }
 
-        if ($signatureHeader === '' || strncmp($signatureHeader, 'sha256=', 7) !== 0) {
+        if ($signatureHeader === '' || !str_starts_with($signatureHeader, 'sha256=')) {
             throw new WebhookSignatureException('invalid');
         }
 

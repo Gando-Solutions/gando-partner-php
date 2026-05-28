@@ -13,31 +13,22 @@ namespace Gando\Partner\Models\Operations;
 class PartnerClientsListResponse
 {
     /**
-     * Clients for the current page
-     *
-     * @var array<\Gando\Partner\Models\Operations\ClientsListPartnerClientItem> $items
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('items')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\ClientsListPartnerClientItem>')]
-    public array $items;
-
-    /**
-     * Pagination metadata
-     *
-     * @var \Gando\Partner\Models\Operations\Pagination $pagination
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('pagination')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\Pagination')]
-    public Pagination $pagination;
-
-    /**
      * @param  array<\Gando\Partner\Models\Operations\ClientsListPartnerClientItem>  $items
-     * @param  \Gando\Partner\Models\Operations\Pagination  $pagination
      * @phpstan-pure
      */
-    public function __construct(array $items, Pagination $pagination)
-    {
-        $this->items = $items;
-        $this->pagination = $pagination;
+    public function __construct(
+        /**
+         * Clients for the current page
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('items')]
+        #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\ClientsListPartnerClientItem>')]
+        public array $items,
+        /**
+         * Pagination metadata
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('pagination')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\Pagination::class)]
+        public Pagination $pagination
+    ) {
     }
 }

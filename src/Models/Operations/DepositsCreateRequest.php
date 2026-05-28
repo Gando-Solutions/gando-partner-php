@@ -13,28 +13,16 @@ use Gando\Partner\Utils\SpeakeasyMetadata;
 class DepositsCreateRequest
 {
     /**
-     *
-     * @var \Gando\Partner\Models\Operations\PartnerCreateDepositBody $body
-     */
-    #[SpeakeasyMetadata('request:mediaType=application/json')]
-    public PartnerCreateDepositBody $body;
-
-    /**
-     * Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`.
-     *
-     * @var ?string $idempotencyKey
-     */
-    #[SpeakeasyMetadata('header:style=simple,explode=false,name=Idempotency-Key')]
-    public ?string $idempotencyKey = null;
-
-    /**
-     * @param  \Gando\Partner\Models\Operations\PartnerCreateDepositBody  $body
-     * @param  ?string  $idempotencyKey
      * @phpstan-pure
      */
-    public function __construct(PartnerCreateDepositBody $body, ?string $idempotencyKey = null)
-    {
-        $this->body = $body;
-        $this->idempotencyKey = $idempotencyKey;
+    public function __construct(
+        #[SpeakeasyMetadata('request:mediaType=application/json')]
+        public PartnerCreateDepositBody $body,
+        /**
+         * Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`.
+         */
+        #[SpeakeasyMetadata('header:style=simple,explode=false,name=Idempotency-Key')]
+        public ?string $idempotencyKey = null
+    ) {
     }
 }

@@ -14,49 +14,29 @@ namespace Gando\Partner\Models\Operations;
 class Pagination
 {
     /**
-     * Current page number
-     *
-     * @var float $page
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('page')]
-    public float $page;
-
-    /**
-     * Number of items per page
-     *
-     * @var float $limit
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('limit')]
-    public float $limit;
-
-    /**
-     * Total number of items
-     *
-     * @var float $total
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('total')]
-    public float $total;
-
-    /**
-     * Total number of pages
-     *
-     * @var float $totalPages
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('totalPages')]
-    public float $totalPages;
-
-    /**
-     * @param  float  $page
-     * @param  float  $limit
-     * @param  float  $total
-     * @param  float  $totalPages
      * @phpstan-pure
      */
-    public function __construct(float $page, float $limit, float $total, float $totalPages)
-    {
-        $this->page = $page;
-        $this->limit = $limit;
-        $this->total = $total;
-        $this->totalPages = $totalPages;
+    public function __construct(
+        /**
+         * Current page number
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('page')]
+        public float $page,
+        /**
+         * Number of items per page
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('limit')]
+        public float $limit,
+        /**
+         * Total number of items
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('total')]
+        public float $total,
+        /**
+         * Total number of pages
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('totalPages')]
+        public float $totalPages
+    ) {
     }
 }

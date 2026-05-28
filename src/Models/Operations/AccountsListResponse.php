@@ -13,57 +13,35 @@ namespace Gando\Partner\Models\Operations;
 class AccountsListResponse
 {
     /**
-     * HTTP response content type for this operation
-     *
-     * @var string $contentType
-     */
-    public string $contentType;
-
-    /**
-     * HTTP response status code for this operation
-     *
-     * @var int $statusCode
-     */
-    public int $statusCode;
-
-    /**
-     * Raw HTTP response; suitable for custom response parsing
-     *
-     * @var \Psr\Http\Message\ResponseInterface $rawResponse
-     */
-    public \Psr\Http\Message\ResponseInterface $rawResponse;
-
-    /**
-     * Linked accounts
-     *
-     * @var ?\Gando\Partner\Models\Operations\AccountsListResponseBody $object
-     */
-    public ?AccountsListResponseBody $object = null;
-
-    /**
      * @var \Closure(string): ?AccountsListResponse $next
      */
     public \Closure $next;
     /**
-     * @param  string  $contentType
-     * @param  int  $statusCode
-     * @param  \Psr\Http\Message\ResponseInterface  $rawResponse
-     * @param  ?\Gando\Partner\Models\Operations\AccountsListResponseBody  $object
      * @phpstan-pure
      */
-    public function __construct(string $contentType, int $statusCode, \Psr\Http\Message\ResponseInterface $rawResponse, ?AccountsListResponseBody $object = null)
-    {
-        $this->contentType = $contentType;
-        $this->statusCode = $statusCode;
-        $this->rawResponse = $rawResponse;
-        $this->object = $object;
+    public function __construct(
+        /**
+         * HTTP response content type for this operation
+         */
+        public string $contentType,
+        /**
+         * HTTP response status code for this operation
+         */
+        public int $statusCode,
+        /**
+         * Raw HTTP response; suitable for custom response parsing
+         */
+        public \Psr\Http\Message\ResponseInterface $rawResponse,
+        /**
+         * Linked accounts
+         */
+        public ?AccountsListResponseBody $object = null
+    ) {
     }
     /**
-     * @param  string  $name
      * @param  array<mixed>  $args
-     * @return ?AccountsListResponse
      */
-    public function __call($name, $args): ?AccountsListResponse
+    public function __call(string $name, array $args): ?AccountsListResponse
     {
         if ($name === 'next') {
             return call_user_func_array($this->next, $args);

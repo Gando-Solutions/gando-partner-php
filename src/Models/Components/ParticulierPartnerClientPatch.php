@@ -14,131 +14,76 @@ namespace Gando\Partner\Models\Components;
 class ParticulierPartnerClientPatch
 {
     /**
-     * Updated first name
-     *
-     * @var ?string $firstName
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('firstName')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $firstName = null;
-
-    /**
-     * Updated last name
-     *
-     * @var ?string $lastName
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('lastName')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $lastName = null;
-
-    /**
-     * Individual (private) end customer
-     *
-     * @var ?\Gando\Partner\Models\Components\ParticulierPartnerClientPatchClientType $clientType
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('clientType')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Components\ParticulierPartnerClientPatchClientType|null')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?ParticulierPartnerClientPatchClientType $clientType = null;
-
-    /**
-     * Updated phone number
-     *
-     * @var ?string $phone
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('phone')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $phone = null;
-
-    /**
-     * Updated SIREN
-     *
-     * @var ?string $siren
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('siren')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $siren = null;
-
-    /**
-     * Updated VAT number
-     *
-     * @var ?string $tvaNumber
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('tvaNumber')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $tvaNumber = null;
-
-    /**
-     * Updated country
-     *
-     * @var ?string $country
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('country')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $country = null;
-
-    /**
-     * Updated street address
-     *
-     * @var ?string $street
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('street')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $street = null;
-
-    /**
-     * Updated city
-     *
-     * @var ?string $city
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('city')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $city = null;
-
-    /**
-     * Updated postal code
-     *
-     * @var ?string $postalCode
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('postalCode')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $postalCode = null;
-
-    /**
-     * Updated company name (optional)
-     *
-     * @var ?string $companyName
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('companyName')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $companyName = null;
-
-    /**
-     * @param  ?string  $firstName
-     * @param  ?string  $lastName
-     * @param  ?\Gando\Partner\Models\Components\ParticulierPartnerClientPatchClientType  $clientType
-     * @param  ?string  $phone
-     * @param  ?string  $siren
-     * @param  ?string  $tvaNumber
-     * @param  ?string  $country
-     * @param  ?string  $street
-     * @param  ?string  $city
-     * @param  ?string  $postalCode
-     * @param  ?string  $companyName
      * @phpstan-pure
      */
-    public function __construct(?string $firstName = null, ?string $lastName = null, ?ParticulierPartnerClientPatchClientType $clientType = null, ?string $phone = null, ?string $siren = null, ?string $tvaNumber = null, ?string $country = null, ?string $street = null, ?string $city = null, ?string $postalCode = null, ?string $companyName = null)
-    {
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-        $this->clientType = $clientType;
-        $this->phone = $phone;
-        $this->siren = $siren;
-        $this->tvaNumber = $tvaNumber;
-        $this->country = $country;
-        $this->street = $street;
-        $this->city = $city;
-        $this->postalCode = $postalCode;
-        $this->companyName = $companyName;
+    public function __construct(
+        /**
+         * Updated first name
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('firstName')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $firstName = null,
+        /**
+         * Updated last name
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('lastName')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $lastName = null,
+        /**
+         * Individual (private) end customer
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('clientType')]
+        #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Components\ParticulierPartnerClientPatchClientType|null')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?ParticulierPartnerClientPatchClientType $clientType = null,
+        /**
+         * Updated phone number
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('phone')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $phone = null,
+        /**
+         * Updated SIREN
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('siren')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $siren = null,
+        /**
+         * Updated VAT number
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('tvaNumber')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $tvaNumber = null,
+        /**
+         * Updated country
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('country')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $country = null,
+        /**
+         * Updated street address
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('street')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $street = null,
+        /**
+         * Updated city
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('city')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $city = null,
+        /**
+         * Updated postal code
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('postalCode')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $postalCode = null,
+        /**
+         * Updated company name (optional)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('companyName')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $companyName = null
+    ) {
     }
 }

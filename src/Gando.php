@@ -229,17 +229,12 @@ class Gando
 
     /**
      * Returns a new instance of the SDK builder used to configure and create the SDK instance.
-     *
-     * @return GandoBuilder
      */
     public static function builder(): GandoBuilder
     {
         return new GandoBuilder();
     }
 
-    /**
-     * @param  SDKConfiguration  $sdkConfiguration
-     */
     public function __construct(
         public SDKConfiguration $sdkConfiguration,
     ) {

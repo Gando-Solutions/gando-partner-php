@@ -13,19 +13,14 @@ namespace Gando\Partner\Models\Operations;
 class PartnerCreateClientResponse2
 {
     /**
-     * Created or existing client id (use as `client_id` on deposits)
-     *
-     * @var string $id
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('id')]
-    public string $id;
-
-    /**
-     * @param  string  $id
      * @phpstan-pure
      */
-    public function __construct(string $id)
-    {
-        $this->id = $id;
+    public function __construct(
+        /**
+         * Created or existing client id (use as `client_id` on deposits)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('id')]
+        public string $id
+    ) {
     }
 }

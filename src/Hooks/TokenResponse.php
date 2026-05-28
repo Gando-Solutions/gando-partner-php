@@ -12,7 +12,7 @@ namespace Gando\Partner\Hooks;
 
 class TokenResponse
 {
-    public ?string $accessToken;
-    public ?string $tokenType;
-    public ?int $expiresIn;
+    public ?string $accessToken = null;
+    public ?string $tokenType = null;
+    public ?int $expiresIn = null;
 }

@@ -13,19 +13,14 @@ use Gando\Partner\Utils\SpeakeasyMetadata;
 class AccountsRevokeRequest
 {
     /**
-     * Rental operator account id (`accountId`)
-     *
-     * @var string $id
-     */
-    #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
-    public string $id;
-
-    /**
-     * @param  string  $id
      * @phpstan-pure
      */
-    public function __construct(string $id)
-    {
-        $this->id = $id;
+    public function __construct(
+        /**
+         * Rental operator account id (`accountId`)
+         */
+        #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
+        public string $id
+    ) {
     }
 }

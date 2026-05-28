@@ -13,30 +13,21 @@ namespace Gando\Partner\Models\Operations;
 class PartnerDepositEmailsResponse
 {
     /**
-     * Deposit completion URL sent to recipients
-     *
-     * @var string $link
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('link')]
-    public string $link;
-
-    /**
-     * Per-recipient send outcome
-     *
-     * @var array<\Gando\Partner\Models\Operations\Result> $results
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('results')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\Result>')]
-    public array $results;
-
-    /**
-     * @param  string  $link
      * @param  array<\Gando\Partner\Models\Operations\Result>  $results
      * @phpstan-pure
      */
-    public function __construct(string $link, array $results)
-    {
-        $this->link = $link;
-        $this->results = $results;
+    public function __construct(
+        /**
+         * Deposit completion URL sent to recipients
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('link')]
+        public string $link,
+        /**
+         * Per-recipient send outcome
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('results')]
+        #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\Result>')]
+        public array $results
+    ) {
     }
 }

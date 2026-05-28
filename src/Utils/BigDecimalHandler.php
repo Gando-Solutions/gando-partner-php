@@ -24,25 +24,25 @@ class BigDecimalHandler implements SubscribingHandlerInterface
             [
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
                 'format' => 'json',
-                'type' => '\\Brick\\Math\\BigDecimal',
+                'type' => \Brick\Math\BigDecimal::class,
                 'method' => 'serialize',
             ],
             [
                 'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
                 'format' => 'json',
-                'type' => '\\Brick\\Math\\BigDecimal',
+                'type' => \Brick\Math\BigDecimal::class,
                 'method' => 'deserialize',
             ],
             [
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
                 'format' => 'json',
-                'type' => 'Brick\\Math\\BigDecimal',
+                'type' => \Brick\Math\BigDecimal::class,
                 'method' => 'serialize',
             ],
             [
                 'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
                 'format' => 'json',
-                'type' => 'Brick\\Math\\BigDecimal',
+                'type' => \Brick\Math\BigDecimal::class,
                 'method' => 'deserialize',
             ],
         ];
@@ -51,7 +51,7 @@ class BigDecimalHandler implements SubscribingHandlerInterface
     /** @phpstan-ignore-next-line */
     public function serialize(JsonSerializationVisitor $visitor, \Brick\Math\BigDecimal|string $any, array $type, Context $context): string|float
     {
-        if (gettype($any) == 'string') {
+        if (gettype($any) === 'string') {
             return $any;
         }
 

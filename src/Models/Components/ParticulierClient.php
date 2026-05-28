@@ -14,149 +14,86 @@ namespace Gando\Partner\Models\Components;
 class ParticulierClient
 {
     /**
-     * Client first name
-     *
-     * @var string $firstName
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('firstName')]
-    public string $firstName;
-
-    /**
-     * Client last name
-     *
-     * @var string $lastName
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('lastName')]
-    public string $lastName;
-
-    /**
-     * Client email (unique per account)
-     *
-     * @var string $email
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('email')]
-    public string $email;
-
-    /**
-     * Individual (private) end customer
-     *
-     * @var \Gando\Partner\Models\Components\ParticulierClientClientType $clientType
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('clientType')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Components\ParticulierClientClientType')]
-    public ParticulierClientClientType $clientType;
-
-    /**
-     * Target rental operator account id (required on create)
-     *
-     * @var ?string $accountId
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('accountId')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $accountId = null;
-
-    /**
-     * Phone number in E.164 or local format
-     *
-     * @var ?string $phone
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('phone')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $phone = null;
-
-    /**
-     * French SIREN (9 digits), for business clients
-     *
-     * @var ?string $siren
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('siren')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $siren = null;
-
-    /**
-     * EU VAT number
-     *
-     * @var ?string $tvaNumber
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('tvaNumber')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $tvaNumber = null;
-
-    /**
-     * Country name or ISO code
-     *
-     * @var ?string $country
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('country')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $country = null;
-
-    /**
-     * Street address line
-     *
-     * @var ?string $street
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('street')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $street = null;
-
-    /**
-     * City
-     *
-     * @var ?string $city
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('city')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $city = null;
-
-    /**
-     * Postal or ZIP code
-     *
-     * @var ?string $postalCode
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('postalCode')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $postalCode = null;
-
-    /**
-     * Optional company name for individuals
-     *
-     * @var ?string $companyName
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('companyName')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $companyName = null;
-
-    /**
-     * @param  string  $firstName
-     * @param  string  $lastName
-     * @param  string  $email
-     * @param  \Gando\Partner\Models\Components\ParticulierClientClientType  $clientType
-     * @param  ?string  $accountId
-     * @param  ?string  $phone
-     * @param  ?string  $siren
-     * @param  ?string  $tvaNumber
-     * @param  ?string  $country
-     * @param  ?string  $street
-     * @param  ?string  $city
-     * @param  ?string  $postalCode
-     * @param  ?string  $companyName
      * @phpstan-pure
      */
-    public function __construct(string $firstName, string $lastName, string $email, ParticulierClientClientType $clientType, ?string $accountId = null, ?string $phone = null, ?string $siren = null, ?string $tvaNumber = null, ?string $country = null, ?string $street = null, ?string $city = null, ?string $postalCode = null, ?string $companyName = null)
-    {
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
-        $this->email = $email;
-        $this->clientType = $clientType;
-        $this->accountId = $accountId;
-        $this->phone = $phone;
-        $this->siren = $siren;
-        $this->tvaNumber = $tvaNumber;
-        $this->country = $country;
-        $this->street = $street;
-        $this->city = $city;
-        $this->postalCode = $postalCode;
-        $this->companyName = $companyName;
+    public function __construct(
+        /**
+         * Client first name
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('firstName')]
+        public string $firstName,
+        /**
+         * Client last name
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('lastName')]
+        public string $lastName,
+        /**
+         * Client email (unique per account)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('email')]
+        public string $email,
+        /**
+         * Individual (private) end customer
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('clientType')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Components\ParticulierClientClientType::class)]
+        public ParticulierClientClientType $clientType,
+        /**
+         * Target rental operator account id (required on create)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('accountId')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $accountId = null,
+        /**
+         * Phone number in E.164 or local format
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('phone')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $phone = null,
+        /**
+         * French SIREN (9 digits), for business clients
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('siren')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $siren = null,
+        /**
+         * EU VAT number
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('tvaNumber')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $tvaNumber = null,
+        /**
+         * Country name or ISO code
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('country')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $country = null,
+
+        /**
+         * Street address line
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('street')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $street = null,
+
+        /**
+         * City
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('city')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $city = null,
+        /**
+         * Postal or ZIP code
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('postalCode')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $postalCode = null,
+        /**
+         * Optional company name for individuals
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('companyName')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $companyName = null
+    ) {
     }
 }

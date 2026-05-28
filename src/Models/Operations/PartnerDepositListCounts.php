@@ -14,30 +14,21 @@ namespace Gando\Partner\Models\Operations;
 class PartnerDepositListCounts
 {
     /**
-     * Total deposits for the filtered account
-     *
-     * @var int $total
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('total')]
-    public int $total;
-
-    /**
-     * Deposit count keyed by status
-     *
-     * @var array<string, int> $byStatus
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('byStatus')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<string, int>')]
-    public array $byStatus;
-
-    /**
-     * @param  int  $total
      * @param  array<string, int>  $byStatus
      * @phpstan-pure
      */
-    public function __construct(int $total, array $byStatus)
-    {
-        $this->total = $total;
-        $this->byStatus = $byStatus;
+    public function __construct(
+        /**
+         * Total deposits for the filtered account
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('total')]
+        public int $total,
+        /**
+         * Deposit count keyed by status
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('byStatus')]
+        #[\Speakeasy\Serializer\Annotation\Type('array<string, int>')]
+        public array $byStatus
+    ) {
     }
 }

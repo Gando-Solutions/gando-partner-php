@@ -14,43 +14,29 @@ namespace Gando\Partner\Models\Operations;
 class UpdatePartnerWebhookSubscriptionBody
 {
     /**
-     * Destination URL (must start with http:// or https://)
-     *
-     * @var ?string $url
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('url')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $url = null;
-
-    /**
-     * Replace the subscribed event list
-     *
-     * @var ?array<\Gando\Partner\Models\Operations\WebhooksUpdateEventRequest> $events
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('events')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\WebhooksUpdateEventRequest>|null')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?array $events = null;
-
-    /**
-     * Enable or disable deliveries for this endpoint
-     *
-     * @var ?bool $isActive
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('isActive')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?bool $isActive = null;
-
-    /**
-     * @param  ?string  $url
      * @param  ?array<\Gando\Partner\Models\Operations\WebhooksUpdateEventRequest>  $events
-     * @param  ?bool  $isActive
      * @phpstan-pure
      */
-    public function __construct(?string $url = null, ?array $events = null, ?bool $isActive = null)
-    {
-        $this->url = $url;
-        $this->events = $events;
-        $this->isActive = $isActive;
+    public function __construct(
+        /**
+         * Destination URL (must start with http:// or https://)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('url')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $url = null,
+        /**
+         * Replace the subscribed event list
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('events')]
+        #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\WebhooksUpdateEventRequest>|null')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?array $events = null,
+        /**
+         * Enable or disable deliveries for this endpoint
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('isActive')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?bool $isActive = null
+    ) {
     }
 }

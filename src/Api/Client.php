@@ -11,15 +11,15 @@ use Gando\Partner\Gando;
 use Gando\Partner\Models\Components\Security;
 use Gando\Partner\Webhooks;
 
-final class Client
+final readonly class Client
 {
-    public readonly Accounts $accounts;
-    public readonly Clients $clients;
-    public readonly Deposits $deposits;
-    public readonly Webhooks $webhooks;
+    public Accounts $accounts;
+    public Clients $clients;
+    public Deposits $deposits;
+    public Webhooks $webhooks;
 
     public function __construct(
-        public readonly string $apiKey,
+        public string $apiKey,
         ?string $baseUrl = null,
     ) {
         $sdk = Gando::builder()

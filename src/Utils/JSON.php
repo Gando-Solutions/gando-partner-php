@@ -41,9 +41,7 @@ class JSON
             (new JsonDeserializationVisitorFactory())->setOptions(JSON_BIGINT_AS_STRING)
         )->setTypeParser(
             new PhpDocTypeParser()
-        )->setSerializationContextFactory(function () {
-            return SerializationContext::create()
-                ->setSerializeNull(true);
-        })->build();
+        )->setSerializationContextFactory(fn (): \Speakeasy\Serializer\SerializationContext => SerializationContext::create()
+            ->setSerializeNull(true))->build();
     }
 }
