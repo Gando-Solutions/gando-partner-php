@@ -165,7 +165,7 @@ Rental-operator tokens (`gando_…` without `_pk_`) and session cookies are docu
 
 ## list
 
-Returns rental operator accounts linked to your partner. Filter with `status`: `active` (default), `revoked`, or `all`.
+Returns rental operator accounts linked to your partner. Filter with `status`: `active` (default), `revoked`, or `all`. Results are paginated with **`page`** and **`limit`** query parameters (same semantics as **`GET /api/partner/deposits`**).
 
 ### Example Usage
 
@@ -188,12 +188,17 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->accounts->list(
+$responses = $sdk->accounts->list(
+    page: 1,
+    limit: 20
 
 );
 
-if ($response->object !== null) {
-    // handle response
+
+foreach ($responses as $response) {
+    if ($response->statusCode === 200) {
+        // handle response
+    }
 }
 ```
 
@@ -202,6 +207,8 @@ if ($response->object !== null) {
 | Parameter                                                                                           | Type                                                                                                | Required                                                                                            | Description                                                                                         |
 | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `status`                                                                                            | [?Operations\AccountsListQueryParamStatus](../../Models/Operations/AccountsListQueryParamStatus.md) | :heavy_minus_sign:                                                                                  | Filter linked accounts: `active` (default, operable links), `revoked` (disconnected), or `all`.     |
+| `page`                                                                                              | *?int*                                                                                              | :heavy_minus_sign:                                                                                  | Page number (1-based)                                                                               |
+| `limit`                                                                                             | *?int*                                                                                              | :heavy_minus_sign:                                                                                  | Items per page (max 100)                                                                            |
 
 ### Response
 

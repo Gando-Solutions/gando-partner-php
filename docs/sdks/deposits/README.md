@@ -6,18 +6,18 @@ Create, retrieve, update, cancel, and capture deposits on behalf of linked renta
 
 ### Available Operations
 
-* [list](#list) - List deposits
-* [create](#create) - Create a deposit for a linked rental operator
-* [retrieve](#retrieve) - Get deposit by id
-* [delete](#delete) - Delete or archive a deposit
-* [update](#update) - Update deposit (change client or cancel pending payment)
-* [getCapture](#getcapture) - Get latest capture for a deposit
-* [capture](#capture) - Create a capture (encaissement)
-* [sendEmails](#sendemails) - Send deposit link to multiple emails
-* [sendDepositMail](#senddepositmail) - Send deposit link to one email
-* [cancel](#cancel) - Close deposit (status close + optional email)
-* [getPaymentMethod](#getpaymentmethod) - Masked card info for the deposit
-* [getPdf](#getpdf) - Download deposit summary PDF
+- [list](#list) - List deposits
+- [create](#create) - Create a deposit for a linked rental operator
+- [retrieve](#retrieve) - Get deposit by id
+- [delete](#delete) - Delete or archive a deposit
+- [update](#update) - Update deposit (change client or cancel pending payment)
+- [getCapture](#getcapture) - Get latest capture for a deposit
+- [capture](#capture) - Create a capture (encaissement)
+- [sendEmails](#sendemails) - Send deposit link to multiple emails
+- [sendDepositMail](#senddepositmail) - Send deposit link to one email
+- [cancel](#cancel) - Close deposit (status close + optional email)
+- [getPaymentMethod](#getpaymentmethod) - Masked card info for the deposit
+- [getPdf](#getpdf) - Download deposit summary PDF
 
 ## list
 
@@ -32,6 +32,7 @@ When `include_counts=true` **and** `account_id` is set, the response includes pe
 ### Example Usage
 
 <!-- UsageSnippet language="php" operationID="deposits.list" method="get" path="/api/partner/deposits" -->
+
 ```php
 declare(strict_types=1);
 
@@ -51,20 +52,23 @@ $sdk = Partner\Gando::builder()
 
 $request = new Operations\DepositsListRequest();
 
-$response = $sdk->deposits->list(
+$responses = $sdk->deposits->list(
     request: $request
 );
 
-if ($response->object !== null) {
-    // handle response
+
+foreach ($responses as $response) {
+    if ($response->statusCode === 200) {
+        // handle response
+    }
 }
 ```
 
 ### Parameters
 
-| Parameter                                                                        | Type                                                                             | Required                                                                         | Description                                                                      |
-| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| `$request`                                                                       | [Operations\DepositsListRequest](../../Models/Operations/DepositsListRequest.md) | :heavy_check_mark:                                                               | The request object to use for the request.                                       |
+| Parameter  | Type                                                                             | Required           | Description                                |
+| ---------- | -------------------------------------------------------------------------------- | ------------------ | ------------------------------------------ |
+| `$request` | [Operations\DepositsListRequest](../../Models/Operations/DepositsListRequest.md) | :heavy_check_mark: | The request object to use for the request. |
 
 ### Response
 
@@ -72,11 +76,11 @@ if ($response->object !== null) {
 
 ### Errors
 
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500                               | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+| Error Type           | Status Code                       | Content Type     |
+| -------------------- | --------------------------------- | ---------------- |
+| Errors\ErrorEnvelope | 400, 401, 403, 404, 409, 422, 429 | application/json |
+| Errors\ErrorEnvelope | 500                               | application/json |
+| Errors\APIException  | 4XX, 5XX                          | \*/\*            |
 
 ## create
 
@@ -84,7 +88,7 @@ Creates a deposit on behalf of a linked rental operator (`account_id`). Optional
 
 **Inline redirect:** set `inline_redirect: true` and `return_url` to receive `deposit_url` and send the tenant straight to Gando. Same redirect query parameters as the rental operator API: `caution_id`, `caution_status`.
 
-**Idempotency-Key:** optional UUID v4 header; replays return the same **201** and `data.id` within 24h when the body is unchanged.
+**Idempotency-Key:** optional UUID v4 header; replays return the same **201** and `data.id` within 24h when the body is unchanged. The PHP SDK (`Gando\Partner\Api\Client`) auto-generates this header when omitted so retries stay idempotent.
 
 **PHP SDK (`Gando\Partner\Api\Client`):** when `idempotencyKey` is omitted on `deposits->create()`, the SDK generates a UUID v4 and sends it on every HTTP attempt for that call (including retries), so a transient `429`/`5xx` does not create two deposits.
 
@@ -93,6 +97,7 @@ See the **Accounts** tag description for authentication details and curl/fetch e
 ### Example Usage
 
 <!-- UsageSnippet language="php" operationID="deposits.create" method="post" path="/api/partner/deposits" -->
+
 ```php
 declare(strict_types=1);
 
@@ -132,10 +137,10 @@ if ($response->object !== null) {
 
 ### Parameters
 
-| Parameter                                                                                                                                                                                                                                                                                          | Type                                                                                                                                                                                                                                                                                               | Required                                                                                                                                                                                                                                                                                           | Description                                                                                                                                                                                                                                                                                        | Example                                                                                                                                                                                                                                                                                            |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `body`                                                                                                                                                                                                                                                                                             | [Operations\PartnerCreateDepositBody](../../Models/Operations/PartnerCreateDepositBody.md)                                                                                                                                                                                                         | :heavy_check_mark:                                                                                                                                                                                                                                                                                 | N/A                                                                                                                                                                                                                                                                                                | {<br/>"account_id": "acc_7k2m9x",<br/>"amount": 800,<br/>"rental_contract": "CTR-2026-0421",<br/>"contract_start_at": "2026-06-01T10:00:00.000Z",<br/>"contract_end_at": "2026-06-15T18:00:00.000Z",<br/>"client_id": "cli_9f3k2a",<br/>"inline_redirect": true,<br/>"return_url": "https://partner.example.com/deposits/return"<br/>} |
-| `idempotencyKey`                                                                                                                                                                                                                                                                                   | *?string*                                                                                                                                                                                                                                                                                          | :heavy_minus_sign:                                                                                                                                                                                                                                                                                 | Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`.                                                                                                                              |                                                                                                                                                                                                                                                                                                    |
+| Parameter        | Type                                                                                       | Required           | Description                                                                                                                                                           | Example                                                                                                                                                                                                                                                                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------ | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `body`           | [Operations\PartnerCreateDepositBody](../../Models/Operations/PartnerCreateDepositBody.md) | :heavy_check_mark: | N/A                                                                                                                                                                   | {<br/>"account_id": "acc_7k2m9x",<br/>"amount": 800,<br/>"rental_contract": "CTR-2026-0421",<br/>"contract_start_at": "2026-06-01T10:00:00.000Z",<br/>"contract_end_at": "2026-06-15T18:00:00.000Z",<br/>"client_id": "cli_9f3k2a",<br/>"inline_redirect": true,<br/>"return_url": "https://partner.example.com/deposits/return"<br/>} |
+| `idempotencyKey` | _?string_                                                                                  | :heavy_minus_sign: | Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`. |                                                                                                                                                                                                                                                                                                                                        |
 
 ### Response
 
@@ -143,11 +148,11 @@ if ($response->object !== null) {
 
 ### Errors
 
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500, 503                          | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+| Error Type           | Status Code                       | Content Type     |
+| -------------------- | --------------------------------- | ---------------- |
+| Errors\ErrorEnvelope | 400, 401, 403, 404, 409, 422, 429 | application/json |
+| Errors\ErrorEnvelope | 500, 503                          | application/json |
+| Errors\APIException  | 4XX, 5XX                          | \*/\*            |
 
 ## retrieve
 
@@ -156,6 +161,7 @@ Returns the same deposit shape as the rental operator API (`CautionItem` fields)
 ### Example Usage
 
 <!-- UsageSnippet language="php" operationID="deposits.retrieve" method="get" path="/api/partner/deposits/{id}" -->
+
 ```php
 declare(strict_types=1);
 
@@ -185,9 +191,9 @@ if ($response->object !== null) {
 
 ### Parameters
 
-| Parameter                           | Type                                | Required                            | Description                         |
-| ----------------------------------- | ----------------------------------- | ----------------------------------- | ----------------------------------- |
-| `id`                                | *string*                            | :heavy_check_mark:                  | Deposit (caution) unique identifier |
+| Parameter | Type     | Required           | Description                         |
+| --------- | -------- | ------------------ | ----------------------------------- |
+| `id`      | _string_ | :heavy_check_mark: | Deposit (caution) unique identifier |
 
 ### Response
 
@@ -195,11 +201,11 @@ if ($response->object !== null) {
 
 ### Errors
 
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500                               | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+| Error Type           | Status Code                       | Content Type     |
+| -------------------- | --------------------------------- | ---------------- |
+| Errors\ErrorEnvelope | 400, 401, 403, 404, 409, 422, 429 | application/json |
+| Errors\ErrorEnvelope | 500                               | application/json |
+| Errors\APIException  | 4XX, 5XX                          | \*/\*            |
 
 ## delete
 
@@ -208,6 +214,7 @@ Same semantics as rental-operator delete: remove when allowed, otherwise archive
 ### Example Usage
 
 <!-- UsageSnippet language="php" operationID="deposits.delete" method="delete" path="/api/partner/deposits/{id}" -->
+
 ```php
 declare(strict_types=1);
 
@@ -237,9 +244,9 @@ if ($response->partnerDeleteDepositResponse !== null) {
 
 ### Parameters
 
-| Parameter                           | Type                                | Required                            | Description                         |
-| ----------------------------------- | ----------------------------------- | ----------------------------------- | ----------------------------------- |
-| `id`                                | *string*                            | :heavy_check_mark:                  | Deposit (caution) unique identifier |
+| Parameter | Type     | Required           | Description                         |
+| --------- | -------- | ------------------ | ----------------------------------- |
+| `id`      | _string_ | :heavy_check_mark: | Deposit (caution) unique identifier |
 
 ### Response
 
@@ -247,21 +254,23 @@ if ($response->partnerDeleteDepositResponse !== null) {
 
 ### Errors
 
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500                               | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+| Error Type           | Status Code                       | Content Type     |
+| -------------------- | --------------------------------- | ---------------- |
+| Errors\ErrorEnvelope | 400, 401, 403, 404, 409, 422, 429 | application/json |
+| Errors\ErrorEnvelope | 500                               | application/json |
+| Errors\APIException  | 4XX, 5XX                          | \*/\*            |
 
 ## update
 
 Exactly one of:
+
 - `client_id` — reassign client (must belong to the deposit's rental operator account)
 - `action: "cancel"` — void the in-flight deposit payment and set status to `cancelled`
 
 ### Example Usage
 
 <!-- UsageSnippet language="php" operationID="deposits.update" method="patch" path="/api/partner/deposits/{id}" -->
+
 ```php
 declare(strict_types=1);
 
@@ -296,10 +305,10 @@ if ($response->object !== null) {
 
 ### Parameters
 
-| Parameter                                                                                | Type                                                                                     | Required                                                                                 | Description                                                                              | Example                                                                                  |
-| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `id`                                                                                     | *string*                                                                                 | :heavy_check_mark:                                                                       | Deposit (caution) unique identifier                                                      |                                                                                          |
-| `body`                                                                                   | [Operations\PartnerPatchDepositBody](../../Models/Operations/PartnerPatchDepositBody.md) | :heavy_check_mark:                                                                       | N/A                                                                                      | {<br/>"client_id": "cli_9f3k2a"<br/>}                                                    |
+| Parameter | Type                                                                                     | Required           | Description                         | Example                               |
+| --------- | ---------------------------------------------------------------------------------------- | ------------------ | ----------------------------------- | ------------------------------------- |
+| `id`      | _string_                                                                                 | :heavy_check_mark: | Deposit (caution) unique identifier |                                       |
+| `body`    | [Operations\PartnerPatchDepositBody](../../Models/Operations/PartnerPatchDepositBody.md) | :heavy_check_mark: | N/A                                 | {<br/>"client_id": "cli_9f3k2a"<br/>} |
 
 ### Response
 
@@ -307,11 +316,11 @@ if ($response->object !== null) {
 
 ### Errors
 
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500, 502                          | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+| Error Type           | Status Code                       | Content Type     |
+| -------------------- | --------------------------------- | ---------------- |
+| Errors\ErrorEnvelope | 400, 401, 403, 404, 409, 422, 429 | application/json |
+| Errors\ErrorEnvelope | 500, 502                          | application/json |
+| Errors\APIException  | 4XX, 5XX                          | \*/\*            |
 
 ## getCapture
 
@@ -320,6 +329,7 @@ Prefers the latest **paid** capture; if none, returns the most recent capture of
 ### Example Usage
 
 <!-- UsageSnippet language="php" operationID="deposits.getCapture" method="get" path="/api/partner/deposits/{id}/capture" -->
+
 ```php
 declare(strict_types=1);
 
@@ -349,9 +359,9 @@ if ($response->object !== null) {
 
 ### Parameters
 
-| Parameter                           | Type                                | Required                            | Description                         |
-| ----------------------------------- | ----------------------------------- | ----------------------------------- | ----------------------------------- |
-| `id`                                | *string*                            | :heavy_check_mark:                  | Deposit (caution) unique identifier |
+| Parameter | Type     | Required           | Description                         |
+| --------- | -------- | ------------------ | ----------------------------------- |
+| `id`      | _string_ | :heavy_check_mark: | Deposit (caution) unique identifier |
 
 ### Response
 
@@ -359,11 +369,11 @@ if ($response->object !== null) {
 
 ### Errors
 
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500                               | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+| Error Type           | Status Code                       | Content Type     |
+| -------------------- | --------------------------------- | ---------------- |
+| Errors\ErrorEnvelope | 400, 401, 403, 404, 409, 422, 429 | application/json |
+| Errors\ErrorEnvelope | 500                               | application/json |
+| Errors\APIException  | 4XX, 5XX                          | \*/\*            |
 
 ## capture
 
@@ -372,6 +382,7 @@ Charge the tenant card for the given amount in **cents** (min 1000). Requires a 
 ### Example Usage
 
 <!-- UsageSnippet language="php" operationID="deposits.capture" method="post" path="/api/partner/deposits/{id}/capture" -->
+
 ```php
 declare(strict_types=1);
 
@@ -407,11 +418,11 @@ if ($response->object !== null) {
 
 ### Parameters
 
-| Parameter                                                                                                                                                             | Type                                                                                                                                                                  | Required                                                                                                                                                              | Description                                                                                                                                                           | Example                                                                                                                                                               |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                                                                                                                                                                  | *string*                                                                                                                                                              | :heavy_check_mark:                                                                                                                                                    | Deposit (caution) unique identifier                                                                                                                                   |                                                                                                                                                                       |
-| `body`                                                                                                                                                                | [Operations\PartnerCaptureBody](../../Models/Operations/PartnerCaptureBody.md)                                                                                        | :heavy_check_mark:                                                                                                                                                    | N/A                                                                                                                                                                   | {<br/>"amount": 50000,<br/>"reason": "Vehicle damage — bumper scratch"<br/>}                                                                                          |
-| `idempotencyKey`                                                                                                                                                      | *?string*                                                                                                                                                             | :heavy_minus_sign:                                                                                                                                                    | Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`. |                                                                                                                                                                       |
+| Parameter        | Type                                                                           | Required           | Description                                                                                                                                                           | Example                                                                      |
+| ---------------- | ------------------------------------------------------------------------------ | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `id`             | _string_                                                                       | :heavy_check_mark: | Deposit (caution) unique identifier                                                                                                                                   |                                                                              |
+| `body`           | [Operations\PartnerCaptureBody](../../Models/Operations/PartnerCaptureBody.md) | :heavy_check_mark: | N/A                                                                                                                                                                   | {<br/>"amount": 50000,<br/>"reason": "Vehicle damage — bumper scratch"<br/>} |
+| `idempotencyKey` | _?string_                                                                      | :heavy_minus_sign: | Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`. |                                                                              |
 
 ### Response
 
@@ -419,11 +430,11 @@ if ($response->object !== null) {
 
 ### Errors
 
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500, 503                          | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+| Error Type           | Status Code                       | Content Type     |
+| -------------------- | --------------------------------- | ---------------- |
+| Errors\ErrorEnvelope | 400, 401, 403, 404, 409, 422, 429 | application/json |
+| Errors\ErrorEnvelope | 500, 503                          | application/json |
+| Errors\APIException  | 4XX, 5XX                          | \*/\*            |
 
 ## sendEmails
 
@@ -432,6 +443,7 @@ Sends the deposit completion link to each address. Per-recipient success is retu
 ### Example Usage
 
 <!-- UsageSnippet language="php" operationID="deposits.sendEmails" method="post" path="/api/partner/deposits/{id}/email" -->
+
 ```php
 declare(strict_types=1);
 
@@ -469,10 +481,10 @@ if ($response->object !== null) {
 
 ### Parameters
 
-| Parameter                                                                                  | Type                                                                                       | Required                                                                                   | Description                                                                                | Example                                                                                    |
-| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| `id`                                                                                       | *string*                                                                                   | :heavy_check_mark:                                                                         | Deposit (caution) unique identifier                                                        |                                                                                            |
-| `body`                                                                                     | [Operations\PartnerDepositEmailsBody](../../Models/Operations/PartnerDepositEmailsBody.md) | :heavy_check_mark:                                                                         | N/A                                                                                        | {<br/>"emails": [<br/>"tenant@example.com",<br/>"tenant.spouse@example.com"<br/>]<br/>}    |
+| Parameter | Type                                                                                       | Required           | Description                         | Example                                                                                 |
+| --------- | ------------------------------------------------------------------------------------------ | ------------------ | ----------------------------------- | --------------------------------------------------------------------------------------- |
+| `id`      | _string_                                                                                   | :heavy_check_mark: | Deposit (caution) unique identifier |                                                                                         |
+| `body`    | [Operations\PartnerDepositEmailsBody](../../Models/Operations/PartnerDepositEmailsBody.md) | :heavy_check_mark: | N/A                                 | {<br/>"emails": [<br/>"tenant@example.com",<br/>"tenant.spouse@example.com"<br/>]<br/>} |
 
 ### Response
 
@@ -480,11 +492,11 @@ if ($response->object !== null) {
 
 ### Errors
 
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500                               | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+| Error Type           | Status Code                       | Content Type     |
+| -------------------- | --------------------------------- | ---------------- |
+| Errors\ErrorEnvelope | 400, 401, 403, 404, 409, 422, 429 | application/json |
+| Errors\ErrorEnvelope | 500                               | application/json |
+| Errors\APIException  | 4XX, 5XX                          | \*/\*            |
 
 ## sendDepositMail
 
@@ -493,6 +505,7 @@ Single-recipient variant of `/email`. Returns provider `messageId` when availabl
 ### Example Usage
 
 <!-- UsageSnippet language="php" operationID="deposits.sendDepositMail" method="post" path="/api/partner/deposits/{id}/send-deposit-mail" -->
+
 ```php
 declare(strict_types=1);
 
@@ -527,10 +540,10 @@ if ($response->object !== null) {
 
 ### Parameters
 
-| Parameter                                                                                      | Type                                                                                           | Required                                                                                       | Description                                                                                    | Example                                                                                        |
-| ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `id`                                                                                           | *string*                                                                                       | :heavy_check_mark:                                                                             | Deposit (caution) unique identifier                                                            |                                                                                                |
-| `body`                                                                                         | [Operations\PartnerSendDepositMailBody](../../Models/Operations/PartnerSendDepositMailBody.md) | :heavy_check_mark:                                                                             | N/A                                                                                            | {<br/>"email": "tenant@example.com"<br/>}                                                      |
+| Parameter | Type                                                                                           | Required           | Description                         | Example                                   |
+| --------- | ---------------------------------------------------------------------------------------------- | ------------------ | ----------------------------------- | ----------------------------------------- |
+| `id`      | _string_                                                                                       | :heavy_check_mark: | Deposit (caution) unique identifier |                                           |
+| `body`    | [Operations\PartnerSendDepositMailBody](../../Models/Operations/PartnerSendDepositMailBody.md) | :heavy_check_mark: | N/A                                 | {<br/>"email": "tenant@example.com"<br/>} |
 
 ### Response
 
@@ -538,11 +551,11 @@ if ($response->object !== null) {
 
 ### Errors
 
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500                               | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+| Error Type           | Status Code                       | Content Type     |
+| -------------------- | --------------------------------- | ---------------- |
+| Errors\ErrorEnvelope | 400, 401, 403, 404, 409, 422, 429 | application/json |
+| Errors\ErrorEnvelope | 500                               | application/json |
+| Errors\APIException  | 4XX, 5XX                          | \*/\*            |
 
 ## cancel
 
@@ -551,6 +564,7 @@ Sets the deposit status to `close` (end-of-contract closure) and may send the cl
 ### Example Usage
 
 <!-- UsageSnippet language="php" operationID="deposits.cancel" method="post" path="/api/partner/deposits/{id}/cancel" -->
+
 ```php
 declare(strict_types=1);
 
@@ -580,10 +594,10 @@ if ($response->object !== null) {
 
 ### Parameters
 
-| Parameter                                                                                                                                                             | Type                                                                                                                                                                  | Required                                                                                                                                                              | Description                                                                                                                                                           |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                                                                                                                                                                  | *string*                                                                                                                                                              | :heavy_check_mark:                                                                                                                                                    | Deposit (caution) unique identifier                                                                                                                                   |
-| `idempotencyKey`                                                                                                                                                      | *?string*                                                                                                                                                             | :heavy_minus_sign:                                                                                                                                                    | Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`. |
+| Parameter        | Type      | Required           | Description                                                                                                                                                           |
+| ---------------- | --------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`             | _string_  | :heavy_check_mark: | Deposit (caution) unique identifier                                                                                                                                   |
+| `idempotencyKey` | _?string_ | :heavy_minus_sign: | Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`. |
 
 ### Response
 
@@ -591,11 +605,11 @@ if ($response->object !== null) {
 
 ### Errors
 
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500, 503                          | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+| Error Type           | Status Code                       | Content Type     |
+| -------------------- | --------------------------------- | ---------------- |
+| Errors\ErrorEnvelope | 400, 401, 403, 404, 409, 422, 429 | application/json |
+| Errors\ErrorEnvelope | 500, 503                          | application/json |
+| Errors\APIException  | 4XX, 5XX                          | \*/\*            |
 
 ## getPaymentMethod
 
@@ -604,6 +618,7 @@ Requires payment processing to be configured and a saved payment method on the d
 ### Example Usage
 
 <!-- UsageSnippet language="php" operationID="deposits.getPaymentMethod" method="get" path="/api/partner/deposits/{id}/payment-method" -->
+
 ```php
 declare(strict_types=1);
 
@@ -633,9 +648,9 @@ if ($response->object !== null) {
 
 ### Parameters
 
-| Parameter                           | Type                                | Required                            | Description                         |
-| ----------------------------------- | ----------------------------------- | ----------------------------------- | ----------------------------------- |
-| `id`                                | *string*                            | :heavy_check_mark:                  | Deposit (caution) unique identifier |
+| Parameter | Type     | Required           | Description                         |
+| --------- | -------- | ------------------ | ----------------------------------- |
+| `id`      | _string_ | :heavy_check_mark: | Deposit (caution) unique identifier |
 
 ### Response
 
@@ -643,11 +658,11 @@ if ($response->object !== null) {
 
 ### Errors
 
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500, 502                          | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+| Error Type           | Status Code                       | Content Type     |
+| -------------------- | --------------------------------- | ---------------- |
+| Errors\ErrorEnvelope | 400, 401, 403, 404, 409, 422, 429 | application/json |
+| Errors\ErrorEnvelope | 500, 502                          | application/json |
+| Errors\APIException  | 4XX, 5XX                          | \*/\*            |
 
 ## getPdf
 
@@ -656,6 +671,7 @@ Returns raw **application/pdf** bytes (not JSON).
 ### Example Usage
 
 <!-- UsageSnippet language="php" operationID="deposits.getPdf" method="get" path="/api/partner/deposits/{id}/pdf" -->
+
 ```php
 declare(strict_types=1);
 
@@ -685,9 +701,9 @@ if ($response->bytes !== null) {
 
 ### Parameters
 
-| Parameter                           | Type                                | Required                            | Description                         |
-| ----------------------------------- | ----------------------------------- | ----------------------------------- | ----------------------------------- |
-| `id`                                | *string*                            | :heavy_check_mark:                  | Deposit (caution) unique identifier |
+| Parameter | Type     | Required           | Description                         |
+| --------- | -------- | ------------------ | ----------------------------------- |
+| `id`      | _string_ | :heavy_check_mark: | Deposit (caution) unique identifier |
 
 ### Response
 
@@ -695,8 +711,8 @@ if ($response->bytes !== null) {
 
 ### Errors
 
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500                               | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+| Error Type           | Status Code                       | Content Type     |
+| -------------------- | --------------------------------- | ---------------- |
+| Errors\ErrorEnvelope | 400, 401, 403, 404, 409, 422, 429 | application/json |
+| Errors\ErrorEnvelope | 500                               | application/json |
+| Errors\APIException  | 4XX, 5XX                          | \*/\*            |

@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 
-/** DepositsListResponseBody - Paginated list (`items` + `total`; optional `counts`) */
+/** DepositsListResponseBody - Paginated list (`items` + `total` + `numPages`; optional `counts`) */
 class DepositsListResponseBody
 {
     /**

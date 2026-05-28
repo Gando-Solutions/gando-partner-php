@@ -26,6 +26,7 @@ Gando Partner API: API for **rental management software** and **multi–rental-o
   * [Authentication](#authentication)
   * [Available Resources and Operations](#available-resources-and-operations)
   * [Default retry policy](#default-retry-policy)
+  * [Pagination](#pagination)
   * [Retries](#retries)
   * [Error Handling](#error-handling)
   * [Server Selection](#server-selection)
@@ -105,12 +106,17 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->accounts->list(
+$responses = $sdk->accounts->list(
+    page: 1,
+    limit: 20
 
 );
 
-if ($response->object !== null) {
-    // handle response
+
+foreach ($responses as $response) {
+    if ($response->statusCode === 200) {
+        // handle response
+    }
 }
 ```
 <!-- End SDK Example Usage [usage] -->
@@ -146,12 +152,17 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->accounts->list(
+$responses = $sdk->accounts->list(
+    page: 1,
+    limit: 20
 
 );
 
-if ($response->object !== null) {
-    // handle response
+
+foreach ($responses as $response) {
+    if ($response->statusCode === 200) {
+        // handle response
+    }
 }
 ```
 <!-- End Authentication [security] -->
@@ -216,6 +227,46 @@ All Partner API operations use the global `x-speakeasy-retries` extension from t
 
 The SDK respects a `Retry-After` response header when present. Override globally via `Gando::builder()->setRetryConfig(...)` or per call via `Utils\Options` (see below).
 
+<!-- Start Pagination [pagination] -->
+## Pagination
+
+Some of the endpoints in this SDK support pagination. To use pagination, you make your SDK calls as usual, but the
+returned object will be a `Generator` instead of an individual response.
+
+Working with generators is as simple as iterating over the responses in a `foreach` loop, and you can see an example below:
+```php
+declare(strict_types=1);
+
+require 'vendor/autoload.php';
+
+use Gando\Partner;
+use Gando\Partner\Models\Components;
+
+$sdk = Partner\Gando::builder()
+    ->setSecurity(
+        new Components\Security(
+            partnerApiKeyAuth: '<YOUR_API_KEY_HERE>',
+        )
+    )
+    ->build();
+
+
+
+$responses = $sdk->accounts->list(
+    page: 1,
+    limit: 20
+
+);
+
+
+foreach ($responses as $response) {
+    if ($response->statusCode === 200) {
+        // handle response
+    }
+}
+```
+<!-- End Pagination [pagination] -->
+
 <!-- Start Retries [retries] -->
 ## Retries
 
@@ -241,7 +292,9 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->accounts->list(
+$responses = $sdk->accounts->list(
+    page: 1,
+    limit: 20,
     options: Utils\Options->builder()->setRetryConfig(
         new Retry\RetryConfigBackoff(
             initialInterval: 1,
@@ -250,10 +303,14 @@ $response = $sdk->accounts->list(
             maxElapsedTime:  100,
             retryConnectionErrors: false,
         ))->build()
+
 );
 
-if ($response->object !== null) {
-    // handle response
+
+foreach ($responses as $response) {
+    if ($response->statusCode === 200) {
+        // handle response
+    }
 }
 ```
 
@@ -286,12 +343,17 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->accounts->list(
+$responses = $sdk->accounts->list(
+    page: 1,
+    limit: 20
 
 );
 
-if ($response->object !== null) {
-    // handle response
+
+foreach ($responses as $response) {
+    if ($response->statusCode === 200) {
+        // handle response
+    }
 }
 ```
 <!-- End Retries [retries] -->
@@ -338,12 +400,16 @@ $sdk = Partner\Gando::builder()
     ->build();
 
 try {
-    $response = $sdk->accounts->list(
+    $responses = $sdk->accounts->list(
+        page: 1,
+        limit: 20
 
     );
 
-    if ($response->object !== null) {
-        // handle response
+    foreach ($responses as $response) {
+        if ($response->statusCode === 200) {
+            // handle response
+        }
     }
 } catch (Errors\ErrorEnvelopeThrowable $e) {
     // handle $e->$container data
@@ -383,12 +449,17 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->accounts->list(
+$responses = $sdk->accounts->list(
+    page: 1,
+    limit: 20
 
 );
 
-if ($response->object !== null) {
-    // handle response
+
+foreach ($responses as $response) {
+    if ($response->statusCode === 200) {
+        // handle response
+    }
 }
 ```
 <!-- End Server Selection [server] -->

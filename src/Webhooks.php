@@ -80,7 +80,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
@@ -124,7 +124,8 @@ class Webhooks
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -196,7 +197,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\WebhooksDeleteRequest(
@@ -238,7 +239,8 @@ class Webhooks
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -312,7 +314,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\WebhooksGetDeliveriesRequest(
@@ -359,7 +361,8 @@ class Webhooks
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -431,7 +434,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\WebhooksGetSecretRequest(
@@ -473,7 +476,8 @@ class Webhooks
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -515,12 +519,14 @@ class Webhooks
     /**
      * List partner webhook endpoints
      *
-     * Retrieve all configured webhook endpoints for the authenticated partner (`gando_pk_` key). Each item aggregates subscribed event types.
+     * Retrieve configured webhook endpoints for the authenticated partner (`gando_pk_` key). Each item aggregates subscribed event types. Results are paginated with **`page`** and **`limit`** query parameters (same semantics as **`GET /api/partner/deposits`**).
      *
+     * @param  ?int  $page
+     * @param  ?int  $limit
      * @return \Gando\Partner\Models\Operations\WebhooksListResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    public function list(?Options $options = null): Operations\WebhooksListResponse
+    private function listIndividual(?int $page = null, ?int $limit = null, ?Options $options = null): Operations\WebhooksListResponse
     {
         $retryConfig = null;
         if ($options) {
@@ -544,18 +550,25 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
+        $request = new Operations\WebhooksListRequest(
+            page: $page,
+            limit: $limit,
+        );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
         $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/webhooks');
         $urlOverride = null;
         $httpOptions = ['http_errors' => false];
+
+        $qp = Utils\Utils::getQueryParams(Operations\WebhooksListRequest::class, $request, $urlOverride);
         $httpOptions['headers']['Accept'] = 'application/json';
         $httpOptions['headers']['user-agent'] = $this->sdkConfiguration->userAgent;
         $httpRequest = new \GuzzleHttp\Psr7\Request('GET', $url);
         $hookContext = new HookContext($this->sdkConfiguration, $baseUrl, 'webhooks.list', null, $this->sdkConfiguration->securitySource);
         $httpRequest = $this->sdkConfiguration->hooks->beforeRequest(new Hooks\BeforeRequestContext($hookContext), $httpRequest);
+        $httpOptions['query'] = Utils\QueryParameters::standardizeQueryParams($httpRequest, $qp);
         $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
         $httpRequest = Utils\Utils::removeHeaders($httpRequest);
         try {
@@ -583,7 +596,36 @@ class Webhooks
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
+                $sdk = $this;
+
+                $response->next = function () use ($sdk, $request, $responseData): ?Operations\WebhooksListResponse {
+                    $page = $request != null ? $request->page : 0;
+                    $nextPage = $page + 1;
+                    if (! $responseData) {
+                        return null;
+                    }
+                    $jsonObject = new \JsonPath\JsonObject($responseData);
+                    $results = $jsonObject->get('$.data.items');
+
+                    if (is_array($results)) {
+                        $results = $results[0];
+                    }
+                    if (count($results) === 0) {
+                        return null;
+                    }
+                    $limit = $request != null ? $request->limit : 0;
+                    if (count($results) < $limit) {
+                        return null;
+                    }
+
+                    return $sdk->listIndividual(
+                        page: $nextPage,
+                        limit: $request != null ? $request->limit : null,
+                    );
+                };
+
 
                 return $response;
             } else {
@@ -621,6 +663,24 @@ class Webhooks
             throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
         }
     }
+    /**
+     * List partner webhook endpoints
+     *
+     * Retrieve configured webhook endpoints for the authenticated partner (`gando_pk_` key). Each item aggregates subscribed event types. Results are paginated with **`page`** and **`limit`** query parameters (same semantics as **`GET /api/partner/deposits`**).
+     *
+     * @param  ?int  $page
+     * @param  ?int  $limit
+     * @return \Generator<\Gando\Partner\Models\Operations\WebhooksListResponse>
+     * @throws \Gando\Partner\Models\Errors\APIException
+     */
+    public function list(?int $page = null, ?int $limit = null, ?Options $options = null): \Generator
+    {
+        $res = $this->listIndividual($page, $limit, $options);
+        while ($res !== null) {
+            yield $res;
+            $res = $res->next($res);
+        }
+    }
 
     /**
      * Rotate partner webhook secret
@@ -655,7 +715,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\WebhooksRotateSecretRequest(
@@ -697,7 +757,8 @@ class Webhooks
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -796,7 +857,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\WebhooksTestRequest(
@@ -838,7 +899,8 @@ class Webhooks
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -911,7 +973,7 @@ class Webhooks
         if ($retryCodes === null) {
             $retryCodes = [
                 '429',
-                '5xx',
+                '5XX',
             ];
         }
         $request = new Operations\WebhooksUpdateRequest(
@@ -959,7 +1021,8 @@ class Webhooks
                     statusCode: $statusCode,
                     contentType: $contentType,
                     rawResponse: $httpResponse,
-                    object: $obj);
+                    object: $obj
+                );
 
                 return $response;
             } else {
@@ -997,5 +1060,4 @@ class Webhooks
             throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
         }
     }
-
 }

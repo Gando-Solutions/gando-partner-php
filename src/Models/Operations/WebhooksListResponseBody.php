@@ -10,17 +10,15 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 
-/** WebhooksListResponseBody - Successfully retrieved webhook endpoints */
+/** WebhooksListResponseBody - Paginated webhook endpoints (`items` + `total`) */
 class WebhooksListResponseBody
 {
     /**
-     * Webhook endpoints configured for this partner
-     *
-     * @var array<\Gando\Partner\Models\Operations\WebhooksListPartnerWebhookSubscriptionItem> $data
+     * @var \Gando\Partner\Models\Operations\PartnerWebhookListResponse $data
      */
     #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\WebhooksListPartnerWebhookSubscriptionItem>')]
-    public array $data;
+    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerWebhookListResponse')]
+    public PartnerWebhookListResponse $data;
 
     /**
      * Optional human-readable message
@@ -41,11 +39,11 @@ class WebhooksListResponseBody
 
     /**
      * @param  bool  $success
-     * @param  array<\Gando\Partner\Models\Operations\WebhooksListPartnerWebhookSubscriptionItem>  $data
+     * @param  \Gando\Partner\Models\Operations\PartnerWebhookListResponse  $data
      * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(array $data, ?string $message = null, bool $success = true)
+    public function __construct(PartnerWebhookListResponse $data, ?string $message = null, bool $success = true)
     {
         $this->data = $data;
         $this->message = $message;

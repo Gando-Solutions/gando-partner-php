@@ -42,7 +42,7 @@ Failed deliveries are retried on a backoff schedule by Gando’s webhook retry j
 
 ## list
 
-Retrieve all configured webhook endpoints for the authenticated partner (`gando_pk_` key). Each item aggregates subscribed event types.
+Retrieve configured webhook endpoints for the authenticated partner (`gando_pk_` key). Each item aggregates subscribed event types. Results are paginated with **`page`** and **`limit`** query parameters (same semantics as **`GET /api/partner/deposits`**).
 
 ### Example Usage
 
@@ -65,14 +65,26 @@ $sdk = Partner\Gando::builder()
 
 
 
-$response = $sdk->webhooks->list(
+$responses = $sdk->webhooks->list(
+    page: 1,
+    limit: 20
 
 );
 
-if ($response->object !== null) {
-    // handle response
+
+foreach ($responses as $response) {
+    if ($response->statusCode === 200) {
+        // handle response
+    }
 }
 ```
+
+### Parameters
+
+| Parameter                | Type                     | Required                 | Description              |
+| ------------------------ | ------------------------ | ------------------------ | ------------------------ |
+| `page`                   | *?int*                   | :heavy_minus_sign:       | Page number (1-based)    |
+| `limit`                  | *?int*                   | :heavy_minus_sign:       | Items per page (max 100) |
 
 ### Response
 

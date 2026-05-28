@@ -30,6 +30,14 @@ class PartnerDepositListResponse
     public int $total;
 
     /**
+     * Total number of pages for the current `limit` (0 when `total` is 0)
+     *
+     * @var int $numPages
+     */
+    #[\Speakeasy\Serializer\Annotation\SerializedName('numPages')]
+    public int $numPages;
+
+    /**
      * Present only when `include_counts=true` and `account_id` is set
      *
      * @var ?\Gando\Partner\Models\Operations\PartnerDepositListCounts $counts
@@ -42,13 +50,15 @@ class PartnerDepositListResponse
     /**
      * @param  array<\Gando\Partner\Models\Operations\Item>  $items
      * @param  int  $total
+     * @param  int  $numPages
      * @param  ?\Gando\Partner\Models\Operations\PartnerDepositListCounts  $counts
      * @phpstan-pure
      */
-    public function __construct(array $items, int $total, ?PartnerDepositListCounts $counts = null)
+    public function __construct(array $items, int $total, int $numPages, ?PartnerDepositListCounts $counts = null)
     {
         $this->items = $items;
         $this->total = $total;
+        $this->numPages = $numPages;
         $this->counts = $counts;
     }
 }
