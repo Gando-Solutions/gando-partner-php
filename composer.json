@@ -10,17 +10,18 @@
   "require": {
     "php": ">=8.2",
     "galbar/jsonpath": ">=3.0",
+    "guzzlehttp/guzzle": "^7.0",
     "speakeasy/serializer": "^4.0.3",
     "brick/date-time": ">=0.7.0",
     "phpdocumentor/type-resolver": ">=1.8",
     "brick/math": ">=0.12.1",
+    "guzzlehttp/guzzle": "^7.0",
+    "php-http/discovery": "^1.20",
+    "psr/event-dispatcher": "^1.0",
     "psr/http-client": "^1.0",
     "psr/http-factory": "^1.0",
     "psr/log": "^1.1 || ^2.0 || ^3.0",
-    "psr/simple-cache": "^1.0 || ^2.0 || ^3.0",
-    "guzzlehttp/guzzle": "^7.0",
-    "php-http/discovery": "^1.20",
-    "psr/event-dispatcher": "^1.0"
+    "psr/simple-cache": "^1.0 || ^2.0 || ^3.0"
   },
   "require-dev": {
     "laravel/pint": "1.29.0",
