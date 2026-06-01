@@ -893,7 +893,7 @@ class Deposits
      * @return \Gando\Partner\Models\Operations\DepositsListResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    private function listIndividual(?Operations\DepositsListRequest $request = null, ?Options $options = null): Operations\DepositsListResponse
+    public function list(?Operations\DepositsListRequest $request = null, ?Options $options = null): Operations\DepositsListResponse
     {
         $retryConfig = null;
         if ($options) {
@@ -960,40 +960,6 @@ class Deposits
                     contentType: $contentType,
                     rawResponse: $httpResponse,
                     object: $obj);
-                $sdk = $this;
-
-                $response->next = function () use ($sdk, $request, $responseData): ?Operations\DepositsListResponse {
-                    $page = $request != null ? $request->page : 0;
-                    $nextPage = $page + 1;
-                    $jsonObject = new \JsonPath\JsonObject($responseData);
-                    $numPages = $jsonObject->get('$.data.numPages');
-                    if ($numPages == null || $numPages[0] <= $page) {
-                        return null;
-                    }
-                    if (! $responseData) {
-                        return null;
-                    }
-
-                    return $sdk->listIndividual(
-                        request: new Operations\DepositsListRequest(
-                            accountId: $request != null ? $request->accountId : null,
-                            page: $nextPage,
-                            limit: $request != null ? $request->limit : null,
-                            sortBy: $request != null ? $request->sortBy : null,
-                            sortOrder: $request != null ? $request->sortOrder : null,
-                            status: $request != null ? $request->status : null,
-                            clientId: $request != null ? $request->clientId : null,
-                            amountMin: $request != null ? $request->amountMin : null,
-                            amountMax: $request != null ? $request->amountMax : null,
-                            startAtFrom: $request != null ? $request->startAtFrom : null,
-                            startAtTo: $request != null ? $request->startAtTo : null,
-                            expiresAtFrom: $request != null ? $request->expiresAtFrom : null,
-                            expiresAtTo: $request != null ? $request->expiresAtTo : null,
-                            includeCounts: $request != null ? $request->includeCounts : null,
-                        ),
-                    );
-                };
-
 
                 return $response;
             } else {
@@ -1029,29 +995,6 @@ class Deposits
             throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
         } else {
             throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-        }
-    }
-    /**
-     * List deposits
-     *
-     * Lists deposits across **all active** rental operator accounts linked to your partner.
-     *
-     * Pass **`account_id`** to return only deposits for that single linked rental operator account.
-     *
-     * Repeat query parameter **`status`** to filter by several statuses (e.g. `?status=pending&status=active`).
-     *
-     * When `include_counts=true` **and** `account_id` is set, the response includes per-status counts for that account.
-     *
-     * @param  ?\Gando\Partner\Models\Operations\DepositsListRequest  $request
-     * @return \Generator<\Gando\Partner\Models\Operations\DepositsListResponse>
-     * @throws \Gando\Partner\Models\Errors\APIException
-     */
-    public function list(?Operations\DepositsListRequest $request = null, ?Options $options = null): \Generator
-    {
-        $res = $this->listIndividual($request, $options);
-        while ($res !== null) {
-            yield $res;
-            $res = $res->next($res);
         }
     }
 

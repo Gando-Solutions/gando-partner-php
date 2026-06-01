@@ -41,10 +41,6 @@ class WebhooksListResponse
     public ?WebhooksListResponseBody $object = null;
 
     /**
-     * @var \Closure(string): ?WebhooksListResponse $next
-     */
-    public \Closure $next;
-    /**
      * @param  string  $contentType
      * @param  int  $statusCode
      * @param  \Psr\Http\Message\ResponseInterface  $rawResponse
@@ -57,18 +53,5 @@ class WebhooksListResponse
         $this->statusCode = $statusCode;
         $this->rawResponse = $rawResponse;
         $this->object = $object;
-    }
-    /**
-     * @param  string  $name
-     * @param  array<mixed>  $args
-     * @return ?WebhooksListResponse
-     */
-    public function __call($name, $args): ?WebhooksListResponse
-    {
-        if ($name === 'next') {
-            return call_user_func_array($this->next, $args);
-        }
-
-        return null;
     }
 }

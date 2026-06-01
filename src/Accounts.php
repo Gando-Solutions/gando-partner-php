@@ -58,7 +58,7 @@ class Accounts
      * @return \Gando\Partner\Models\Operations\AccountsListResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    private function listIndividual(?Operations\AccountsListQueryParamStatus $status = null, ?int $page = null, ?int $limit = null, ?Options $options = null): Operations\AccountsListResponse
+    public function list(?Operations\AccountsListQueryParamStatus $status = null, ?int $page = null, ?int $limit = null, ?Options $options = null): Operations\AccountsListResponse
     {
         $retryConfig = null;
         if ($options) {
@@ -130,35 +130,6 @@ class Accounts
                     contentType: $contentType,
                     rawResponse: $httpResponse,
                     object: $obj);
-                $sdk = $this;
-
-                $response->next = function () use ($sdk, $request, $responseData): ?Operations\AccountsListResponse {
-                    $page = $request != null ? $request->page : 0;
-                    $nextPage = $page + 1;
-                    if (! $responseData) {
-                        return null;
-                    }
-                    $jsonObject = new \JsonPath\JsonObject($responseData);
-                    $results = $jsonObject->get('$.data.accounts');
-
-                    if (is_array($results)) {
-                        $results = $results[0];
-                    }
-                    if (count($results) === 0) {
-                        return null;
-                    }
-                    $limit = $request != null ? $request->limit : 0;
-                    if (count($results) < $limit) {
-                        return null;
-                    }
-
-                    return $sdk->listIndividual(
-                        status: $request != null ? $request->status : null,
-                        page: $nextPage,
-                        limit: $request != null ? $request->limit : null,
-                    );
-                };
-
 
                 return $response;
             } else {
@@ -194,25 +165,6 @@ class Accounts
             throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
         } else {
             throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-        }
-    }
-    /**
-     * List linked rental operator accounts
-     *
-     * Returns rental operator accounts linked to your partner. Filter with `status`: `active` (default), `revoked`, or `all`. Results are paginated with **`page`** and **`limit`** query parameters (same semantics as **`GET /api/partner/deposits`**).
-     *
-     * @param  ?\Gando\Partner\Models\Operations\AccountsListQueryParamStatus  $status
-     * @param  ?int  $page
-     * @param  ?int  $limit
-     * @return \Generator<\Gando\Partner\Models\Operations\AccountsListResponse>
-     * @throws \Gando\Partner\Models\Errors\APIException
-     */
-    public function list(?Operations\AccountsListQueryParamStatus $status = null, ?int $page = null, ?int $limit = null, ?Options $options = null): \Generator
-    {
-        $res = $this->listIndividual($status, $page, $limit, $options);
-        while ($res !== null) {
-            yield $res;
-            $res = $res->next($res);
         }
     }
 

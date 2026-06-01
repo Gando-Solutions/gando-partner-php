@@ -41,10 +41,6 @@ class AccountsListResponse
     public ?AccountsListResponseBody $object = null;
 
     /**
-     * @var \Closure(string): ?AccountsListResponse $next
-     */
-    public \Closure $next;
-    /**
      * @param  string  $contentType
      * @param  int  $statusCode
      * @param  \Psr\Http\Message\ResponseInterface  $rawResponse
@@ -57,18 +53,5 @@ class AccountsListResponse
         $this->statusCode = $statusCode;
         $this->rawResponse = $rawResponse;
         $this->object = $object;
-    }
-    /**
-     * @param  string  $name
-     * @param  array<mixed>  $args
-     * @return ?AccountsListResponse
-     */
-    public function __call($name, $args): ?AccountsListResponse
-    {
-        if ($name === 'next') {
-            return call_user_func_array($this->next, $args);
-        }
-
-        return null;
     }
 }

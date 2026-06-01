@@ -65,17 +65,14 @@ $sdk = Partner\Gando::builder()
 
 
 
-$responses = $sdk->webhooks->list(
+$response = $sdk->webhooks->list(
     page: 1,
     limit: 20
 
 );
 
-
-foreach ($responses as $response) {
-    if ($response->statusCode === 200) {
-        // handle response
-    }
+if ($response->object !== null) {
+    // handle response
 }
 ```
 
