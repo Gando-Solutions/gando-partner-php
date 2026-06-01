@@ -126,6 +126,7 @@ final readonly class Psr18GuzzleAdapter implements ClientInterface
             foreach ($options['headers'] as $name => $value) {
                 if (is_array($value)) {
                     $request = $request->withHeader((string) $name, $value);
+
                     continue;
                 }
 

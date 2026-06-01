@@ -6,12 +6,12 @@ management:
   speakeasyVersion: 1.764.0
   generationVersion: 2.885.0
   releaseVersion: 0.1.4
-  configChecksum: 99629bdb49d774a4aefaf98b97e2c249
+  configChecksum: 570817b5d6a5ef600da78519aafb61ea
   published: true
 persistentEdits:
-  generation_id: 4cf728f0-faed-4bee-a89f-5b2a891d574b
-  pristine_commit_hash: af3182c9756e5ef9d992fe15495324bab59ac803
-  pristine_tree_hash: 8fa113468a7df5c2e480cc529b63e72ee38a6a35
+  generation_id: 3de22606-5651-4d5d-8a75-144a61d2e1c8
+  pristine_commit_hash: 2b7ea7794464c20b45ce14fcca8d773c67a2ecf8
+  pristine_tree_hash: 11bf3fc4689b9d03b3523135fd05ad6d9635beb1
 features:
   php:
     constsAndDefaults: 0.2.2
@@ -37,8 +37,8 @@ trackedFiles:
     pristine_git_object: 1a08d32bf5e4ec5edf5fa264bb9bda09a12aec97
   composer.json:
     id: 3957b91a0d84
-    last_write_checksum: sha1:58a1c80f01ce28bb32f57b09b8e141cca88bf78b
-    pristine_git_object: 3c4cf4cf2daa5e4d37605512b893950de561777c
+    last_write_checksum: sha1:77c88abc926404b72e2d543a6692b69a0ecbbcb4
+    pristine_git_object: ddae0103dcaf3bf23c6aee43b2e60076f19d8bb5
   docs/Models/Components/Code.md:
     id: 40e6ed62d8c8
     last_write_checksum: sha1:c4a8b52a5a890b40bfc6fdc5c4a136bba14dc0ba
@@ -1337,7 +1337,7 @@ trackedFiles:
     pristine_git_object: 0fb83e561f0951ef4a477dfe12de61da0ce606b7
   src/SDKConfiguration.php:
     id: 9d60ab0bec0b
-    last_write_checksum: sha1:4e07caa460da73d7abc5c618f39836e4f364edc5
+    last_write_checksum: sha1:9b2ae75c2294923905e14976ec6134b595d7319c
     pristine_git_object: 44064ff6a1e9747931d8baac8af9cbb04663e111
   src/Utils/BigDecimalHandler.php:
     id: cdcca3718e2e
