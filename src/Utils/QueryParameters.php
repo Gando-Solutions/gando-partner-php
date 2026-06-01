@@ -16,7 +16,6 @@ class QueryParameters
 {
     /**
      * @param  class-string  $type
-     * @param  mixed  $queryParams
      * @param  array<string,string>  $urlOverride
      * @param  array<string,array<string,array<string,string>>>|null  $globals
      * @return array<string, string>
@@ -39,15 +38,15 @@ class QueryParameters
             }
 
             $requestMetadata = RequestBodies::parseRequestMetadata(new ReflectionProperty($type, $field));
-            if ($requestMetadata !== null) {
+            if ($requestMetadata instanceof \Gando\Partner\Utils\RequestMetadata) {
                 continue;
             }
 
             $metadata = $this->parseQueryParamsMetadata(new ReflectionProperty($type, $field));
-            if ($metadata === null) {
+            if (!$metadata instanceof \Gando\Partner\Utils\ParamsMetadata) {
                 continue;
             }
-            if (! empty($metadata->serialization)) {
+            if ($metadata->serialization !== '' && $metadata->serialization !== '0') {
                 $parts = array_merge($parts, $this->parseSerializationParams($metadata, $value));
             } else {
                 match ($metadata->style) {
@@ -59,14 +58,10 @@ class QueryParameters
             }
         }
 
-        $parts = array_merge($parts, $urlOverride);
-
-        return $parts;
+        return array_merge($parts, $urlOverride);
     }
 
     /**
-     * @param  ParamsMetadata  $metadata
-     * @param  mixed  $value
      * @return array<string,string>
      */
     private function parseSerializationParams(ParamsMetadata $metadata, mixed $value): array
@@ -86,8 +81,6 @@ class QueryParameters
     }
 
     /**
-     * @param  ParamsMetadata  $metadata
-     * @param  mixed  $value
      * @return array<string, array<int, string>|string>
      */
     private function encodeDeepObjectParams(ParamsMetadata $metadata, mixed $value, ?string $prefix = null): array
@@ -97,11 +90,7 @@ class QueryParameters
         $dateTimeFormat = $metadata->dateTimeFormat;
         switch (gettype($value)) {
             case 'object':
-                if ($prefix) {
-                    $prefix = $prefix.'['.$metadata->name.']';
-                } else {
-                    $prefix = $metadata->name;
-                }
+                $prefix = $prefix ? $prefix.'['.$metadata->name.']' : $metadata->name;
                 if ($value instanceof \Brick\Math\BigDecimal || $value instanceof \Brick\Math\BigInteger || $value instanceof \Brick\DateTime\LocalDate || $value instanceof \DateTime || $value instanceof \UnitEnum) {
                     $queryParams[$prefix] = valToString($value, $metadata->encodingArray());
                     break;
@@ -114,7 +103,7 @@ class QueryParameters
                     $fieldMetadata = $this->parseQueryParamsMetadata(new ReflectionProperty($value::class, $field));
 
 
-                    if ($fieldMetadata === null) {
+                    if (!$fieldMetadata instanceof \Gando\Partner\Utils\ParamsMetadata) {
                         continue;
                     }
 
@@ -158,11 +147,7 @@ class QueryParameters
                     }
                 } else {
                     $items = [];
-                    if ($prefix) {
-                        $qpKey = $prefix.'['.$metadata->name.']';
-                    } else {
-                        $qpKey = $metadata->name;
-                    }
+                    $qpKey = $prefix ? $prefix.'['.$metadata->name.']' : $metadata->name;
                     $count = 0;
                     foreach ($value as $item) {
                         $items[] = valToString($item, ['dateTimeFormat' => $dateTimeFormat]);
@@ -176,9 +161,6 @@ class QueryParameters
     }
 
     /**
-     * @param  ParamsMetadata  $metadata
-     * @param  mixed  $value
-     * @param  string  $delimiter
      * @return array<string, array<int, string>|string>
      */
     private function parseDelimitedParams(ParamsMetadata $metadata, mixed $value, string $delimiter): array
@@ -201,7 +183,7 @@ class QueryParameters
                     }
 
                     $fieldMetadata = $this->parseQueryParamsMetadata(new ReflectionProperty($value::class, $field));
-                    if ($fieldMetadata === null) {
+                    if (!$fieldMetadata instanceof \Gando\Partner\Utils\ParamsMetadata) {
                         continue;
                     }
 
@@ -263,7 +245,6 @@ class QueryParameters
 
     /**
      * @param  array<int|string, string|array<string|int, string>>  $queryParams
-     * @return string
      */
     private static function recursivelyBuildQueryString(array $queryParams): string
     {
@@ -271,7 +252,7 @@ class QueryParameters
 
         foreach ($queryParams as $key => $value) {
             if (is_array($value) && array_is_list($value)) {
-                $parts = array_merge($parts, array_map(fn ($v) => self::buildQueryString($key, $v), $value));
+                $parts = array_merge($parts, array_map(fn (string $v): string => self::buildQueryString($key, $v), $value));
             } elseif (is_array($value)) {
                 $res = self::recursivelyBuildQueryString($value);
                 $parts[] = self::buildQueryString($key, $res);
@@ -283,11 +264,6 @@ class QueryParameters
         return implode('&', $parts);
     }
 
-    /**
-     * @param  string|int  $queryParamKey
-     * @param  string  $queryParamValue
-     * @return string
-     */
     private static function buildQueryString(string|int $queryParamKey, string $queryParamValue): string
     {
         if (is_int($queryParamKey)) {
@@ -304,18 +280,11 @@ class QueryParameters
             return null;
         }
 
-        $metadata = ParamsMetadata::parse($metadataStr);
-        if ($metadata === null) {
-            return null;
-        }
-
-        return $metadata;
+        return ParamsMetadata::parse($metadataStr);
     }
 
     /**
-     * @param  RequestInterface  $httpRequest
      * @param  array<string, mixed>  $queryParams
-     * @return string
      */
     public static function standardizeQueryParams(RequestInterface $httpRequest, array $queryParams): string
     {

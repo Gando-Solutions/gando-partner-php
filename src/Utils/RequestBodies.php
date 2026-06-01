@@ -13,7 +13,7 @@ use ReflectionProperty;
 
 class RequestBodies
 {
-    const SERIALIZATION_METHOD_TO_CONTENT_TYPE = [
+    public const SERIALIZATION_METHOD_TO_CONTENT_TYPE = [
         'json' => 'application/json',
         'form' => 'application/x-www-form-urlencoded',
         'multipart' => 'multipart/form-data',
@@ -22,9 +22,6 @@ class RequestBodies
     ];
 
     /**
-     * @param  mixed  $request
-     * @param  string  $requestFieldName
-     * @param  string  $serializationMethod
      * @return ?array<string,mixed>
      */
     public function serializeRequestBody(mixed $request, string $requestFieldName, string $serializationMethod): ?array
@@ -43,7 +40,7 @@ class RequestBodies
         }
 
         $metadata = RequestBodies::parseRequestMetadata(new ReflectionProperty($request::class, $requestFieldName));
-        if ($metadata === null) {
+        if (!$metadata instanceof \Gando\Partner\Utils\RequestMetadata) {
             throw new \Exception("Missing request metadata for field $requestFieldName");
         }
 
@@ -51,9 +48,6 @@ class RequestBodies
     }
 
     /**
-     * @param  string  $fieldName
-     * @param  string  $mediaType
-     * @param  mixed  $value
      * @return ?array<string,mixed>
      */
     private function serializeContentType(string $fieldName, string $mediaType, mixed $value): ?array
@@ -78,7 +72,7 @@ class RequestBodies
 
             match ($type) {
                 'string' => $options['body'] = $value,
-                default => throw new \RuntimeException("Invalid request body type $type for field $fieldName")
+                default => throw new \RuntimeException("Invalid request body type $type for field $fieldName"),
             };
         }
 
@@ -86,7 +80,6 @@ class RequestBodies
     }
 
     /**
-     * @param  mixed  $value
      * @return array<string,mixed>
      */
     private function serializeMultipart(mixed $value): array
@@ -101,7 +94,7 @@ class RequestBodies
             }
 
             $metadata = $this->parseMultipartMetadata(new ReflectionProperty($value::class, $field));
-            if ($metadata === null) {
+            if (!$metadata instanceof \Gando\Partner\Utils\MultipartMetadata) {
                 continue;
             }
 
@@ -145,13 +138,11 @@ class RequestBodies
     }
 
     /**
-     * @param  string  $fieldName
-     * @param  mixed  $value
      * @return array<string,mixed>
      */
     private function serializeMultipartFile(string $fieldName, mixed $value): array
     {
-        if (gettype($value) != 'object') {
+        if (gettype($value) !== 'object') {
             throw new \Exception('Invalid type for multipart/form-data file');
         }
 
@@ -164,7 +155,10 @@ class RequestBodies
             }
 
             $metadata = $this->parseMultipartMetadata(new ReflectionProperty($value::class, $field));
-            if ($metadata === null || (! $metadata->content && empty($metadata->name))) {
+            if (!$metadata instanceof \Gando\Partner\Utils\MultipartMetadata) {
+                continue;
+            }
+            if (! $metadata->content && ($metadata->name === '' || $metadata->name === '0')) {
                 continue;
             }
 
@@ -187,8 +181,6 @@ class RequestBodies
     }
 
     /**
-     * @param  string  $fieldName
-     * @param  mixed  $value
      * @return array<string,mixed>
      */
     private function serializeFormData(string $fieldName, mixed $value): array
@@ -205,7 +197,7 @@ class RequestBodies
                     }
 
                     $metadata = $this->parseFormMetadata(new ReflectionProperty($value::class, $field));
-                    if ($metadata === null) {
+                    if (!$metadata instanceof \Gando\Partner\Utils\FormMetadata) {
                         continue;
                     }
 
@@ -229,10 +221,9 @@ class RequestBodies
             case 'array':
                 if (array_is_list($value)) {
                     throw new \Exception("Invalid request body type for field $fieldName");
-                } else {
-                    foreach ($value as $k => $v) {
-                        $options['form_params'][$k] = valToString($v, []);
-                    }
+                }
+                foreach ($value as $k => $v) {
+                    $options['form_params'][$k] = valToString($v, []);
                 }
                 break;
             default:
@@ -243,8 +234,6 @@ class RequestBodies
     }
 
     /**
-     * @param  FormMetadata  $metadata
-     * @param  mixed  $value
      * @return array<string,mixed>
      */
     private function serializeForm(FormMetadata $metadata, mixed $value): array
@@ -257,16 +246,16 @@ class RequestBodies
         switch (gettype($value)) {
             case 'object':
                 switch ($value::class) {
-                    case 'Brick\DateTime\LocalDate':
+                    case \Brick\DateTime\LocalDate::class:
                     case 'DateTime':
                         $values[$metadata->name] = valToString($value, ['dateTimeFormat' => $dateTimeFormat]);
                         break;
-                    case 'Brick\Math\BigInteger':
-                    case 'Brick\Math\BigDecimal':
+                    case \Brick\Math\BigInteger::class:
+                    case \Brick\Math\BigDecimal::class:
                         $values[$metadata->name] = valToString($value, ['serializeToString' => $serializeToString]);
                         break;
                     default:
-                        if (is_a($value, \BackedEnum::class, true)) {
+                        if ($value instanceof \BackedEnum) {
                             $values[$metadata->name] = valToString($value, []);
                         } else {
                             $items = [];
@@ -277,7 +266,13 @@ class RequestBodies
                                 }
 
                                 $fieldMetadata = $this->parseFormMetadata(new ReflectionProperty($value::class, $field));
-                                if ($fieldMetadata === null || empty($fieldMetadata->name)) {
+                                if (!$fieldMetadata instanceof \Gando\Partner\Utils\FormMetadata) {
+                                    continue;
+                                }
+                                if ($fieldMetadata->name === '') {
+                                    continue;
+                                }
+                                if ($fieldMetadata->name === '0') {
                                     continue;
                                 }
 
@@ -336,12 +331,7 @@ class RequestBodies
             return null;
         }
 
-        $metadata = RequestMetadata::parse($arguments[0]);
-        if ($metadata === null) {
-            return null;
-        }
-
-        return $metadata;
+        return RequestMetadata::parse($arguments[0]);
     }
 
     private function parseMultipartMetadata(ReflectionProperty $property): ?MultipartMetadata
@@ -351,12 +341,7 @@ class RequestBodies
             return null;
         }
 
-        $metadata = MultipartMetadata::parse($metadataStr);
-        if ($metadata === null) {
-            return null;
-        }
-
-        return $metadata;
+        return MultipartMetadata::parse($metadataStr);
     }
 
     private function parseFormMetadata(ReflectionProperty $property): ?FormMetadata
@@ -366,11 +351,6 @@ class RequestBodies
             return null;
         }
 
-        $metadata = FormMetadata::parse($metadataStr);
-        if ($metadata === null) {
-            return null;
-        }
-
-        return $metadata;
+        return FormMetadata::parse($metadataStr);
     }
 }

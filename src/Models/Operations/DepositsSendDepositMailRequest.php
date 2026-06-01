@@ -10,31 +10,20 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class DepositsSendDepositMailRequest
+
+final readonly class DepositsSendDepositMailRequest
 {
     /**
-     * Deposit (caution) unique identifier
-     *
-     * @var string $id
-     */
-    #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
-    public string $id;
-
-    /**
-     *
-     * @var \Gando\Partner\Models\Operations\PartnerSendDepositMailBody $body
-     */
-    #[SpeakeasyMetadata('request:mediaType=application/json')]
-    public PartnerSendDepositMailBody $body;
-
-    /**
-     * @param  string  $id
-     * @param  \Gando\Partner\Models\Operations\PartnerSendDepositMailBody  $body
      * @phpstan-pure
      */
-    public function __construct(string $id, PartnerSendDepositMailBody $body)
-    {
-        $this->id = $id;
-        $this->body = $body;
+    public function __construct(
+        /**
+         * Deposit (caution) unique identifier
+         */
+        #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
+        public string $id,
+        #[SpeakeasyMetadata('request:mediaType=application/json')]
+        public PartnerSendDepositMailBody $body,
+    ) {
     }
 }

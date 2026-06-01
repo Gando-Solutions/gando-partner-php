@@ -9,84 +9,48 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerLinkedAccount
+final readonly class PartnerLinkedAccount
 {
     /**
-     * Gando rental operator account id. Use as `account_id` in Partner API calls.
-     *
-     * @var string $accountId
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('account_id')]
-    public string $accountId;
-
-    /**
-     * ISO 8601 timestamp when the partner link was created
-     *
-     * @var \DateTime $linkedAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('linked_at')]
-    public \DateTime $linkedAt;
-
-    /**
-     * Partner link status: `active` (operations allowed) or `revoked` (403 on deposits)
-     *
-     * @var \Gando\Partner\Models\Operations\AccountStatus $status
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('status')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\AccountStatus')]
-    public AccountStatus $status;
-
-    /**
-     * Your external id from partner connect, when provided at link time
-     *
-     * @var ?string $externalId
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('external_id')]
-    public ?string $externalId;
-
-    /**
-     * Legal or trade name of the rental operator
-     *
-     * @var ?string $companyName
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('company_name')]
-    public ?string $companyName;
-
-    /**
-     * Display name in Gando dashboards
-     *
-     * @var ?string $displayName
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('display_name')]
-    public ?string $displayName;
-
-    /**
-     * Primary contact email for the rental operator
-     *
-     * @var ?string $email
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('email')]
-    public ?string $email;
-
-    /**
-     * @param  string  $accountId
-     * @param  \DateTime  $linkedAt
-     * @param  \Gando\Partner\Models\Operations\AccountStatus  $status
-     * @param  ?string  $externalId
-     * @param  ?string  $companyName
-     * @param  ?string  $displayName
-     * @param  ?string  $email
      * @phpstan-pure
      */
-    public function __construct(string $accountId, \DateTime $linkedAt, AccountStatus $status, ?string $externalId = null, ?string $companyName = null, ?string $displayName = null, ?string $email = null)
-    {
-        $this->accountId = $accountId;
-        $this->linkedAt = $linkedAt;
-        $this->status = $status;
-        $this->externalId = $externalId;
-        $this->companyName = $companyName;
-        $this->displayName = $displayName;
-        $this->email = $email;
+    public function __construct(
+        /**
+         * Gando rental operator account id. Use as `account_id` in Partner API calls.
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('account_id')]
+        public string $accountId,
+        /**
+         * ISO 8601 timestamp when the partner link was created
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('linked_at')]
+        public \DateTime $linkedAt,
+        /**
+         * Partner link status: `active` (operations allowed) or `revoked` (403 on deposits)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('status')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\AccountStatus::class)]
+        public AccountStatus $status,
+        /**
+         * Your external id from partner connect, when provided at link time
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('external_id')]
+        public ?string $externalId = null,
+        /**
+         * Legal or trade name of the rental operator
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('company_name')]
+        public ?string $companyName = null,
+        /**
+         * Display name in Gando dashboards
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('display_name')]
+        public ?string $displayName = null,
+        /**
+         * Primary contact email for the rental operator
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('email')]
+        public ?string $email = null,
+    ) {
     }
 }

@@ -28,4 +28,3 @@ $api = new Client(
 $response = $api->accounts->list();
 
 var_dump($response->object);
-

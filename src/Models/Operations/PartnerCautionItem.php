@@ -9,191 +9,105 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerCautionItem
+final readonly class PartnerCautionItem
 {
     /**
-     * Unique identifier of the caution
-     *
-     * @var string $id
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('id')]
-    public string $id;
-
-    /**
-     * Unique reference code for the caution
-     *
-     * @var string $reference
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('reference')]
-    public string $reference;
-
-    /**
-     * Amount of the caution in euros
-     *
-     * @var float $amount
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('amount')]
-    public float $amount;
-
-    /**
-     * Currency code (always EUR)
-     *
-     * @var \Gando\Partner\Models\Operations\DepositsRetrieveCurrency $currency
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('currency')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\DepositsRetrieveCurrency')]
-    public DepositsRetrieveCurrency $currency;
-
-    /**
-     * Status of the caution: pending (waiting for next step), incomplete (client journey not finished), active (payment authorized), processing (being processed), captured (payment captured), close (caution closed by natural expiration / end of contract), cancelled (caution cancelled manually before activation or while active), payment_issue (payment issue at fee payment), capture_issue (capture/recovery issue)
-     *
-     * @var \Gando\Partner\Models\Operations\DepositsRetrieveStatus $status
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('status')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\DepositsRetrieveStatus')]
-    public DepositsRetrieveStatus $status;
-
-    /**
-     * Creation date and time (ISO 8601 format)
-     *
-     * @var \DateTime $createdAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('createdAt')]
-    public \DateTime $createdAt;
-
-    /**
-     * Last update date and time (ISO 8601 format)
-     *
-     * @var \DateTime $updatedAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('updatedAt')]
-    public \DateTime $updatedAt;
-
-    /**
-     * Rental contract reference
-     *
-     * @var ?string $rentalContract
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('rentalContract')]
-    public ?string $rentalContract;
-
-    /**
-     * Contract start date (ISO 8601)
-     *
-     * @var ?\DateTime $contractStartAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('contractStartAt')]
-    public ?\DateTime $contractStartAt;
-
-    /**
-     * Contract end date (ISO 8601)
-     *
-     * @var ?\DateTime $contractEndAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('contractEndAt')]
-    public ?\DateTime $contractEndAt;
-
-    /**
-     * ID of the client associated with the caution (optional, can be null)
-     *
-     * @var ?string $clientId
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('clientId')]
-    public ?string $clientId;
-
-    /**
-     * Whether the caution is archived (soft-deleted)
-     *
-     * @var ?bool $isArchived
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('isArchived')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?bool $isArchived = null;
-
-    /**
-     * ID of the account that owns the caution
-     *
-     * @var ?string $accountId
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('accountId')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $accountId = null;
-
-    /**
-     * Payment processor reference for the deposit authorisation (when present)
-     *
-     * @var ?string $stripePaymentIntentId
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('stripePaymentIntentId')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $stripePaymentIntentId = null;
-
-    /**
-     * Payment processor reference for the saved card on the caution (when present)
-     *
-     * @var ?string $stripePaymentMethodId
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('stripePaymentMethodId')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $stripePaymentMethodId = null;
-
-    /**
-     * Start date and time of the caution (ISO 8601 format)
-     *
-     * @var ?\DateTime $startAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('startAt')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?\DateTime $startAt = null;
-
-    /**
-     * Expiration date and time of the caution (ISO 8601 format)
-     *
-     * @var ?\DateTime $expiresAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('expiresAt')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?\DateTime $expiresAt = null;
-
-    /**
-     * @param  string  $id
-     * @param  string  $reference
-     * @param  float  $amount
-     * @param  \Gando\Partner\Models\Operations\DepositsRetrieveCurrency  $currency
-     * @param  \Gando\Partner\Models\Operations\DepositsRetrieveStatus  $status
-     * @param  \DateTime  $createdAt
-     * @param  \DateTime  $updatedAt
-     * @param  ?string  $rentalContract
-     * @param  ?\DateTime  $contractStartAt
-     * @param  ?\DateTime  $contractEndAt
-     * @param  ?string  $clientId
-     * @param  ?bool  $isArchived
-     * @param  ?string  $accountId
-     * @param  ?string  $stripePaymentIntentId
-     * @param  ?string  $stripePaymentMethodId
-     * @param  ?\DateTime  $startAt
-     * @param  ?\DateTime  $expiresAt
      * @phpstan-pure
      */
-    public function __construct(string $id, string $reference, float $amount, DepositsRetrieveCurrency $currency, DepositsRetrieveStatus $status, \DateTime $createdAt, \DateTime $updatedAt, ?string $rentalContract = null, ?\DateTime $contractStartAt = null, ?\DateTime $contractEndAt = null, ?string $clientId = null, ?bool $isArchived = null, ?string $accountId = null, ?string $stripePaymentIntentId = null, ?string $stripePaymentMethodId = null, ?\DateTime $startAt = null, ?\DateTime $expiresAt = null)
-    {
-        $this->id = $id;
-        $this->reference = $reference;
-        $this->amount = $amount;
-        $this->currency = $currency;
-        $this->status = $status;
-        $this->createdAt = $createdAt;
-        $this->updatedAt = $updatedAt;
-        $this->rentalContract = $rentalContract;
-        $this->contractStartAt = $contractStartAt;
-        $this->contractEndAt = $contractEndAt;
-        $this->clientId = $clientId;
-        $this->isArchived = $isArchived;
-        $this->accountId = $accountId;
-        $this->stripePaymentIntentId = $stripePaymentIntentId;
-        $this->stripePaymentMethodId = $stripePaymentMethodId;
-        $this->startAt = $startAt;
-        $this->expiresAt = $expiresAt;
+    public function __construct(
+        /**
+         * Unique identifier of the caution
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('id')]
+        public string $id,
+        /**
+         * Unique reference code for the caution
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('reference')]
+        public string $reference,
+        /**
+         * Amount of the caution in euros
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('amount')]
+        public float $amount,
+        /**
+         * Currency code (always EUR)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('currency')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\DepositsRetrieveCurrency::class)]
+        public DepositsRetrieveCurrency $currency,
+        /**
+         * Status of the caution: pending (waiting for next step), incomplete (client journey not finished), active (payment authorized), processing (being processed), captured (payment captured), close (caution closed by natural expiration / end of contract), cancelled (caution cancelled manually before activation or while active), payment_issue (payment issue at fee payment), capture_issue (capture/recovery issue)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('status')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\DepositsRetrieveStatus::class)]
+        public DepositsRetrieveStatus $status,
+        /**
+         * Creation date and time (ISO 8601 format)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('createdAt')]
+        public \DateTime $createdAt,
+        /**
+         * Last update date and time (ISO 8601 format)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('updatedAt')]
+        public \DateTime $updatedAt,
+        /**
+         * Rental contract reference
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('rentalContract')]
+        public ?string $rentalContract = null,
+        /**
+         * Contract start date (ISO 8601)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('contractStartAt')]
+        public ?\DateTime $contractStartAt = null,
+        /**
+         * Contract end date (ISO 8601)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('contractEndAt')]
+        public ?\DateTime $contractEndAt = null,
+        /**
+         * ID of the client associated with the caution (optional, can be null)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('clientId')]
+        public ?string $clientId = null,
+        /**
+         * Whether the caution is archived (soft-deleted)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('isArchived')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?bool $isArchived = null,
+        /**
+         * ID of the account that owns the caution
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('accountId')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $accountId = null,
+        /**
+         * Payment processor reference for the deposit authorisation (when present)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('stripePaymentIntentId')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $stripePaymentIntentId = null,
+        /**
+         * Payment processor reference for the saved card on the caution (when present)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('stripePaymentMethodId')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $stripePaymentMethodId = null,
+        /**
+         * Start date and time of the caution (ISO 8601 format)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('startAt')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?\DateTime $startAt = null,
+        /**
+         * Expiration date and time of the caution (ISO 8601 format)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('expiresAt')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?\DateTime $expiresAt = null,
+    ) {
     }
 }

@@ -9,45 +9,29 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerPaymentMethodInfo
+final readonly class PartnerPaymentMethodInfo
 {
     /**
-     * Masked card number (e.g. •••• 4242)
-     *
-     * @var string $maskedPan
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('maskedPan')]
-    public string $maskedPan;
-
-    /**
-     * Card country ISO code
-     *
-     * @var ?string $country
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('country')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $country = null;
-
-    /**
-     * Card brand (visa, mastercard, etc.)
-     *
-     * @var ?string $brand
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('brand')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $brand = null;
-
-    /**
-     * @param  string  $maskedPan
-     * @param  ?string  $country
-     * @param  ?string  $brand
      * @phpstan-pure
      */
-    public function __construct(string $maskedPan, ?string $country = null, ?string $brand = null)
-    {
-        $this->maskedPan = $maskedPan;
-        $this->country = $country;
-        $this->brand = $brand;
+    public function __construct(
+        /**
+         * Masked card number (e.g. •••• 4242)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('maskedPan')]
+        public string $maskedPan,
+        /**
+         * Card country ISO code
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('country')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $country = null,
+        /**
+         * Card brand (visa, mastercard, etc.)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('brand')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $brand = null,
+    ) {
     }
 }

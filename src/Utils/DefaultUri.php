@@ -13,7 +13,6 @@ use Psr\Http\Message\UriInterface;
 
 class DefaultUri implements UriInterface
 {
-
     public function getScheme(): string
     {
         return '';

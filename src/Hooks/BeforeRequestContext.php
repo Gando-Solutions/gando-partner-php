@@ -20,7 +20,6 @@ class BeforeRequestContext extends HookContext
     /**
      * @param  string  $name
      * @param  array<mixed>  $args
-     * @return mixed
      */
     public function __call($name, $args): mixed
     {

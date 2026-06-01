@@ -24,25 +24,25 @@ class BigIntHandler implements SubscribingHandlerInterface
             [
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
                 'format' => 'json',
-                'type' => '\\Brick\\Math\\BigInteger',
+                'type' => \Brick\Math\BigInteger::class,
                 'method' => 'serialize',
             ],
             [
                 'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
                 'format' => 'json',
-                'type' => '\\Brick\\Math\\BigInteger',
+                'type' => \Brick\Math\BigInteger::class,
                 'method' => 'deserialize',
             ],
             [
                 'direction' => GraphNavigator::DIRECTION_SERIALIZATION,
                 'format' => 'json',
-                'type' => 'Brick\\Math\\BigInteger',
+                'type' => \Brick\Math\BigInteger::class,
                 'method' => 'serialize',
             ],
             [
                 'direction' => GraphNavigator::DIRECTION_DESERIALIZATION,
                 'format' => 'json',
-                'type' => 'Brick\\Math\\BigInteger',
+                'type' => \Brick\Math\BigInteger::class,
                 'method' => 'deserialize',
             ],
         ];
@@ -51,7 +51,7 @@ class BigIntHandler implements SubscribingHandlerInterface
     /** @phpstan-ignore-next-line */
     public function serialize(JsonSerializationVisitor $visitor, \Brick\Math\BigInteger|string $any, array $type, Context $context): string|int
     {
-        if (gettype($any) == 'string') {
+        if (gettype($any) === 'string') {
             return $any;
         }
 

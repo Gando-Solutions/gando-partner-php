@@ -79,6 +79,44 @@ $builder = new UrlBuilder(
 $signupUrl = $builder->signupUrl(externalId: 'fleet_acct_42');
 ```
 
+### PSR injection (enterprise/Symfony)
+
+`Gando\Partner\Api\Client` accepts optional PSR interfaces so you can reuse your existing stack:
+
+- PSR-18: `Psr\Http\Client\ClientInterface`
+- PSR-17: `Psr\Http\Message\RequestFactoryInterface`
+- PSR-3: `Psr\Log\LoggerInterface`
+- PSR-16: `Psr\SimpleCache\CacheInterface`
+- PSR-14: `Psr\EventDispatcher\EventDispatcherInterface`
+
+```php
+declare(strict_types=1);
+
+use Gando\Partner\Api\Client;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Http\Client\ClientInterface as HttpClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface;
+
+/** @var HttpClientInterface $httpClient */
+/** @var RequestFactoryInterface $requestFactory */
+/** @var LoggerInterface $logger */
+/** @var CacheInterface $cache */
+/** @var EventDispatcherInterface $events */
+
+$api = new Client(
+    apiKey: $_ENV['GANDO_API_KEY'],
+    httpClient: $httpClient,
+    requestFactory: $requestFactory,
+    logger: $logger,
+    cache: $cache,
+    events: $events,
+);
+```
+
+All PSR dependencies are optional. If you omit `httpClient` and `requestFactory`, the SDK auto-discovers implementations through `php-http/discovery` (works out-of-the-box when `guzzlehttp/guzzle` v7 is installed).
+
 ### Deposit create idempotency
 
 `POST /api/partner/deposits` is idempotent when the `Idempotency-Key` header is sent (UUID v4, 24h deduplication via Redis on the API). **`Gando\Partner\Api\Client`** auto-generates that key on `deposits->create()` when you omit it, so SDK retries do not create duplicate deposits. Pass your own key to override.

@@ -13,30 +13,15 @@ namespace Gando\Partner\Utils\Retry;
 class RetryConfigBackoff extends RetryConfig
 {
     public RetryStrategy $strategy = RetryStrategy::BACKOFF;
-    public int $initialInterval;
-    public int $maxInterval;
-    public float $exponent;
-    public int $maxElapsedTime;
-    public bool $retryConnectionErrors;
 
     /**
-     * @param  int  $initialIntervalMs  The initial interval in milliseconds.
-     * @param  int  $maxIntervalMs  The maximum interval in milliseconds.
+     * @param int $initialInterval The initial interval in milliseconds.
+     * @param int $maxInterval The maximum interval in milliseconds.
      * @param  float  $exponent  The exponent at which the interval grows.
-     * @param  int  $maxElapsedTimeMs  The maximum time to keep retrying in milliseconds.
+     * @param int $maxElapsedTime The maximum time to keep retrying in milliseconds.
      * @param  bool  $retryConnectionErrors  Whether to retry connection errors.
      */
-    public function __construct(
-        int $initialIntervalMs = 500,
-        int $maxIntervalMs = 60000,
-        float $exponent = 1.5,
-        int $maxElapsedTimeMs = 3600000,
-        bool $retryConnectionErrors = false
-    ) {
-        $this->initialInterval = $initialIntervalMs;
-        $this->maxInterval = $maxIntervalMs;
-        $this->exponent = $exponent;
-        $this->maxElapsedTime = $maxElapsedTimeMs;
-        $this->retryConnectionErrors = $retryConnectionErrors;
+    public function __construct(public int $initialInterval = 500, public int $maxInterval = 60000, public float $exponent = 1.5, public int $maxElapsedTime = 3600000, public bool $retryConnectionErrors = false)
+    {
     }
 }

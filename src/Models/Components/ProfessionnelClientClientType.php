@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Components;
 
-
 /** Business customer; `companyName` is required */
 enum ProfessionnelClientClientType: string
 {

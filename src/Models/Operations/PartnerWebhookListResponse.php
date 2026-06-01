@@ -9,34 +9,24 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class PartnerWebhookListResponse
 {
     /**
-     * Webhook endpoints for the current page
-     *
-     * @var array<\Gando\Partner\Models\Operations\WebhooksListPartnerWebhookSubscriptionItem> $items
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('items')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\WebhooksListPartnerWebhookSubscriptionItem>')]
-    public array $items;
-
-    /**
-     * Total webhook endpoints for this partner
-     *
-     * @var int $total
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('total')]
-    public int $total;
-
-    /**
      * @param  array<\Gando\Partner\Models\Operations\WebhooksListPartnerWebhookSubscriptionItem>  $items
-     * @param  int  $total
      * @phpstan-pure
      */
-    public function __construct(array $items, int $total)
-    {
-        $this->items = $items;
-        $this->total = $total;
+    public function __construct(
+        /**
+         * Webhook endpoints for the current page
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('items')]
+        #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\WebhooksListPartnerWebhookSubscriptionItem>')]
+        public array $items,
+        /**
+         * Total webhook endpoints for this partner
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('total')]
+        public int $total,
+    ) {
     }
 }

@@ -9,34 +9,24 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class PartnerAccountList
+final readonly class PartnerAccountList
 {
     /**
-     * Linked rental operator accounts for this partner
-     *
-     * @var array<\Gando\Partner\Models\Operations\PartnerLinkedAccount> $accounts
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('accounts')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\PartnerLinkedAccount>')]
-    public array $accounts;
-
-    /**
-     * Total number of accounts matching the filter
-     *
-     * @var int $total
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('total')]
-    public int $total;
-
-    /**
      * @param  array<\Gando\Partner\Models\Operations\PartnerLinkedAccount>  $accounts
-     * @param  int  $total
      * @phpstan-pure
      */
-    public function __construct(array $accounts, int $total)
-    {
-        $this->accounts = $accounts;
-        $this->total = $total;
+    public function __construct(
+        /**
+         * Linked rental operator accounts for this partner
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('accounts')]
+        #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\PartnerLinkedAccount>')]
+        public array $accounts,
+        /**
+         * Total number of accounts matching the filter
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('total')]
+        public int $total,
+    ) {
     }
 }

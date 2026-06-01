@@ -33,10 +33,6 @@ class SDKHooks implements Hooks
      */
     private array $afterErrorHooks = [];
 
-    public function __construct()
-    {
-    }
-
     public function registerSDKInitHook(SDKInitHook $hook): void
     {
         $this->sdkInitHooks[] = $hook;
@@ -110,8 +106,7 @@ class SDKHooks implements Hooks
         }
         if ($errorContext->e !== null) {
             throw $errorContext->e;
-        } else {
-            return $errorContext->response;
         }
+        return $errorContext->response;
     }
 }

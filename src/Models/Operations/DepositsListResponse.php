@@ -9,61 +9,38 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class DepositsListResponse
 {
-    /**
-     * HTTP response content type for this operation
-     *
-     * @var string $contentType
-     */
-    public string $contentType;
-
-    /**
-     * HTTP response status code for this operation
-     *
-     * @var int $statusCode
-     */
-    public int $statusCode;
-
-    /**
-     * Raw HTTP response; suitable for custom response parsing
-     *
-     * @var \Psr\Http\Message\ResponseInterface $rawResponse
-     */
-    public \Psr\Http\Message\ResponseInterface $rawResponse;
-
-    /**
-     * Paginated list (`items` + `total` + `numPages`; optional `counts`)
-     *
-     * @var ?\Gando\Partner\Models\Operations\DepositsListResponseBody $object
-     */
-    public ?DepositsListResponseBody $object = null;
-
     /**
      * @var \Closure(string): ?DepositsListResponse $next
      */
     public \Closure $next;
     /**
-     * @param  string  $contentType
-     * @param  int  $statusCode
-     * @param  \Psr\Http\Message\ResponseInterface  $rawResponse
-     * @param  ?\Gando\Partner\Models\Operations\DepositsListResponseBody  $object
      * @phpstan-pure
      */
-    public function __construct(string $contentType, int $statusCode, \Psr\Http\Message\ResponseInterface $rawResponse, ?DepositsListResponseBody $object = null)
-    {
-        $this->contentType = $contentType;
-        $this->statusCode = $statusCode;
-        $this->rawResponse = $rawResponse;
-        $this->object = $object;
+    public function __construct(
+        /**
+         * HTTP response content type for this operation
+         */
+        public string $contentType,
+        /**
+         * HTTP response status code for this operation
+         */
+        public int $statusCode,
+        /**
+         * Raw HTTP response; suitable for custom response parsing
+         */
+        public \Psr\Http\Message\ResponseInterface $rawResponse,
+        /**
+         * Paginated list (`items` + `total` + `numPages`; optional `counts`)
+         */
+        public ?DepositsListResponseBody $object = null,
+    ) {
     }
     /**
-     * @param  string  $name
      * @param  array<mixed>  $args
-     * @return ?DepositsListResponse
      */
-    public function __call($name, $args): ?DepositsListResponse
+    public function __call(string $name, array $args): ?DepositsListResponse
     {
         if ($name === 'next') {
             return call_user_func_array($this->next, $args);

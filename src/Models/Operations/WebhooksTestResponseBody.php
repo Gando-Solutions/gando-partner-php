@@ -9,45 +9,27 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** WebhooksTestResponseBody - Test delivery succeeded */
-class WebhooksTestResponseBody
+final readonly class WebhooksTestResponseBody
 {
     /**
-     *
-     * @var \Gando\Partner\Models\Operations\PartnerWebhookTestOk $data
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerWebhookTestOk')]
-    public PartnerWebhookTestOk $data;
-
-    /**
-     * Optional human-readable message
-     *
-     * @var ?string $message
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('message')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $message = null;
-
-    /**
-     * Always `true` for successful responses
-     *
-     * @var bool $success
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-    public bool $success;
-
-    /**
-     * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\PartnerWebhookTestOk  $data
-     * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(PartnerWebhookTestOk $data, ?string $message = null, bool $success = true)
-    {
-        $this->data = $data;
-        $this->message = $message;
-        $this->success = $success;
+    public function __construct(
+        #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\PartnerWebhookTestOk::class)]
+        public PartnerWebhookTestOk $data,
+        /**
+         * Optional human-readable message
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('message')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $message = null,
+        /**
+         * Always `true` for successful responses
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
+        public bool $success = true,
+    ) {
     }
 }

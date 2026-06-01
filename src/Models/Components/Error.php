@@ -9,56 +9,36 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Components;
 
-
-class Error
+final readonly class Error
 {
     /**
-     * Machine-readable error code — exhaustive enum in OpenAPI (`PartnerErrorCode`).
-     *
-     * @var \Gando\Partner\Models\Components\Code $code
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('code')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Components\Code')]
-    public Code $code;
-
-    /**
-     * Human-readable error message.
-     *
-     * @var string $message
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('message')]
-    public string $message;
-
-    /**
-     * Request correlation ID — include in support tickets.
-     *
-     * @var string $requestId
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('requestId')]
-    public string $requestId;
-
-    /**
-     * Optional structured details.
-     *
-     * @var ?array<string, mixed> $details
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('details')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<string, mixed>|null')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?array $details = null;
-
-    /**
-     * @param  \Gando\Partner\Models\Components\Code  $code
-     * @param  string  $message
-     * @param  string  $requestId
      * @param  ?array<string, mixed>  $details
      * @phpstan-pure
      */
-    public function __construct(Code $code, string $message, string $requestId, ?array $details = null)
-    {
-        $this->code = $code;
-        $this->message = $message;
-        $this->requestId = $requestId;
-        $this->details = $details;
+    public function __construct(
+        /**
+         * Machine-readable error code — exhaustive enum in OpenAPI (`PartnerErrorCode`).
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('code')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Components\Code::class)]
+        public Code $code,
+        /**
+         * Human-readable error message.
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('message')]
+        public string $message,
+        /**
+         * Request correlation ID — include in support tickets.
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('requestId')]
+        public string $requestId,
+        /**
+         * Optional structured details.
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('details')]
+        #[\Speakeasy\Serializer\Annotation\Type('array<string, mixed>|null')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?array $details = null,
+    ) {
     }
 }

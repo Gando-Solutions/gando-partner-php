@@ -11,42 +11,27 @@ namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
 
-class AccountsListRequest
+final readonly class AccountsListRequest
 {
     /**
-     * Filter linked accounts: `active` (default, operable links), `revoked` (disconnected), or `all`.
-     *
-     * @var ?\Gando\Partner\Models\Operations\AccountsListQueryParamStatus $status
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=status')]
-    public ?AccountsListQueryParamStatus $status = null;
-
-    /**
-     * Page number (1-based)
-     *
-     * @var ?int $page
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=page')]
-    public ?int $page = null;
-
-    /**
-     * Items per page (max 100)
-     *
-     * @var ?int $limit
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
-    public ?int $limit = null;
-
-    /**
-     * @param  ?\Gando\Partner\Models\Operations\AccountsListQueryParamStatus  $status
-     * @param  ?int  $page
-     * @param  ?int  $limit
      * @phpstan-pure
      */
-    public function __construct(?AccountsListQueryParamStatus $status = null, ?int $page = 1, ?int $limit = 20)
-    {
-        $this->status = $status;
-        $this->page = $page;
-        $this->limit = $limit;
+    public function __construct(
+        /**
+         * Filter linked accounts: `active` (default, operable links), `revoked` (disconnected), or `all`.
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=status')]
+        public ?AccountsListQueryParamStatus $status = null,
+        /**
+         * Page number (1-based)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=page')]
+        public ?int $page = 1,
+        /**
+         * Items per page (max 100)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
+        public ?int $limit = 20,
+    ) {
     }
 }

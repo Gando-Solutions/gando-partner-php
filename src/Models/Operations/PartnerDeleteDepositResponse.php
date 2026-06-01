@@ -9,35 +9,24 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** PartnerDeleteDepositResponse - Deleted or archived */
 class PartnerDeleteDepositResponse
 {
     /**
-     * `Deleted` when removed; `Archived` when soft-deleted instead
-     *
-     * @var \Gando\Partner\Models\Operations\Message $message
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('message')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\Message')]
-    public Message $message;
-
-    /**
-     * Always true on success
-     *
-     * @var bool $success
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-    public bool $success;
-
-    /**
-     * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\Message  $message
      * @phpstan-pure
      */
-    public function __construct(Message $message, bool $success = true)
-    {
-        $this->message = $message;
-        $this->success = $success;
+    public function __construct(
+        /**
+         * `Deleted` when removed; `Archived` when soft-deleted instead
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('message')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\Message::class)]
+        public Message $message,
+        /**
+         * Always true on success
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
+        public bool $success = true,
+    ) {
     }
 }

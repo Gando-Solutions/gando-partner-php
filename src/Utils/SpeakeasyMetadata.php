@@ -22,7 +22,6 @@ class SpeakeasyMetadata
 
     /**
      * @param  array<ReflectionAttribute<SpeakeasyMetadata>>  $attributes
-     * @return ?string
      */
     public static function find(array $attributes, string $type): ?string
     {
@@ -32,7 +31,7 @@ class SpeakeasyMetadata
                 return null;
             }
 
-            $prefix = explode(':', $arguments[0], 2);
+            $prefix = explode(':', (string) $arguments[0], 2);
             if (count($prefix) !== 2) {
                 return null;
             }

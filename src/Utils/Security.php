@@ -14,7 +14,6 @@ use ReflectionProperty;
 class Security
 {
     /**
-     * @param  mixed  $security
      * @param  ?string[]  $allowedFields
      * @return array<string,array<string,string>>
      */
@@ -44,24 +43,19 @@ class Security
             }
 
             $metadata = $this->parseSecurityMetadata(new ReflectionProperty($security::class, $field));
-            if ($metadata === null) {
+            if (!$metadata instanceof \Gando\Partner\Utils\SecurityMetadata) {
                 continue;
             }
-
             if ($metadata->option) {
-                $clientOptions = array_merge_recursive($clientOptions, $this->parseSecurityOption($value));
+                return array_merge_recursive($clientOptions, $this->parseSecurityOption($value));
+            }
 
-                return $clientOptions;
-            } elseif ($metadata->scheme) {
+            if ($metadata->scheme) {
                 // Special case for basic auth which could be a flattened struct
                 if ($metadata->subtype === 'basic' && gettype($value) !== 'object') {
-                    $clientOptions = array_merge_recursive($clientOptions, $this->parseSecurityScheme($security, $metadata));
-
-                    return $clientOptions;
-                } else {
-                    $clientOptions = array_merge_recursive($clientOptions, $this->parseSecurityScheme($value, $metadata));
+                    return array_merge_recursive($clientOptions, $this->parseSecurityScheme($security, $metadata));
                 }
-
+                $clientOptions = array_merge_recursive($clientOptions, $this->parseSecurityScheme($value, $metadata));
                 if (! $metadata->composite) {
                     return $clientOptions;
                 }
@@ -72,7 +66,6 @@ class Security
     }
 
     /**
-     * @param  mixed  $option
      * @return array<string,array<string,string>>
      */
     private function parseSecurityOption(mixed $option): array
@@ -88,7 +81,10 @@ class Security
             }
 
             $metadata = $this->parseSecurityMetadata(new ReflectionProperty($option::class, $field));
-            if ($metadata === null || ! $metadata->scheme) {
+            if (!$metadata instanceof \Gando\Partner\Utils\SecurityMetadata) {
+                continue;
+            }
+            if (! $metadata->scheme) {
                 continue;
             }
 
@@ -103,8 +99,6 @@ class Security
     }
 
     /**
-     * @param  mixed  $scheme
-     * @param  SecurityMetadata  $metadata
      * @return array<string,array<string,string>>
      */
     private function parseSecurityScheme(mixed $scheme, SecurityMetadata $metadata): array
@@ -125,7 +119,13 @@ class Security
                 }
 
                 $fieldMetadata = $this->parseSecurityMetadata(new ReflectionProperty($scheme::class, $field));
-                if ($fieldMetadata === null || empty($fieldMetadata->name)) {
+                if (!$fieldMetadata instanceof \Gando\Partner\Utils\SecurityMetadata) {
+                    continue;
+                }
+                if ($fieldMetadata->name === '') {
+                    continue;
+                }
+                if ($fieldMetadata->name === '0') {
                     continue;
                 }
 
@@ -139,9 +139,6 @@ class Security
     }
 
     /**
-     * @param  mixed  $value
-     * @param  SecurityMetadata  $metadata
-     * @param  SecurityMetadata  $fieldMetadata
      * @return array<string,array<string,string>>
      */
     private function parseSecuritySchemeValue(mixed $value, SecurityMetadata $metadata, SecurityMetadata $fieldMetadata): array
@@ -162,16 +159,14 @@ class Security
 
                 break;
             case 'openIdConnect':
-                $clientOptions['headers'][$fieldMetadata->name] = preg_match('/^Bearer /i', $value) ? $value : 'Bearer '.$value;
-                break;
             case 'oauth2':
-                $clientOptions['headers'][$fieldMetadata->name] = preg_match('/^Bearer /i', $value) ? $value : 'Bearer '.$value;
+                $clientOptions['headers'][$fieldMetadata->name] = preg_match('/^Bearer /i', (string) $value) ? $value : 'Bearer '.$value;
                 break;
             case 'http':
                 match ($metadata->subtype) {
-                    'bearer' => $clientOptions['headers'][$fieldMetadata->name] = preg_match('/^Bearer /i', $value) ? $value : 'Bearer '.$value,
+                    'bearer' => $clientOptions['headers'][$fieldMetadata->name] = preg_match('/^Bearer /i', (string) $value) ? $value : 'Bearer '.$value,
                     'custom' => null,
-                    default => throw new \RuntimeException('Unknown http security scheme subtype: '.$metadata->subtype)
+                    default => throw new \RuntimeException('Unknown http security scheme subtype: '.$metadata->subtype),
                 };
 
                 break;
@@ -183,7 +178,6 @@ class Security
     }
 
     /**
-     * @param  mixed  $scheme
      * @return array<string,array<string,string>>
      */
     private function parseBasicAuthScheme(mixed $scheme): array
@@ -197,7 +191,13 @@ class Security
             }
 
             $fieldMetadata = $this->parseSecurityMetadata(new ReflectionProperty($scheme::class, $field));
-            if ($fieldMetadata === null || empty($fieldMetadata->name)) {
+            if (!$fieldMetadata instanceof \Gando\Partner\Utils\SecurityMetadata) {
+                continue;
+            }
+            if ($fieldMetadata->name === '') {
+                continue;
+            }
+            if ($fieldMetadata->name === '0') {
                 continue;
             }
 
@@ -223,11 +223,6 @@ class Security
             return null;
         }
 
-        $metadata = SecurityMetadata::parse($metadataStr);
-        if ($metadata === null) {
-            return null;
-        }
-
-        return $metadata;
+        return SecurityMetadata::parse($metadataStr);
     }
 }

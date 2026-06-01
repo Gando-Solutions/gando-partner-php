@@ -26,8 +26,17 @@ final class AccountsRetryTest extends TestCase
         ], JSON_THROW_ON_ERROR);
 
         $mock = new MockHandler([
-            new Response(429),
-            new Response(500),
+            new Response(
+                429,
+                ['Content-Type' => ['application/json']],
+                json_encode([
+                    'error' => [
+                        'code' => 'rate_limited',
+                        'message' => 'Too many requests',
+                        'requestId' => 'req_retry_429',
+                    ],
+                ], JSON_THROW_ON_ERROR),
+            ),
             new Response(200, ['Content-Type' => ['application/json']], $body),
         ]);
 
@@ -36,16 +45,21 @@ final class AccountsRetryTest extends TestCase
             ->setServerURL('http://localhost:3000')
             ->setSecurity(new Security(partnerApiKeyAuth: 'gando_pk_test'))
             ->setRetryConfig(new RetryConfigBackoff(
-                initialIntervalMs: 0,
-                maxIntervalMs: 0,
+                initialInterval: 0,
+                maxInterval: 0,
                 exponent: 1.5,
-                maxElapsedTimeMs: 30_000,
+                maxElapsedTime: 30_000,
                 retryConnectionErrors: true,
             ))
             ->build();
 
-        $response = $sdk->accounts->list();
+        $response = null;
+        foreach ($sdk->accounts->list(limit: 10) as $pageResponse) {
+            $response = $pageResponse;
+            break;
+        }
 
+        self::assertNotNull($response);
         self::assertSame(200, $response->statusCode);
         self::assertNotNull($response->object);
         self::assertCount(0, $mock);

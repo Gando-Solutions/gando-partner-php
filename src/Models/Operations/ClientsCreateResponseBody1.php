@@ -9,45 +9,27 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** ClientsCreateResponseBody1 - Client already exists (idempotent create) */
-class ClientsCreateResponseBody1
+final readonly class ClientsCreateResponseBody1
 {
     /**
-     *
-     * @var \Gando\Partner\Models\Operations\PartnerCreateClientResponse1 $data
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerCreateClientResponse1')]
-    public PartnerCreateClientResponse1 $data;
-
-    /**
-     * Optional human-readable message
-     *
-     * @var ?string $message
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('message')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $message = null;
-
-    /**
-     * Always `true` for successful responses
-     *
-     * @var bool $success
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-    public bool $success;
-
-    /**
-     * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\PartnerCreateClientResponse1  $data
-     * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(PartnerCreateClientResponse1 $data, ?string $message = null, bool $success = true)
-    {
-        $this->data = $data;
-        $this->message = $message;
-        $this->success = $success;
+    public function __construct(
+        #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\PartnerCreateClientResponse1::class)]
+        public PartnerCreateClientResponse1 $data,
+        /**
+         * Optional human-readable message
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('message')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $message = null,
+        /**
+         * Always `true` for successful responses
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
+        public bool $success = true,
+    ) {
     }
 }

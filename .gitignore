@@ -6,3 +6,4 @@ vendor
 **/.speakeasy/logs/
 .env
 .env.local
+.phpunit.cache

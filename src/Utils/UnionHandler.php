@@ -22,10 +22,6 @@ use Speakeasy\Serializer\Visitor\SerializationVisitorInterface;
 
 final class UnionHandler implements SubscribingHandlerInterface
 {
-    public function __construct()
-    {
-    }
-
     /**
      * {@inheritdoc}
      *
@@ -55,52 +51,40 @@ final class UnionHandler implements SubscribingHandlerInterface
     }
 
     /**
-     * @param  SerializationVisitorInterface  $visitor
-     * @param  mixed  $data
      * @param  array<string, mixed>  $type
-     * @param  SerializationContext  $context
-     * @return mixed
      */
     public function serializeUnion(
         SerializationVisitorInterface $visitor,
         mixed $data,
         array $type,
-        SerializationContext $context
+        SerializationContext $context,
     ): mixed {
         if ($this->isPrimitiveType(gettype($data))) {
             return $this->matchSimpleType($data, $type, $context);
-        } else {
-            if (is_array($data) && ! empty($data)) {
-                if (array_is_list($data)) {
-                    return $this->matchArrayType($data, $type, $context);
-                } else {
-                    return $this->matchAssociativeArrayType($data, $type, $context);
-                }
-            } else {
-                $resolvedType = null;
-                foreach ($type['params'] as $possibleType) {
-                    if ($possibleType['name'] === 'enum' && $possibleType['params'][0]['name'] === get_class($data)) {
-                        $resolvedType = $possibleType;
-                        break;
-                    }
-                }
-                if ($resolvedType === null) {
-                    $resolvedType = [
-                        'name' => get_class($data),
-                        'params' => [],
-                    ];
-                }
-            }
-
-            return $context->getNavigator()->accept($data, $resolvedType);
         }
+        if (is_array($data) && $data !== []) {
+            if (array_is_list($data)) {
+                return $this->matchArrayType($data, $type, $context);
+            }
+            return $this->matchAssociativeArrayType($data, $type, $context);
+        }
+        $resolvedType = null;
+        foreach ($type['params'] as $possibleType) {
+            if ($possibleType['name'] === 'enum' && $possibleType['params'][0]['name'] === $data::class) {
+                $resolvedType = $possibleType;
+                break;
+            }
+        }
+        if ($resolvedType === null) {
+            $resolvedType = [
+                'name' => $data::class,
+                'params' => [],
+            ];
+        }
+        return $context->getNavigator()->accept($data, $resolvedType);
     }
     /**
-     * @param  DeserializationVisitorInterface  $visitor
-     * @param  mixed  $data
      * @param  array<string, mixed>  $type
-     * @param  DeserializationContext  $context
-     * @return mixed
      */
     public function deserializeUnion(DeserializationVisitorInterface $visitor, mixed $data, array $type, DeserializationContext $context): mixed
     {
@@ -110,7 +94,7 @@ final class UnionHandler implements SubscribingHandlerInterface
 
         // if three params exist, it may mean that there was a union discriminator set for this type.
         // It also may mean that there are three possible types.
-        if (count($type['params']) == 3 && $this->paramsLookLikeUnionDiscriminator($type)) {
+        if (count($type['params']) === 3 && $this->paramsLookLikeUnionDiscriminator($type)) {
             $lookupField = $type['params'][1];
             if (empty($data[$lookupField])) {
                 throw new NonVisitableTypeException(sprintf('Union Discriminator Field "%s" not found in data', $lookupField));
@@ -144,9 +128,8 @@ final class UnionHandler implements SubscribingHandlerInterface
             if ($typeToTry == 'NULL') {
                 if ($data == null) {
                     return null;
-                } else {
-                    continue;
                 }
+                continue;
             }
             $serializer = JSON::createSerializer();
             try {
@@ -158,14 +141,9 @@ final class UnionHandler implements SubscribingHandlerInterface
                 if ($json_encoded_data === false) {
                     throw new RuntimeException('Failed to encode data to JSON: '.json_last_error_msg());
                 }
-                $accept = $serializer->deserialize($json_encoded_data, $typeToTry, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
 
-                return $accept;
-            } catch (\Error $e) {
-                $exceptions .= $e.'\n';
-
-                continue;
-            } catch (\Exception $e) {
+                return $serializer->deserialize($json_encoded_data, $typeToTry, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+            } catch (\Error|\Exception $e) {
                 $exceptions .= $e.'\n';
 
                 continue;
@@ -177,7 +155,6 @@ final class UnionHandler implements SubscribingHandlerInterface
 
     /**
      * @param  array<string, mixed>  $type
-     * @return bool
      */
     private function paramsLookLikeUnionDiscriminator(array $type): bool
     {
@@ -189,9 +166,7 @@ final class UnionHandler implements SubscribingHandlerInterface
     }
 
     /**
-     * @param  mixed  $data
      * @param  array<string, mixed>  $type
-     * @param  Context  $context
      */
     private function matchSimpleType(mixed $data, array $type, Context $context): mixed
     {
@@ -202,9 +177,7 @@ final class UnionHandler implements SubscribingHandlerInterface
 
             try {
                 return $context->getNavigator()->accept($data, $possibleType);
-            } catch (NonVisitableTypeException $e) {
-                continue;
-            } catch (PropertyMissingException $e) {
+            } catch (NonVisitableTypeException|PropertyMissingException) {
                 continue;
             }
         }
@@ -213,33 +186,28 @@ final class UnionHandler implements SubscribingHandlerInterface
     }
 
     /**
-     * @param  mixed  $data
      * @param  array<string, mixed>  $type
-     * @param  Context  $context
      */
     private function matchArrayType(mixed $data, array $type, Context $context): mixed
     {
         $dataType = gettype($data[0]);
         if ($dataType === 'object') {
-            $dataType = get_class($data[0]);
+            $dataType = $data[0]::class;
         }
 
         foreach ($type['params'] as $possibleType) {
             $isNotArray = $possibleType['name'] != 'array';
             $isNotListArray = $possibleType['name'] == 'array' && count($possibleType['params']) > 1 && $possibleType['params'][0]['name'] != 'integer';
-
-            if ($isNotArray || $isNotListArray) {
+            if ($isNotArray) {
                 continue;
-            } else {
-                if (count($possibleType['params']) == 2) {
-                    $possibleValueType = $possibleType['params'][1];
-                } else {
-                    $possibleValueType = $possibleType['params'][0];
-                }
-                $isMatchingEnum = $possibleValueType['name'] == 'enum' && $possibleValueType['params'][0]['name'] == $dataType;
-                if ($possibleValueType['name'] == 'mixed' || $possibleValueType['name'] == $dataType || $isMatchingEnum) {
-                    return $context->getNavigator()->accept($data, $possibleType);
-                }
+            }
+            if ($isNotListArray) {
+                continue;
+            }
+            $possibleValueType = count($possibleType['params']) === 2 ? $possibleType['params'][1] : $possibleType['params'][0];
+            $isMatchingEnum = $possibleValueType['name'] == 'enum' && $possibleValueType['params'][0]['name'] == $dataType;
+            if ($possibleValueType['name'] == 'mixed' || $possibleValueType['name'] == $dataType || $isMatchingEnum) {
+                return $context->getNavigator()->accept($data, $possibleType);
             }
         }
 
@@ -252,9 +220,7 @@ final class UnionHandler implements SubscribingHandlerInterface
     }
 
     /**
-     * @param  mixed  $data
      * @param  array<string, mixed>  $type
-     * @param  Context  $context
      */
     private function matchAssociativeArrayType(mixed $data, array $type, Context $context): mixed
     {
@@ -264,19 +230,19 @@ final class UnionHandler implements SubscribingHandlerInterface
         foreach ($type['params'] as $possibleType) {
             $isNotArray = $possibleType['name'] != 'array';
             $isNotAssociativeArray = $possibleType['name'] == 'array' && (count($possibleType['params']) < 2 || $possibleType['params'][0]['name'] != 'string');
-
-            if ($isNotArray || $isNotAssociativeArray) {
+            if ($isNotArray) {
                 continue;
-            } else {
-                $possibleValueType = $possibleType['params'][1];
-
-                if ($valueType == 'object') {
-                    $valueType = get_class($value);
-                }
-                $isMatchingEnum = $possibleValueType['name'] == 'enum' && $possibleValueType['params'][0]['name'] == $valueType;
-                if ($possibleValueType['name'] == 'mixed' || $possibleValueType['name'] == $valueType || $isMatchingEnum) {
-                    return $context->getNavigator()->accept($data, $possibleType);
-                }
+            }
+            if ($isNotAssociativeArray) {
+                continue;
+            }
+            $possibleValueType = $possibleType['params'][1];
+            if ($valueType === 'object') {
+                $valueType = $value::class;
+            }
+            $isMatchingEnum = $possibleValueType['name'] == 'enum' && $possibleValueType['params'][0]['name'] == $valueType;
+            if ($possibleValueType['name'] == 'mixed' || $possibleValueType['name'] == $valueType || $isMatchingEnum) {
+                return $context->getNavigator()->accept($data, $possibleType);
             }
         }
 
@@ -291,40 +257,20 @@ final class UnionHandler implements SubscribingHandlerInterface
         return $context->getNavigator()->accept($data, $resolvedType);
     }
 
-    /**
-     * @param  string  $type
-     * @return bool
-     */
     private function isPrimitiveType(string $type): bool
     {
         return in_array($type, ['int', 'integer', 'float', 'double', 'bool', 'boolean', 'string']);
     }
 
-    /**
-     * @param  mixed  $data
-     * @param  string  $type
-     * @return bool
-     */
     private function testPrimitive(mixed $data, string $type): bool
     {
-        switch ($type) {
-            case 'integer':
-            case 'int':
-                return (string) (int) $data === (string) $data;
-
-            case 'double':
-            case 'float':
-                return (string) (float) $data === (string) $data;
-
-            case 'bool':
-            case 'boolean':
-                return (string) (bool) $data === (string) $data;
-
-            case 'string':
-                return (string) $data === (string) $data;
-        }
-
-        return false;
+        return match ($type) {
+            'integer', 'int' => (string) (int) $data === (string) $data,
+            'double', 'float' => (string) (float) $data === (string) $data,
+            'bool', 'boolean' => (string) (bool) $data === (string) $data,
+            'string' => (string) $data === (string) $data,
+            default => false,
+        };
     }
 
     /**
@@ -334,10 +280,10 @@ final class UnionHandler implements SubscribingHandlerInterface
     private function reorderTypes(array $type): array
     {
         if ($type['params']) {
-            uasort($type['params'], static function ($a, $b) {
+            uasort($type['params'], static function (array $a, array $b): int {
                 if (\class_exists($a['name']) && \class_exists($b['name'])) {
                     /** always try BigInteger before trying BigDecimal */
-                    if ($a['name'] == '\Brick\Math\BigInteger' && $b['name'] == '\Brick\Math\BigDecimal') {
+                    if ($a['name'] == \Brick\Math\BigInteger::class && $b['name'] == \Brick\Math\BigDecimal::class) {
                         return -1;
                     }
                     $aClass = new \ReflectionClass($a['name']);
@@ -379,7 +325,6 @@ final class UnionHandler implements SubscribingHandlerInterface
 
     /**
      * @param  array<string, mixed>  $possibleType
-     * @return string
      */
     private function resolveArrayTypes(array $possibleType): string
     {
@@ -387,7 +332,7 @@ final class UnionHandler implements SubscribingHandlerInterface
         foreach ($possibleType['params'] as $param) {
 
             if ($param['name'] === 'union') {
-                $innerTypes = array_map(fn ($t) => $t['name'], $param['params']);
+                $innerTypes = array_map(fn (array $t) => $t['name'], $param['params']);
                 $typeNames[] = $typeToTry = implode('|', $innerTypes);
             } elseif ($param['name'] === 'enum') {
                 $typeNames[] = $param['params'][0]['name'];
@@ -395,8 +340,7 @@ final class UnionHandler implements SubscribingHandlerInterface
                 $typeNames[] = $param['name'];
             }
         }
-        $typeToTry = 'array<'.implode(', ', $typeNames).'>';
 
-        return $typeToTry;
+        return 'array<'.implode(', ', $typeNames).'>';
     }
 }

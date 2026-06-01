@@ -37,9 +37,6 @@ class OptionsBuilder
 
     /**
      * Sets the configuration to use for retries.
-     *
-     * @param  RetryConfig  $config
-     * @return OptionsBuilder
      */
     public function setRetryConfig(RetryConfig $config): OptionsBuilder
     {
@@ -52,7 +49,6 @@ class OptionsBuilder
      * Specifies which HTTP status codes should be retried.
      *
      * @param  array<string>  $codes
-     * @return OptionsBuilder
      */
     public function setRetryCodes(array $codes): OptionsBuilder
     {

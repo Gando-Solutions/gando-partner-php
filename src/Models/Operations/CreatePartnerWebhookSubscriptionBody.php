@@ -9,36 +9,26 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** CreatePartnerWebhookSubscriptionBody - Partner webhook endpoint creation payload */
-class CreatePartnerWebhookSubscriptionBody
+final readonly class CreatePartnerWebhookSubscriptionBody
 {
     /**
-     * Destination URL (must start with http:// or https://)
-     *
-     * @var string $url
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('url')]
-    public string $url;
-
-    /**
-     * Event types to subscribe. Defaults to all partner events when omitted.
-     *
-     * @var ?array<\Gando\Partner\Models\Operations\WebhooksCreateEventRequest> $events
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('events')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\WebhooksCreateEventRequest>|null')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?array $events = null;
-
-    /**
-     * @param  string  $url
      * @param  ?array<\Gando\Partner\Models\Operations\WebhooksCreateEventRequest>  $events
      * @phpstan-pure
      */
-    public function __construct(string $url, ?array $events = null)
-    {
-        $this->url = $url;
-        $this->events = $events;
+    public function __construct(
+        /**
+         * Destination URL (must start with http:// or https://)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('url')]
+        public string $url,
+        /**
+         * Event types to subscribe. Defaults to all partner events when omitted.
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('events')]
+        #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\WebhooksCreateEventRequest>|null')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?array $events = null,
+    ) {
     }
 }

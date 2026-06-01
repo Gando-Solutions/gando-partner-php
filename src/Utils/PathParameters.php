@@ -15,7 +15,6 @@ class PathParameters
 {
     /**
      * @param  class-string  $type
-     * @param  mixed  $pathParams
      * @param  array<string,array<string,array<string,string>>>|null  $globals
      * @return array<string,string>
      */
@@ -37,16 +36,16 @@ class PathParameters
             }
 
             $requestMetadata = RequestBodies::parseRequestMetadata(new ReflectionProperty($type, $field));
-            if ($requestMetadata !== null) {
+            if ($requestMetadata instanceof \Gando\Partner\Utils\RequestMetadata) {
                 continue;
             }
 
             $metadata = $this->parsePathParamsMetadata(new ReflectionProperty($type, $field));
-            if ($metadata === null) {
+            if (!$metadata instanceof \Gando\Partner\Utils\ParamsMetadata) {
                 continue;
             }
 
-            if (! empty($metadata->serialization)) {
+            if ($metadata->serialization !== '' && $metadata->serialization !== '0') {
                 $parsed = array_merge_recursive($parsed, $this->parseSerializationParams($metadata, $value));
             } else {
                 match ($metadata->style) {
@@ -60,8 +59,6 @@ class PathParameters
     }
 
     /**
-     * @param  ParamsMetadata  $metadata
-     * @param  mixed  $value
      * @return array<string,string>
      */
     private function parseSimplePathParams(ParamsMetadata $metadata, mixed $value): array
@@ -82,7 +79,7 @@ class PathParameters
                     }
 
                     $fieldMetadata = $this->parsePathParamsMetadata(new ReflectionProperty($value::class, $field));
-                    if ($fieldMetadata === null) {
+                    if (!$fieldMetadata instanceof \Gando\Partner\Utils\ParamsMetadata) {
                         continue;
                     }
 
@@ -129,17 +126,10 @@ class PathParameters
             return null;
         }
 
-        $metadata = ParamsMetadata::parse($metadataStr);
-        if ($metadata === null) {
-            return null;
-        }
-
-        return $metadata;
+        return ParamsMetadata::parse($metadataStr);
     }
 
     /**
-     * @param  ParamsMetadata  $metadata
-     * @param  mixed  $value
      * @return array<string,string>
      */
     private function parseSerializationParams(ParamsMetadata $metadata, mixed $value): array

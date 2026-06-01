@@ -10,30 +10,17 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Components;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class Security
+
+final readonly class Security
 {
     /**
-     *
-     * @var ?string $partnerApiKeyAuth
-     */
-    #[SpeakeasyMetadata('security:scheme=true,type=apiKey,subtype=header,name=x-api-key')]
-    public ?string $partnerApiKeyAuth = null;
-
-    /**
-     *
-     * @var ?string $partnerBearerAuth
-     */
-    #[SpeakeasyMetadata('security:scheme=true,type=http,subtype=bearer,name=Authorization')]
-    public ?string $partnerBearerAuth = null;
-
-    /**
-     * @param  ?string  $partnerApiKeyAuth
-     * @param  ?string  $partnerBearerAuth
      * @phpstan-pure
      */
-    public function __construct(?string $partnerApiKeyAuth = null, ?string $partnerBearerAuth = null)
-    {
-        $this->partnerApiKeyAuth = $partnerApiKeyAuth;
-        $this->partnerBearerAuth = $partnerBearerAuth;
+    public function __construct(
+        #[SpeakeasyMetadata('security:scheme=true,type=apiKey,subtype=header,name=x-api-key')]
+        public ?string $partnerApiKeyAuth = null,
+        #[SpeakeasyMetadata('security:scheme=true,type=http,subtype=bearer,name=Authorization')]
+        public ?string $partnerBearerAuth = null,
+    ) {
     }
 }

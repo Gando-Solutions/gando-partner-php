@@ -11,31 +11,20 @@ namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Models\Components;
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class ClientsUpdateRequest
+
+final readonly class ClientsUpdateRequest
 {
     /**
-     * Client unique identifier
-     *
-     * @var string $id
-     */
-    #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
-    public string $id;
-
-    /**
-     *
-     * @var \Gando\Partner\Models\Components\ParticulierPartnerClientPatch|\Gando\Partner\Models\Components\ProfessionnelPartnerClientPatch $body
-     */
-    #[SpeakeasyMetadata('request:mediaType=application/json')]
-    public Components\ParticulierPartnerClientPatch|Components\ProfessionnelPartnerClientPatch $body;
-
-    /**
-     * @param  string  $id
-     * @param  \Gando\Partner\Models\Components\ParticulierPartnerClientPatch|\Gando\Partner\Models\Components\ProfessionnelPartnerClientPatch  $body
      * @phpstan-pure
      */
-    public function __construct(string $id, Components\ParticulierPartnerClientPatch|Components\ProfessionnelPartnerClientPatch $body)
-    {
-        $this->id = $id;
-        $this->body = $body;
+    public function __construct(
+        /**
+         * Client unique identifier
+         */
+        #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
+        public string $id,
+        #[SpeakeasyMetadata('request:mediaType=application/json')]
+        public Components\ParticulierPartnerClientPatch|Components\ProfessionnelPartnerClientPatch $body,
+    ) {
     }
 }

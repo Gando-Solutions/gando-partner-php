@@ -33,3 +33,38 @@ jobs:
       packagist_token: ${{ secrets.PACKAGIST_TOKEN }}
       packagist_username: ${{ secrets.PACKAGIST_USERNAME }}
       speakeasy_api_key: ${{ secrets.SPEAKEASY_API_KEY }}
+  postprocess:
+    name: Post-process generated SDK
+    needs: generate
+    if: ${{ needs.generate.outputs.branch_name != '' }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout generated branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.generate.outputs.branch_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          tools: composer
+
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress
+
+      - name: Run post-processors
+        run: composer lint && composer rector
+
+      - name: Commit post-processing changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "chore: apply sdk post-processors (pint + rector)"
+            git push origin HEAD:${{ needs.generate.outputs.branch_name }}
+          else
+            echo "No post-processing changes to commit."
+          fi

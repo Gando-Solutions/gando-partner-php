@@ -8,6 +8,7 @@
 declare(strict_types=1);
 
 namespace Gando\Partner;
+
 use Gando\Partner\Utils\Retry\RetryConfig;
 
 class SDKConfiguration
@@ -27,11 +28,11 @@ class SDKConfiguration
 
     public string $openapiDocVersion = '1.0.0';
 
-    public string $sdkVersion = '0.1.3';
+    public string $sdkVersion = '0.1.4';
 
     public string $genVersion = '2.885.0';
 
-    public string $userAgent = 'speakeasy-sdk/php 0.1.3 2.885.0 1.0.0 gando/partner';
+    public string $userAgent = 'speakeasy-sdk/php 0.1.4 2.885.0 1.0.0 gando/partner';
 
     public ?RetryConfig $retryConfig = null;
 
@@ -49,13 +50,12 @@ class SDKConfiguration
 
         if (isset(Gando::SERVERS[$this->serverIndex])) {
             return Gando::SERVERS[$this->serverIndex];
-        } else {
-            throw new \OutOfBoundsException('Server index '.$this->serverIndex.' is out of bounds');
         }
+        throw new \OutOfBoundsException('Server index '.$this->serverIndex.' is out of bounds');
     }
     public function hasSecurity(): bool
     {
-        return $this->securitySource !== null;
+        return $this->securitySource instanceof \Closure;
     }
 
     public function getSecurity(): ?Models\Components\Security
@@ -63,9 +63,6 @@ class SDKConfiguration
         return $this->securitySource->call($this);
     }
 
-    /**
-     * @return Utils\ServerDetails
-     */
     public function getServerDetails(): Utils\ServerDetails
     {
         if ($this->serverUrl !== '') {
@@ -81,7 +78,7 @@ class SDKConfiguration
 
     public function getTemplatedServerUrl(): string
     {
-        if ($this->serverUrl) {
+        if ($this->serverUrl !== '' && $this->serverUrl !== '0') {
             return Utils\Utils::templateUrl($this->serverUrl.trim('/'), []);
         }
 

@@ -81,4 +81,3 @@ final class UrlBuilderTest extends TestCase
         self::assertSame('https://partner.example/return', $query['return_url'] ?? null);
     }
 }
-

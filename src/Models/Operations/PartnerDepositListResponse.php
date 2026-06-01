@@ -9,56 +9,36 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class PartnerDepositListResponse
 {
     /**
-     * Deposits for the current page
-     *
-     * @var array<\Gando\Partner\Models\Operations\Item> $items
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('items')]
-    #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\Item>')]
-    public array $items;
-
-    /**
-     * Total deposits matching filters
-     *
-     * @var int $total
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('total')]
-    public int $total;
-
-    /**
-     * Total number of pages for the current `limit` (0 when `total` is 0)
-     *
-     * @var int $numPages
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('numPages')]
-    public int $numPages;
-
-    /**
-     * Present only when `include_counts=true` and `account_id` is set
-     *
-     * @var ?\Gando\Partner\Models\Operations\PartnerDepositListCounts $counts
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('counts')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerDepositListCounts|null')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?PartnerDepositListCounts $counts = null;
-
-    /**
      * @param  array<\Gando\Partner\Models\Operations\Item>  $items
-     * @param  int  $total
-     * @param  int  $numPages
-     * @param  ?\Gando\Partner\Models\Operations\PartnerDepositListCounts  $counts
      * @phpstan-pure
      */
-    public function __construct(array $items, int $total, int $numPages, ?PartnerDepositListCounts $counts = null)
-    {
-        $this->items = $items;
-        $this->total = $total;
-        $this->numPages = $numPages;
-        $this->counts = $counts;
+    public function __construct(
+        /**
+         * Deposits for the current page
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('items')]
+        #[\Speakeasy\Serializer\Annotation\Type('array<\Gando\Partner\Models\Operations\Item>')]
+        public array $items,
+        /**
+         * Total deposits matching filters
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('total')]
+        public int $total,
+        /**
+         * Total number of pages for the current `limit` (0 when `total` is 0)
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('numPages')]
+        public int $numPages,
+        /**
+         * Present only when `include_counts=true` and `account_id` is set
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('counts')]
+        #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerDepositListCounts|null')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?PartnerDepositListCounts $counts = null,
+    ) {
     }
 }

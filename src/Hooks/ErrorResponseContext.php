@@ -9,16 +9,12 @@
 declare(strict_types=1);
 
 namespace Gando\Partner\Hooks;
+
 use Psr\Http\Message\ResponseInterface;
 
 class ErrorResponseContext
 {
-    public ?ResponseInterface $response;
-    public ?\Throwable $e;
-
-    public function __construct(?ResponseInterface $response, ?\Throwable $e)
+    public function __construct(public ?ResponseInterface $response, public ?\Throwable $e)
     {
-        $this->response = $response;
-        $this->e = $e;
     }
 }

@@ -19,19 +19,14 @@ use Speakeasy\Serializer\DeserializationContext;
 
 class Clients
 {
-    private SDKConfiguration $sdkConfiguration;
-    /**
-     * @param  SDKConfiguration  $sdkConfig
-     */
+    private readonly SDKConfiguration $sdkConfiguration;
     public function __construct(public SDKConfiguration $sdkConfig)
     {
         $this->sdkConfiguration = $sdkConfig;
     }
     /**
-     * @param  string  $baseUrl
      * @param  array<string, string>  $urlVariables
      *
-     * @return string
      */
     public function getUrl(string $baseUrl, array $urlVariables): string
     {
@@ -53,30 +48,27 @@ class Clients
      *
      * Creates a client and returns its id. This id can then be sent as optional `client_id` in `POST /api/partner/deposits`. This endpoint is idempotent by email within account: when a client already exists, it returns 200 with the existing id.
      *
-     * @param  \Gando\Partner\Models\Components\ParticulierClient|\Gando\Partner\Models\Components\ProfessionnelClient  $body
-     * @param  ?string  $idempotencyKey
-     * @return \Gando\Partner\Models\Operations\ClientsCreateResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
     public function create(Components\ParticulierClient|Components\ProfessionnelClient $body, ?string $idempotencyKey = null, ?Options $options = null): Operations\ClientsCreateResponse
     {
         $retryConfig = null;
-        if ($options) {
+        if ($options instanceof \Gando\Partner\Utils\Options) {
             $retryConfig = $options->retryConfig;
         }
-        if ($retryConfig === null && $this->sdkConfiguration->retryConfig) {
+        if (!$retryConfig instanceof \Gando\Partner\Utils\Retry\RetryConfig && $this->sdkConfiguration->retryConfig) {
             $retryConfig = $this->sdkConfiguration->retryConfig;
         } else {
             $retryConfig = new Retry\RetryConfigBackoff(
-                initialIntervalMs: 500,
-                maxIntervalMs: 60000,
+                initialInterval: 500,
+                maxInterval: 60000,
                 exponent: 1.5,
-                maxElapsedTimeMs: 30000,
+                maxElapsedTime: 30000,
                 retryConnectionErrors: true,
             );
         }
         $retryCodes = null;
-        if ($options) {
+        if ($options instanceof \Gando\Partner\Utils\Options) {
             $retryCodes = $options->retryCodes;
         }
         if ($retryCodes === null) {
@@ -91,7 +83,6 @@ class Clients
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
         $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/clients');
-        $urlOverride = null;
         $httpOptions = ['http_errors' => false];
         $body = Utils\Utils::serializeRequestBody($request, 'body', 'json');
         if ($body === null) {
@@ -110,7 +101,7 @@ class Clients
         $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
         $httpRequest = Utils\Utils::removeHeaders($httpRequest);
         try {
-            $httpResponse = RetryUtils::retryWrapper(fn () => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
+            $httpResponse = RetryUtils::retryWrapper(fn (): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
         } catch (\GuzzleHttp\Exception\GuzzleException $error) {
             $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), null, $error);
             $httpResponse = $res;
@@ -129,65 +120,65 @@ class Clients
 
                 $serializer = Utils\JSON::createSerializer();
                 $responseData = (string) $httpResponse->getBody();
-                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Operations\ClientsCreateResponseBody1', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
-                $response = new Operations\ClientsCreateResponse(
-                    statusCode: $statusCode,
+                $obj = $serializer->deserialize($responseData, \Gando\Partner\Models\Operations\ClientsCreateResponseBody1::class, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+
+                return new Operations\ClientsCreateResponse(
                     contentType: $contentType,
-                    rawResponse: $httpResponse,
-                    twoHundredApplicationJsonObject: $obj);
-
-                return $response;
-            } else {
-                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-            }
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['201'])) {
-            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
-                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
-
-                $serializer = Utils\JSON::createSerializer();
-                $responseData = (string) $httpResponse->getBody();
-                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Operations\ClientsCreateResponseBody2', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
-                $response = new Operations\ClientsCreateResponse(
                     statusCode: $statusCode,
-                    contentType: $contentType,
                     rawResponse: $httpResponse,
-                    twoHundredAndOneApplicationJsonObject: $obj);
-
-                return $response;
-            } else {
-                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+                    twoHundredApplicationJsonObject: $obj,
+                );
             }
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['400', '401', '403', '404', '409', '422', '429'])) {
-            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
-                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
-
-                $serializer = Utils\JSON::createSerializer();
-                $responseData = (string) $httpResponse->getBody();
-                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Errors\ErrorEnvelope', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
-                $obj->rawResponse = $httpResponse;
-                throw $obj->toException();
-            } else {
-                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-            }
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['500', '503'])) {
-            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
-                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
-
-                $serializer = Utils\JSON::createSerializer();
-                $responseData = (string) $httpResponse->getBody();
-                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Errors\ErrorEnvelope', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
-                $obj->rawResponse = $httpResponse;
-                throw $obj->toException();
-            } else {
-                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-            }
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['4XX'])) {
-            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['5XX'])) {
-            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-        } else {
-            throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+            throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
         }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['201'])) {
+            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
+                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
+
+                $serializer = Utils\JSON::createSerializer();
+                $responseData = (string) $httpResponse->getBody();
+                $obj = $serializer->deserialize($responseData, \Gando\Partner\Models\Operations\ClientsCreateResponseBody2::class, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+
+                return new Operations\ClientsCreateResponse(
+                    contentType: $contentType,
+                    statusCode: $statusCode,
+                    rawResponse: $httpResponse,
+                    twoHundredAndOneApplicationJsonObject: $obj,
+                );
+            }
+            throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['400', '401', '403', '404', '409', '422', '429'])) {
+            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
+                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
+
+                $serializer = Utils\JSON::createSerializer();
+                $responseData = (string) $httpResponse->getBody();
+                $obj = $serializer->deserialize($responseData, \Gando\Partner\Models\Errors\ErrorEnvelope::class, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+                $obj->rawResponse = $httpResponse;
+                throw $obj->toException();
+            }
+            throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['500', '503'])) {
+            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
+                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
+
+                $serializer = Utils\JSON::createSerializer();
+                $responseData = (string) $httpResponse->getBody();
+                $obj = $serializer->deserialize($responseData, \Gando\Partner\Models\Errors\ErrorEnvelope::class, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+                $obj->rawResponse = $httpResponse;
+                throw $obj->toException();
+            }
+            throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['4XX'])) {
+            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['5XX'])) {
+            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
     }
 
     /**
@@ -195,32 +186,27 @@ class Clients
      *
      * Returns paginated clients for all active linked rental operator accounts, or for a specific linked account when `accountId` is provided.
      *
-     * @param  ?string  $accountId
-     * @param  ?int  $page
-     * @param  ?int  $limit
-     * @param  ?string  $search
-     * @return \Gando\Partner\Models\Operations\ClientsListResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
     public function list(?string $accountId = null, ?int $page = null, ?int $limit = null, ?string $search = null, ?Options $options = null): Operations\ClientsListResponse
     {
         $retryConfig = null;
-        if ($options) {
+        if ($options instanceof \Gando\Partner\Utils\Options) {
             $retryConfig = $options->retryConfig;
         }
-        if ($retryConfig === null && $this->sdkConfiguration->retryConfig) {
+        if (!$retryConfig instanceof \Gando\Partner\Utils\Retry\RetryConfig && $this->sdkConfiguration->retryConfig) {
             $retryConfig = $this->sdkConfiguration->retryConfig;
         } else {
             $retryConfig = new Retry\RetryConfigBackoff(
-                initialIntervalMs: 500,
-                maxIntervalMs: 60000,
+                initialInterval: 500,
+                maxInterval: 60000,
                 exponent: 1.5,
-                maxElapsedTimeMs: 30000,
+                maxElapsedTime: 30000,
                 retryConnectionErrors: true,
             );
         }
         $retryCodes = null;
-        if ($options) {
+        if ($options instanceof \Gando\Partner\Utils\Options) {
             $retryCodes = $options->retryCodes;
         }
         if ($retryCodes === null) {
@@ -231,9 +217,9 @@ class Clients
         }
         $request = new Operations\ClientsListRequest(
             accountId: $accountId,
+            search: $search,
             page: $page,
             limit: $limit,
-            search: $search,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
         $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/clients');
@@ -250,7 +236,7 @@ class Clients
         $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
         $httpRequest = Utils\Utils::removeHeaders($httpRequest);
         try {
-            $httpResponse = RetryUtils::retryWrapper(fn () => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
+            $httpResponse = RetryUtils::retryWrapper(fn (): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
         } catch (\GuzzleHttp\Exception\GuzzleException $error) {
             $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), null, $error);
             $httpResponse = $res;
@@ -269,48 +255,48 @@ class Clients
 
                 $serializer = Utils\JSON::createSerializer();
                 $responseData = (string) $httpResponse->getBody();
-                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Operations\ClientsListResponseBody', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
-                $response = new Operations\ClientsListResponse(
-                    statusCode: $statusCode,
+                $obj = $serializer->deserialize($responseData, \Gando\Partner\Models\Operations\ClientsListResponseBody::class, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+
+                return new Operations\ClientsListResponse(
                     contentType: $contentType,
+                    statusCode: $statusCode,
                     rawResponse: $httpResponse,
-                    object: $obj);
-
-                return $response;
-            } else {
-                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+                    object: $obj,
+                );
             }
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['400', '401', '403', '404', '409', '422', '429'])) {
-            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
-                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
-
-                $serializer = Utils\JSON::createSerializer();
-                $responseData = (string) $httpResponse->getBody();
-                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Errors\ErrorEnvelope', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
-                $obj->rawResponse = $httpResponse;
-                throw $obj->toException();
-            } else {
-                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-            }
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['500'])) {
-            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
-                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
-
-                $serializer = Utils\JSON::createSerializer();
-                $responseData = (string) $httpResponse->getBody();
-                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Errors\ErrorEnvelope', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
-                $obj->rawResponse = $httpResponse;
-                throw $obj->toException();
-            } else {
-                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-            }
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['4XX'])) {
-            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['5XX'])) {
-            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-        } else {
-            throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+            throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
         }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['400', '401', '403', '404', '409', '422', '429'])) {
+            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
+                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
+
+                $serializer = Utils\JSON::createSerializer();
+                $responseData = (string) $httpResponse->getBody();
+                $obj = $serializer->deserialize($responseData, \Gando\Partner\Models\Errors\ErrorEnvelope::class, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+                $obj->rawResponse = $httpResponse;
+                throw $obj->toException();
+            }
+            throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['500'])) {
+            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
+                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
+
+                $serializer = Utils\JSON::createSerializer();
+                $responseData = (string) $httpResponse->getBody();
+                $obj = $serializer->deserialize($responseData, \Gando\Partner\Models\Errors\ErrorEnvelope::class, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+                $obj->rawResponse = $httpResponse;
+                throw $obj->toException();
+            }
+            throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['4XX'])) {
+            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['5XX'])) {
+            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
     }
 
     /**
@@ -318,30 +304,27 @@ class Clients
      *
      * Updates a client that belongs to one of the partner's linked rental operator accounts.
      *
-     * @param  \Gando\Partner\Models\Components\ParticulierPartnerClientPatch|\Gando\Partner\Models\Components\ProfessionnelPartnerClientPatch  $body
-     * @param  string  $id
-     * @return \Gando\Partner\Models\Operations\ClientsUpdateResponse
      * @throws \Gando\Partner\Models\Errors\APIException
      */
     public function update(Components\ParticulierPartnerClientPatch|Components\ProfessionnelPartnerClientPatch $body, string $id, ?Options $options = null): Operations\ClientsUpdateResponse
     {
         $retryConfig = null;
-        if ($options) {
+        if ($options instanceof \Gando\Partner\Utils\Options) {
             $retryConfig = $options->retryConfig;
         }
-        if ($retryConfig === null && $this->sdkConfiguration->retryConfig) {
+        if (!$retryConfig instanceof \Gando\Partner\Utils\Retry\RetryConfig && $this->sdkConfiguration->retryConfig) {
             $retryConfig = $this->sdkConfiguration->retryConfig;
         } else {
             $retryConfig = new Retry\RetryConfigBackoff(
-                initialIntervalMs: 500,
-                maxIntervalMs: 60000,
+                initialInterval: 500,
+                maxInterval: 60000,
                 exponent: 1.5,
-                maxElapsedTimeMs: 30000,
+                maxElapsedTime: 30000,
                 retryConnectionErrors: true,
             );
         }
         $retryCodes = null;
-        if ($options) {
+        if ($options instanceof \Gando\Partner\Utils\Options) {
             $retryCodes = $options->retryCodes;
         }
         if ($retryCodes === null) {
@@ -356,7 +339,6 @@ class Clients
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
         $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/clients/{id}', Operations\ClientsUpdateRequest::class, $request);
-        $urlOverride = null;
         $httpOptions = ['http_errors' => false];
         $body = Utils\Utils::serializeRequestBody($request, 'body', 'json');
         if ($body === null) {
@@ -371,7 +353,7 @@ class Clients
         $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
         $httpRequest = Utils\Utils::removeHeaders($httpRequest);
         try {
-            $httpResponse = RetryUtils::retryWrapper(fn () => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
+            $httpResponse = RetryUtils::retryWrapper(fn (): \Psr\Http\Message\ResponseInterface => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
         } catch (\GuzzleHttp\Exception\GuzzleException $error) {
             $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), null, $error);
             $httpResponse = $res;
@@ -390,48 +372,47 @@ class Clients
 
                 $serializer = Utils\JSON::createSerializer();
                 $responseData = (string) $httpResponse->getBody();
-                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Operations\ClientsUpdateResponseBody', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
-                $response = new Operations\ClientsUpdateResponse(
-                    statusCode: $statusCode,
+                $obj = $serializer->deserialize($responseData, \Gando\Partner\Models\Operations\ClientsUpdateResponseBody::class, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+
+                return new Operations\ClientsUpdateResponse(
                     contentType: $contentType,
+                    statusCode: $statusCode,
                     rawResponse: $httpResponse,
-                    object: $obj);
-
-                return $response;
-            } else {
-                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+                    object: $obj,
+                );
             }
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['400', '401', '403', '404', '409', '422', '429'])) {
-            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
-                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
-
-                $serializer = Utils\JSON::createSerializer();
-                $responseData = (string) $httpResponse->getBody();
-                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Errors\ErrorEnvelope', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
-                $obj->rawResponse = $httpResponse;
-                throw $obj->toException();
-            } else {
-                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-            }
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['500'])) {
-            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
-                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
-
-                $serializer = Utils\JSON::createSerializer();
-                $responseData = (string) $httpResponse->getBody();
-                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Errors\ErrorEnvelope', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
-                $obj->rawResponse = $httpResponse;
-                throw $obj->toException();
-            } else {
-                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-            }
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['4XX'])) {
-            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['5XX'])) {
-            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-        } else {
-            throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+            throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
         }
-    }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['400', '401', '403', '404', '409', '422', '429'])) {
+            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
+                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
 
+                $serializer = Utils\JSON::createSerializer();
+                $responseData = (string) $httpResponse->getBody();
+                $obj = $serializer->deserialize($responseData, \Gando\Partner\Models\Errors\ErrorEnvelope::class, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+                $obj->rawResponse = $httpResponse;
+                throw $obj->toException();
+            }
+            throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['500'])) {
+            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
+                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
+
+                $serializer = Utils\JSON::createSerializer();
+                $responseData = (string) $httpResponse->getBody();
+                $obj = $serializer->deserialize($responseData, \Gando\Partner\Models\Errors\ErrorEnvelope::class, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+                $obj->rawResponse = $httpResponse;
+                throw $obj->toException();
+            }
+            throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['4XX'])) {
+            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        if (Utils\Utils::matchStatusCodes($statusCode, ['5XX'])) {
+            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+        throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+    }
 }

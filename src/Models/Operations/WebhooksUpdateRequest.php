@@ -10,32 +10,23 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class WebhooksUpdateRequest
+
+final readonly class WebhooksUpdateRequest
 {
     /**
-     * Partner webhook endpoint id
-     *
-     * @var string $id
-     */
-    #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
-    public string $id;
-
-    /**
-     * Partner webhook endpoint update payload
-     *
-     * @var \Gando\Partner\Models\Operations\UpdatePartnerWebhookSubscriptionBody $body
-     */
-    #[SpeakeasyMetadata('request:mediaType=application/json')]
-    public UpdatePartnerWebhookSubscriptionBody $body;
-
-    /**
-     * @param  string  $id
-     * @param  \Gando\Partner\Models\Operations\UpdatePartnerWebhookSubscriptionBody  $body
      * @phpstan-pure
      */
-    public function __construct(string $id, UpdatePartnerWebhookSubscriptionBody $body)
-    {
-        $this->id = $id;
-        $this->body = $body;
+    public function __construct(
+        /**
+         * Partner webhook endpoint id
+         */
+        #[SpeakeasyMetadata('pathParam:style=simple,explode=false,name=id')]
+        public string $id,
+        /**
+         * Partner webhook endpoint update payload
+         */
+        #[SpeakeasyMetadata('request:mediaType=application/json')]
+        public UpdatePartnerWebhookSubscriptionBody $body,
+    ) {
     }
 }

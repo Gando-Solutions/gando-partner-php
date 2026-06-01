@@ -11,34 +11,22 @@ namespace Gando\Partner\Models\Errors;
 
 use Gando\Partner\Models\Components;
 use Gando\Partner\Utils;
+
 class ErrorEnvelope
 {
     /**
-     *
-     * @var \Gando\Partner\Models\Components\Error $error
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('error')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Components\Error')]
-    public Components\Error $error;
-
-    /**
-     * Raw HTTP response; suitable for custom response parsing
-     *
-     * @var ?\Psr\Http\Message\ResponseInterface $rawResponse
-     */
-    #[\Speakeasy\Serializer\Annotation\Exclude]
-
-    public ?\Psr\Http\Message\ResponseInterface $rawResponse = null;
-
-    /**
-     * @param  \Gando\Partner\Models\Components\Error  $error
-     * @param  ?\Psr\Http\Message\ResponseInterface  $rawResponse
      * @phpstan-pure
      */
-    public function __construct(Components\Error $error, ?\Psr\Http\Message\ResponseInterface $rawResponse = null)
-    {
-        $this->error = $error;
-        $this->rawResponse = $rawResponse;
+    public function __construct(
+        #[\Speakeasy\Serializer\Annotation\SerializedName('error')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Components\Error::class)]
+        public Components\Error $error,
+        /**
+         * Raw HTTP response; suitable for custom response parsing
+         */
+        #[\Speakeasy\Serializer\Annotation\Exclude]
+        public ?\Psr\Http\Message\ResponseInterface $rawResponse = null,
+    ) {
     }
 
     public function toException(): ErrorEnvelopeThrowable
@@ -47,6 +35,6 @@ class ErrorEnvelope
         $message = $serializer->serialize($this, 'json');
         $code = -1;
 
-        return new ErrorEnvelopeThrowable($message, (int) $code, $this);
+        return new ErrorEnvelopeThrowable($message, $code, $this);
     }
 }

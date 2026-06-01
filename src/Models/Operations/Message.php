@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** `Deleted` when removed; `Archived` when soft-deleted instead */
 enum Message: string
 {

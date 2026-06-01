@@ -37,7 +37,17 @@ final class DepositsIdempotencyTest extends TestCase
         ], JSON_THROW_ON_ERROR);
 
         $mock = new MockHandler([
-            new Response(503),
+            new Response(
+                429,
+                ['Content-Type' => ['application/json']],
+                json_encode([
+                    'error' => [
+                        'code' => 'rate_limited',
+                        'message' => 'retry later',
+                        'requestId' => 'req_retry_429',
+                    ],
+                ], JSON_THROW_ON_ERROR),
+            ),
             new Response(201, ['Content-Type' => ['application/json']], $successBody),
         ]);
 
@@ -118,10 +128,10 @@ final class DepositsIdempotencyTest extends TestCase
             ->setServerURL('http://localhost:3000')
             ->setSecurity(new Security(partnerApiKeyAuth: 'gando_pk_test'))
             ->setRetryConfig(new RetryConfigBackoff(
-                initialIntervalMs: 0,
-                maxIntervalMs: 0,
+                initialInterval: 0,
+                maxInterval: 0,
                 exponent: 1.5,
-                maxElapsedTimeMs: 30_000,
+                maxElapsedTime: 30_000,
                 retryConnectionErrors: true,
             ))
             ->build();

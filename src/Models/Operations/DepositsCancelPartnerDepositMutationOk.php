@@ -9,23 +9,17 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
-class DepositsCancelPartnerDepositMutationOk
+final readonly class DepositsCancelPartnerDepositMutationOk
 {
     /**
-     * Operation completed successfully
-     *
-     * @var bool $success
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-    public bool $success;
-
-    /**
-     * @param  bool  $success
      * @phpstan-pure
      */
-    public function __construct(bool $success = true)
-    {
-        $this->success = $success;
+    public function __construct(
+        /**
+         * Operation completed successfully
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
+        public bool $success = true,
+    ) {
     }
 }

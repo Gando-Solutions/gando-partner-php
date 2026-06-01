@@ -54,7 +54,7 @@ class EnumHandler implements SubscribingHandlerInterface
         try {
             return $type::from($data);
         } catch (\ValueError $e) {
-            throw new NotAcceptableException($e->getMessage());
+            throw new NotAcceptableException($e->getMessage(), $e->getCode(), $e);
         }
     }
 }

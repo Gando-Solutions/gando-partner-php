@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** Partner link status: `active` (operations allowed) or `revoked` (403 on deposits) */
 enum AccountStatus: string
 {

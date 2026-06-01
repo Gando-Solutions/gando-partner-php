@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** Void the in-flight deposit payment and set status to `cancelled` (not the same as POST …/cancel which closes an active deposit) */
 enum Action: string
 {

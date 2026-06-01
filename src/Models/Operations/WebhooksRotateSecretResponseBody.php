@@ -9,45 +9,27 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** WebhooksRotateSecretResponseBody - New secret returned */
-class WebhooksRotateSecretResponseBody
+final readonly class WebhooksRotateSecretResponseBody
 {
     /**
-     *
-     * @var \Gando\Partner\Models\Operations\PartnerWebhookRotateSecretResponse $data
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerWebhookRotateSecretResponse')]
-    public PartnerWebhookRotateSecretResponse $data;
-
-    /**
-     * Optional human-readable message
-     *
-     * @var ?string $message
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('message')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $message = null;
-
-    /**
-     * Always `true` for successful responses
-     *
-     * @var bool $success
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-    public bool $success;
-
-    /**
-     * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\PartnerWebhookRotateSecretResponse  $data
-     * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(PartnerWebhookRotateSecretResponse $data, ?string $message = null, bool $success = true)
-    {
-        $this->data = $data;
-        $this->message = $message;
-        $this->success = $success;
+    public function __construct(
+        #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\PartnerWebhookRotateSecretResponse::class)]
+        public PartnerWebhookRotateSecretResponse $data,
+        /**
+         * Optional human-readable message
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('message')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $message = null,
+        /**
+         * Always `true` for successful responses
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
+        public bool $success = true,
+    ) {
     }
 }

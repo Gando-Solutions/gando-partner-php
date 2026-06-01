@@ -12,17 +12,13 @@ namespace Gando\Partner\Models\Errors;
 class APIException extends \Exception
 {
     public int $statusCode;
-    public string $body;
-    public ?\Psr\Http\Message\ResponseInterface $rawResponse;
 
-    public function __construct(string $message, int $statusCode, string $body, ?\Psr\Http\Message\ResponseInterface $rawResponse)
+    public function __construct(string $message, int $statusCode, public string $body, public ?\Psr\Http\Message\ResponseInterface $rawResponse)
     {
         $this->message = $message;
         $code = $statusCode;
         $this->statusCode = $statusCode;
-        $this->body = $body;
-        $this->rawResponse = $rawResponse;
-        parent::__construct($message, $code, null);
+        parent::__construct($message, $code);
     }
 
     public function __toString(): string

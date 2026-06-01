@@ -9,23 +9,17 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class PartnerWebhookRotateSecretResponse
 {
     /**
-     * New plain signing secret. Store securely; shown once per rotation.
-     *
-     * @var string $secret
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('secret')]
-    public string $secret;
-
-    /**
-     * @param  string  $secret
      * @phpstan-pure
      */
-    public function __construct(string $secret)
-    {
-        $this->secret = $secret;
+    public function __construct(
+        /**
+         * New plain signing secret. Store securely; shown once per rotation.
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('secret')]
+        public string $secret,
+    ) {
     }
 }

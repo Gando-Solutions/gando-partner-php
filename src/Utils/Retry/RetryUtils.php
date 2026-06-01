@@ -17,14 +17,10 @@ use Psr\Http\Message\ResponseInterface;
 
 class RetryUtils
 {
-
     /**
      * A wrapper for http send function to handle retries if necessary.
-     * 
-     * @param  callable  $fn
-     * @param  RetryConfig  $config
+     *
      * @param  array<string>  $statusCodesToRetry
-     * @return ResponseInterface
      */
     public static function retryWrapper(callable $fn, RetryConfig $config, array $statusCodesToRetry): ResponseInterface
     {
@@ -44,7 +40,8 @@ class RetryUtils
                 }
                 if ($config instanceof RetryConfigNone) {
                     throw $e->getPrevious();
-                } elseif ($config instanceof RetryConfigBackoff) {
+                }
+                if ($config instanceof RetryConfigBackoff) {
                     $elapsed = 1000 * (LocalDateTime::now(TimeZone::utc())->getTime()->toSecondOfDay() - $start->getTime()->toSecondOfDay());
                     if ($elapsed > $config->maxElapsedTime) {
                         if ($e instanceof TemporaryError) {
@@ -57,13 +54,10 @@ class RetryUtils
                         $retryInterval = RetryUtils::retryInterval($e->response);
                     }
                     if ($retryInterval <= 0) {
-                        $retryInterval = $config->initialInterval * pow($retryCount, $config->exponent) + (rand(0, 1) * 1000);
+                        $retryInterval = $config->initialInterval * $retryCount ** $config->exponent + (random_int(0, 1) * 1000);
                     }
-
                     $d = min($retryInterval, $config->maxInterval);
-
                     usleep((int) $d * 1000);
-
                     $retryCount++;
                 }
             }
@@ -76,7 +70,7 @@ class RetryUtils
             return 0;
         }
         $retryAfter = $response->getHeader('Retry-After');
-        if (count($retryAfter) == 0) {
+        if (count($retryAfter) === 0) {
             return 0;
         }
         $retryAfter = $retryAfter[0];
@@ -89,15 +83,13 @@ class RetryUtils
             $deltaMS = ($parsedDate->getNano() * 1000) - (LocalDateTime::now(TimeZone::utc())->getNano() * 1000);
 
             return $deltaMS > 0 ? (int) ceil($deltaMS) : 0;
-        } catch (DateTimeParseException|DateTimeException $e) {
+        } catch (DateTimeParseException|DateTimeException) {
             return 0;
         }
     }
 
     /**
-     * @param  ResponseInterface  $response
      * @param  array<string>  $statusCodes
-     * @return bool
      */
     public static function isRetryableResponse(ResponseInterface $response, array $statusCodes): bool
     {
@@ -105,7 +97,7 @@ class RetryUtils
 
         $final = false;
         foreach ($statusCodes as $code) {
-            if (! preg_match('/^[0-9]xx$/', $code)) {
+            if (! preg_match('/^\dxx$/', $code)) {
                 $final = $code === $actual;
                 if ($final) {
                     break;
@@ -115,12 +107,12 @@ class RetryUtils
             }
 
             $expectFamily = mb_substr($code, 0, 1);
-            if (! $expectFamily) {
+            if ($expectFamily === '' || $expectFamily === '0') {
                 throw new \Exception('Invalid status code range');
             }
 
             $actualFamily = mb_substr($actual, 0, 1);
-            if (! $actualFamily) {
+            if ($actualFamily === '0') {
                 throw new \Exception('Invalid response status code: {$actual}');
             }
 

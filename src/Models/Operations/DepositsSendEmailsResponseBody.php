@@ -9,45 +9,27 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 /** DepositsSendEmailsResponseBody - Attempted sends */
-class DepositsSendEmailsResponseBody
+final readonly class DepositsSendEmailsResponseBody
 {
     /**
-     *
-     * @var \Gando\Partner\Models\Operations\PartnerDepositEmailsResponse $data
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerDepositEmailsResponse')]
-    public PartnerDepositEmailsResponse $data;
-
-    /**
-     * Optional human-readable message
-     *
-     * @var ?string $message
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('message')]
-    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?string $message = null;
-
-    /**
-     * Always `true` for successful responses
-     *
-     * @var bool $success
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
-    public bool $success;
-
-    /**
-     * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\PartnerDepositEmailsResponse  $data
-     * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(PartnerDepositEmailsResponse $data, ?string $message = null, bool $success = true)
-    {
-        $this->data = $data;
-        $this->message = $message;
-        $this->success = $success;
+    public function __construct(
+        #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\PartnerDepositEmailsResponse::class)]
+        public PartnerDepositEmailsResponse $data,
+        /**
+         * Optional human-readable message
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('message')]
+        #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+        public ?string $message = null,
+        /**
+         * Always `true` for successful responses
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
+        public bool $success = true,
+    ) {
     }
 }

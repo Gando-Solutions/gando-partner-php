@@ -17,7 +17,7 @@ class MultipartMetadata
         public bool $content,
         public bool $json,
         public string $dateTimeFormat,
-        public bool $serializeToString
+        public bool $serializeToString,
     ) {
     }
 
@@ -40,7 +40,7 @@ class MultipartMetadata
 
         foreach ($options as $opt) {
             $parts = explode('=', $opt);
-            if (count($parts) < 1 || count($parts) > 2) { /** @phpstan-ignore-line */
+            if (count($parts) > 2) { /** @phpstan-ignore-line */
                 continue;
             }
 
@@ -61,7 +61,7 @@ class MultipartMetadata
             content: $content,
             json: $json,
             dateTimeFormat: $dateTimeFormat,
-            serializeToString: $serializeToString
+            serializeToString: $serializeToString,
         );
     }
 }

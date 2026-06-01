@@ -10,52 +10,33 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 use Gando\Partner\Utils\SpeakeasyMetadata;
-class ClientsListRequest
+
+final readonly class ClientsListRequest
 {
     /**
-     * Filter clients to this linked rental operator account
-     *
-     * @var ?string $accountId
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=accountId')]
-    public ?string $accountId = null;
-
-    /**
-     * Case-insensitive search on name, email, or company
-     *
-     * @var ?string $search
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=search')]
-    public ?string $search = null;
-
-    /**
-     * Page number (1-based)
-     *
-     * @var ?int $page
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=page')]
-    public ?int $page = null;
-
-    /**
-     * Items per page (max 100)
-     *
-     * @var ?int $limit
-     */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
-    public ?int $limit = null;
-
-    /**
-     * @param  ?string  $accountId
-     * @param  ?int  $page
-     * @param  ?int  $limit
-     * @param  ?string  $search
      * @phpstan-pure
      */
-    public function __construct(?string $accountId = null, ?string $search = null, ?int $page = 1, ?int $limit = 20)
-    {
-        $this->accountId = $accountId;
-        $this->search = $search;
-        $this->page = $page;
-        $this->limit = $limit;
+    public function __construct(
+        /**
+         * Filter clients to this linked rental operator account
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=accountId')]
+        public ?string $accountId = null,
+        /**
+         * Case-insensitive search on name, email, or company
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=search')]
+        public ?string $search = null,
+        /**
+         * Page number (1-based)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=page')]
+        public ?int $page = 1,
+        /**
+         * Items per page (max 100)
+         */
+        #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=limit')]
+        public ?int $limit = 20,
+    ) {
     }
 }

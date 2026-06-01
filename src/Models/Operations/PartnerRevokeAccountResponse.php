@@ -9,34 +9,23 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-
 class PartnerRevokeAccountResponse
 {
     /**
-     * Link status after revocation
-     *
-     * @var \Gando\Partner\Models\Operations\AccountsRevokeStatus $status
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('status')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\AccountsRevokeStatus')]
-    public AccountsRevokeStatus $status;
-
-    /**
-     * ISO 8601 timestamp when the link was revoked
-     *
-     * @var \DateTime $revokedAt
-     */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('revoked_at')]
-    public \DateTime $revokedAt;
-
-    /**
-     * @param  \Gando\Partner\Models\Operations\AccountsRevokeStatus  $status
-     * @param  \DateTime  $revokedAt
      * @phpstan-pure
      */
-    public function __construct(AccountsRevokeStatus $status, \DateTime $revokedAt)
-    {
-        $this->status = $status;
-        $this->revokedAt = $revokedAt;
+    public function __construct(
+        /**
+         * Link status after revocation
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('status')]
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\AccountsRevokeStatus::class)]
+        public AccountsRevokeStatus $status,
+        /**
+         * ISO 8601 timestamp when the link was revoked
+         */
+        #[\Speakeasy\Serializer\Annotation\SerializedName('revoked_at')]
+        public \DateTime $revokedAt,
+    ) {
     }
 }
