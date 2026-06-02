@@ -5,13 +5,13 @@ management:
   docVersion: 1.0.0
   speakeasyVersion: 1.764.0
   generationVersion: 2.885.0
-  releaseVersion: 0.1.4
-  configChecksum: 570817b5d6a5ef600da78519aafb61ea
+  releaseVersion: 0.1.5
+  configChecksum: 2c5104a9d65fb99102d0663517864162
   published: true
 persistentEdits:
-  generation_id: 79ee0e6a-57cc-41a4-b71f-afa338f572f6
-  pristine_commit_hash: 9445eb87a6cbf4b8e11f816796b368e44e008403
-  pristine_tree_hash: 53a23fe2b1c48c9f915e147a532e5666420ec77a
+  generation_id: 09c56577-c302-48b5-82a5-649c10d1fda6
+  pristine_commit_hash: 601d784dbd735f05e0626b515c9513776e76b236
+  pristine_tree_hash: 6fdaa05ea943cb86bf283c2c12cae3aae3971287
 features:
   php:
     constsAndDefaults: 0.2.2
@@ -1332,8 +1332,8 @@ trackedFiles:
     pristine_git_object: 0fb83e561f0951ef4a477dfe12de61da0ce606b7
   src/SDKConfiguration.php:
     id: 9d60ab0bec0b
-    last_write_checksum: sha1:dc84288a9409cc1e0f8a9596253185ed173f11c2
-    pristine_git_object: 44064ff6a1e9747931d8baac8af9cbb04663e111
+    last_write_checksum: sha1:dfd9cb05c6811f3e3d065cc4912a9e127861e41e
+    pristine_git_object: efb5f70e2c69bdc65ceab22966ea54b4f0011a3f
   src/Utils/BigDecimalHandler.php:
     id: cdcca3718e2e
     last_write_checksum: sha1:cecca93bc2e030498da3a8a941993c23e69e8959

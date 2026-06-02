@@ -14,7 +14,7 @@ targets:
         sourceRevisionDigest: sha256:34117e17768f39e54cfeef73156813ec959af7189a84297fc16cc523f0bdf925
         sourceBlobDigest: sha256:2e4a626aaf9ad808f3913b30b878c793967d0dcc07dc0202555de90076e2f87e
         codeSamplesNamespace: gando-partner-api-php-code-samples
-        codeSamplesRevisionDigest: sha256:f953fa7789b5a77ccaa43f4adabed077de49749717490fa0588be5862f9ad826
+        codeSamplesRevisionDigest: sha256:fdabbcc55e7f4de98f67be6d9e5e28a53ef13ab6c57560e3e1be726ef245c164
 workflow:
     workflowVersion: 1.0.0
     speakeasyVersion: latest
