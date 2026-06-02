@@ -1,0 +1,3 @@
+# Fully owned by the repo (custom scripts, require-dev, Api\Client deps).
+# Mirror runtime additions in .speakeasy/gen.yaml → php.additionalDependencies.require.
+composer.json

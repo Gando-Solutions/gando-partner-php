@@ -17,17 +17,14 @@ $sdk = Partner\Gando::builder()
 
 
 
-$responses = $sdk->accounts->list(
+$response = $sdk->accounts->list(
     page: 1,
     limit: 20
 
 );
 
-
-foreach ($responses as $response) {
-    if ($response->statusCode === 200) {
-        // handle response
-    }
+if ($response->object !== null) {
+    // handle response
 }
 ```
 <!-- End SDK Example Usage [usage] -->

@@ -64,10 +64,8 @@ final class ClientTest extends TestCase
             baseUrl: 'http://localhost:3000',
         );
 
-        foreach ($api->accounts->list(limit: 10) as $response) {
-            self::assertSame(200, $response->statusCode);
-            break;
-        }
+        $response = $api->accounts->list(limit: 10);
+        self::assertSame(200, $response->statusCode);
 
         self::assertCount(1, $psr18->requests);
         self::assertSame('GET', $psr18->requests[0]->getMethod());

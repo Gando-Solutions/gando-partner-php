@@ -116,7 +116,7 @@ final readonly class Deposits
     public function list(
         ?Operations\DepositsListRequest $request = null,
         ?Options $options = null,
-    ): \Generator {
+    ): Operations\DepositsListResponse {
         return $this->deposits->list($request, $options);
     }
 

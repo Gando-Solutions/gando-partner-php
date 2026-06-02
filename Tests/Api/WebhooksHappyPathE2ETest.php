@@ -47,12 +47,10 @@ final class WebhooksHappyPathE2ETest extends TestCase
             ),
         );
 
-        foreach ($webhooks->list(page: 1, limit: 10) as $response) {
-            self::assertSame(200, $response->statusCode);
-            self::assertNotNull($response->object);
-            self::assertCount(1, $response->object->data->items);
-            break;
-        }
+        $response = $webhooks->list(page: 1, limit: 10);
+        self::assertSame(200, $response->statusCode);
+        self::assertNotNull($response->object);
+        self::assertCount(1, $response->object->data->items);
 
         self::assertSame('x-api-key', $captured[0]['auth_header_name']);
         self::assertSame('gando_pk_test', $captured[0]['auth_header_value']);

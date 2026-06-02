@@ -501,7 +501,7 @@ class Webhooks
      *
      * @throws \Gando\Partner\Models\Errors\APIException
      */
-    private function listIndividual(?int $page = null, ?int $limit = null, ?Options $options = null): Operations\WebhooksListResponse
+    public function list(?int $page = null, ?int $limit = null, ?Options $options = null): Operations\WebhooksListResponse
     {
         $retryConfig = null;
         if ($options instanceof \Gando\Partner\Utils\Options) {
@@ -567,42 +567,12 @@ class Webhooks
                 $serializer = Utils\JSON::createSerializer();
                 $responseData = (string) $httpResponse->getBody();
                 $obj = $serializer->deserialize($responseData, \Gando\Partner\Models\Operations\WebhooksListResponseBody::class, 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
-                $response = new Operations\WebhooksListResponse(
+                return new Operations\WebhooksListResponse(
                     contentType: $contentType,
                     statusCode: $statusCode,
                     rawResponse: $httpResponse,
                     object: $obj,
                 );
-                $sdk = $this;
-
-                $response->next = function () use ($sdk, $request, $responseData): ?Operations\WebhooksListResponse {
-                    $page = $request != null ? $request->page : 0;
-                    $nextPage = $page + 1;
-                    if ($responseData === '' || $responseData === '0') {
-                        return null;
-                    }
-                    $jsonObject = new \JsonPath\JsonObject($responseData);
-                    $results = $jsonObject->get('$.data.items');
-
-                    if (is_array($results)) {
-                        $results = $results[0];
-                    }
-                    if (count($results) === 0) {
-                        return null;
-                    }
-                    $limit = $request != null ? $request->limit : 0;
-                    if (count($results) < $limit) {
-                        return null;
-                    }
-
-                    return $sdk->listIndividual(
-                        page: $nextPage,
-                        limit: $request != null ? $request->limit : null,
-                    );
-                };
-
-
-                return $response;
             }
             throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
         }
@@ -637,22 +607,6 @@ class Webhooks
             throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
         }
         throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
-    }
-    /**
-     * List partner webhook endpoints
-     *
-     * Retrieve configured webhook endpoints for the authenticated partner (`gando_pk_` key). Each item aggregates subscribed event types. Results are paginated with **`page`** and **`limit`** query parameters (same semantics as **`GET /api/partner/deposits`**).
-     *
-     * @return \Generator<\Gando\Partner\Models\Operations\WebhooksListResponse>
-     * @throws \Gando\Partner\Models\Errors\APIException
-     */
-    public function list(?int $page = null, ?int $limit = null, ?Options $options = null): \Generator
-    {
-        $res = $this->listIndividual($page, $limit, $options);
-        while ($res !== null) {
-            yield $res;
-            $res = $res->next($res);
-        }
     }
 
     /**
