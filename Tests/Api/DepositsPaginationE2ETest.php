@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DepositsPaginationE2ETest extends TestCase
 {
-    public function testListIteratesAllPagesWithoutDuplicates(): void
+    public function testListManualPaginationUsesPageAndLimitQueryParams(): void
     {
         $capturedQueryParams = [];
         $mock = new MockHandler([
@@ -38,10 +38,9 @@ final class DepositsPaginationE2ETest extends TestCase
         $sdk = $this->sdkWithHandler($stack);
         $deposits = new Deposits($sdk->deposits);
 
-        $request = new DepositsListRequest(limit: 10);
-
         $collectedIds = [];
-        foreach ($deposits->list($request) as $pageResponse) {
+        for ($page = 1; $page <= 3; $page++) {
+            $pageResponse = $deposits->list(new DepositsListRequest(page: $page, limit: 10));
             self::assertSame(200, $pageResponse->statusCode);
             self::assertNotNull($pageResponse->object);
 

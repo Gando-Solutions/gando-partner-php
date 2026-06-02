@@ -53,11 +53,7 @@ final class AccountsRetryTest extends TestCase
             ))
             ->build();
 
-        $response = null;
-        foreach ($sdk->accounts->list(limit: 10) as $pageResponse) {
-            $response = $pageResponse;
-            break;
-        }
+        $response = $sdk->accounts->list(limit: 10);
 
         self::assertNotNull($response);
         self::assertSame(200, $response->statusCode);

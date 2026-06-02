@@ -52,15 +52,12 @@ $sdk = Partner\Gando::builder()
 
 $request = new Operations\DepositsListRequest();
 
-$responses = $sdk->deposits->list(
+$response = $sdk->deposits->list(
     request: $request
 );
 
-
-foreach ($responses as $response) {
-    if ($response->statusCode === 200) {
-        // handle response
-    }
+if ($response->object !== null) {
+    // handle response
 }
 ```
 
