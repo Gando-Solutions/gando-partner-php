@@ -18,7 +18,7 @@ jobs:
       # 2. Install oasdiff
       - name: Install oasdiff
         run: |
-          go install github.com/Tufin/oasdiff@latest
+          go install github.com/oasdiff/oasdiff@latest
           echo "$HOME/go/bin" >> $GITHUB_PATH
 
       # 3. Fetch base branch (main)
