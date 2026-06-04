@@ -47,7 +47,7 @@ class ParticulierClient
     public ParticulierClientClientType $clientType;
 
     /**
-     * Target rental operator account id (required on create)
+     * Target rental operator account id
      *
      * @var ?string $accountId
      */

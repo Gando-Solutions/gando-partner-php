@@ -15,11 +15,11 @@ class DepositsGetPaymentMethodResponseBody
 {
     /**
      *
-     * @var \Gando\Partner\Models\Operations\PartnerPaymentMethodInfo $data
+     * @var \Gando\Partner\Models\Operations\V1PaymentMethodInfo $data
      */
     #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerPaymentMethodInfo')]
-    public PartnerPaymentMethodInfo $data;
+    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\V1PaymentMethodInfo')]
+    public V1PaymentMethodInfo $data;
 
     /**
      * Optional human-readable message
@@ -40,11 +40,11 @@ class DepositsGetPaymentMethodResponseBody
 
     /**
      * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\PartnerPaymentMethodInfo  $data
+     * @param  \Gando\Partner\Models\Operations\V1PaymentMethodInfo  $data
      * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(PartnerPaymentMethodInfo $data, ?string $message = null, bool $success = true)
+    public function __construct(V1PaymentMethodInfo $data, ?string $message = null, bool $success = true)
     {
         $this->data = $data;
         $this->message = $message;

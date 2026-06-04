@@ -10,7 +10,7 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 
-/** Status of the caution: pending (waiting for next step), incomplete (client journey not finished), active (payment authorized), processing (being processed), captured (payment captured), close (caution closed by natural expiration / end of contract), cancelled (caution cancelled manually before activation or while active), payment_issue (payment issue at fee payment), capture_issue (capture/recovery issue) */
+/** Status of the deposit: pending (waiting for next step), incomplete (client journey not finished), active (payment authorized), processing (being processed), captured (payment captured), close (deposit closed by natural expiration / end of contract), cancelled (deposit cancelled manually before activation or while active), payment_issue (payment issue at fee payment), capture_issue (capture/recovery issue) */
 enum DepositsCreateStatus: string
 {
     case Pending = 'pending';

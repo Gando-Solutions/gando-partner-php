@@ -10,13 +10,13 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 
-/** Partner webhook event types. `rental_operator.linked` fires when a rental operator account is linked to your partner via connect. The five caution events mirror rental-operator webhooks: `caution.status_changed` is the wildcard delivered for every status transition; `caution.activated` (-> active), `caution.captured` (-> captured), `caution.expired` (-> close, natural end of contract), `caution.cancelled` (-> cancelled, manual cancellation) are the specific events. When an endpoint subscribes to both the wildcard and a specific event, the most specific subscribed event wins for that transition (single delivery per endpoint). */
+/** V1 webhook event types. `deposit.status_changed` is the wildcard delivered for every status transition. `deposit.activated` (-> active), `deposit.captured` (-> captured), `deposit.expired` (-> close), `deposit.cancelled` (-> cancelled) are specific events. `rental_operator.linked` fires when a rental operator account is linked to your partner via connect. When a subscription includes both the wildcard and a specific event, the most specific subscribed event wins for that transition (single delivery per endpoint). */
 enum WebhooksListEvent: string
 {
+    case DepositStatusChanged = 'deposit.status_changed';
+    case DepositActivated = 'deposit.activated';
+    case DepositCaptured = 'deposit.captured';
+    case DepositExpired = 'deposit.expired';
+    case DepositCancelled = 'deposit.cancelled';
     case RentalOperatorLinked = 'rental_operator.linked';
-    case CautionStatusChanged = 'caution.status_changed';
-    case CautionActivated = 'caution.activated';
-    case CautionCaptured = 'caution.captured';
-    case CautionExpired = 'caution.expired';
-    case CautionCancelled = 'caution.cancelled';
 }

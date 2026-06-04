@@ -13,7 +13,6 @@ namespace Gando\Partner\Models\Operations;
 class Result
 {
     /**
-     * Recipient address
      *
      * @var string $email
      */
@@ -21,7 +20,6 @@ class Result
     public string $email;
 
     /**
-     * Whether this recipient send succeeded
      *
      * @var bool $success
      */
@@ -29,13 +27,23 @@ class Result
     public bool $success;
 
     /**
+     *
+     * @var ?string $error
+     */
+    #[\Speakeasy\Serializer\Annotation\SerializedName('error')]
+    #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
+    public ?string $error = null;
+
+    /**
      * @param  string  $email
      * @param  bool  $success
+     * @param  ?string  $error
      * @phpstan-pure
      */
-    public function __construct(string $email, bool $success)
+    public function __construct(string $email, bool $success, ?string $error = null)
     {
         $this->email = $email;
         $this->success = $success;
+        $this->error = $error;
     }
 }

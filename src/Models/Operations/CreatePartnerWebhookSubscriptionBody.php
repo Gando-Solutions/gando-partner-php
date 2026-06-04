@@ -10,7 +10,6 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 
-/** CreatePartnerWebhookSubscriptionBody - Partner webhook endpoint creation payload */
 class CreatePartnerWebhookSubscriptionBody
 {
     /**

@@ -34,7 +34,7 @@ class DepositsListResponse
     public \Psr\Http\Message\ResponseInterface $rawResponse;
 
     /**
-     * Paginated list (`items` + `total` + `numPages`; optional `counts`)
+     * Paginated list (`items` + `total`; optional `counts`)
      *
      * @var ?\Gando\Partner\Models\Operations\DepositsListResponseBody $object
      */

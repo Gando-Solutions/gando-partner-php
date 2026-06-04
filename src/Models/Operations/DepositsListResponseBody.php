@@ -10,16 +10,16 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 
-/** DepositsListResponseBody - Paginated list (`items` + `total` + `numPages`; optional `counts`) */
+/** DepositsListResponseBody - Paginated list (`items` + `total`; optional `counts`) */
 class DepositsListResponseBody
 {
     /**
      *
-     * @var \Gando\Partner\Models\Operations\PartnerDepositListResponse $data
+     * @var \Gando\Partner\Models\Operations\V1DepositListResponse $data
      */
     #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerDepositListResponse')]
-    public PartnerDepositListResponse $data;
+    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\V1DepositListResponse')]
+    public V1DepositListResponse $data;
 
     /**
      * Optional human-readable message
@@ -40,11 +40,11 @@ class DepositsListResponseBody
 
     /**
      * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\PartnerDepositListResponse  $data
+     * @param  \Gando\Partner\Models\Operations\V1DepositListResponse  $data
      * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(PartnerDepositListResponse $data, ?string $message = null, bool $success = true)
+    public function __construct(V1DepositListResponse $data, ?string $message = null, bool $success = true)
     {
         $this->data = $data;
         $this->message = $message;

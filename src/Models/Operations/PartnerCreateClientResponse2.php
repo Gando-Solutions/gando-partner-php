@@ -13,7 +13,7 @@ namespace Gando\Partner\Models\Operations;
 class PartnerCreateClientResponse2
 {
     /**
-     * Created or existing client id (use as `client_id` on deposits)
+     * Created or existing client id (use as `clientId` on deposits)
      *
      * @var string $id
      */

@@ -15,11 +15,11 @@ class WebhooksListResponseBody
 {
     /**
      *
-     * @var \Gando\Partner\Models\Operations\PartnerWebhookListResponse $data
+     * @var \Gando\Partner\Models\Operations\V1WebhookListResponse $data
      */
     #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerWebhookListResponse')]
-    public PartnerWebhookListResponse $data;
+    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\V1WebhookListResponse')]
+    public V1WebhookListResponse $data;
 
     /**
      * Optional human-readable message
@@ -40,11 +40,11 @@ class WebhooksListResponseBody
 
     /**
      * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\PartnerWebhookListResponse  $data
+     * @param  \Gando\Partner\Models\Operations\V1WebhookListResponse  $data
      * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(PartnerWebhookListResponse $data, ?string $message = null, bool $success = true)
+    public function __construct(V1WebhookListResponse $data, ?string $message = null, bool $success = true)
     {
         $this->data = $data;
         $this->message = $message;

@@ -1,6 +1,6 @@
 # IncludeCounts
 
-When `true` or `1`, include per-status counts (requires `account_id`)
+When `true` or `1`, include per-status counts (requires `accountId`)
 
 
 ## Values

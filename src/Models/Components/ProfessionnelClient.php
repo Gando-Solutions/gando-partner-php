@@ -55,7 +55,7 @@ class ProfessionnelClient
     public string $companyName;
 
     /**
-     * Target rental operator account id (required on create)
+     * Target rental operator account id
      *
      * @var ?string $accountId
      */

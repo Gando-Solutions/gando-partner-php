@@ -34,7 +34,7 @@ class WebhooksDeleteResponse
     public \Psr\Http\Message\ResponseInterface $rawResponse;
 
     /**
-     * Webhook endpoint deleted
+     * Deleted
      *
      * @var ?\Gando\Partner\Models\Operations\WebhooksDeleteResponseBody $object
      */

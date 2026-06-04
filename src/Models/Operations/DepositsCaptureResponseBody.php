@@ -15,11 +15,11 @@ class DepositsCaptureResponseBody
 {
     /**
      *
-     * @var \Gando\Partner\Models\Operations\PartnerCaptureResult $data
+     * @var \Gando\Partner\Models\Operations\V1CaptureResult $data
      */
     #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerCaptureResult')]
-    public PartnerCaptureResult $data;
+    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\V1CaptureResult')]
+    public V1CaptureResult $data;
 
     /**
      * Optional human-readable message
@@ -40,11 +40,11 @@ class DepositsCaptureResponseBody
 
     /**
      * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\PartnerCaptureResult  $data
+     * @param  \Gando\Partner\Models\Operations\V1CaptureResult  $data
      * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(PartnerCaptureResult $data, ?string $message = null, bool $success = true)
+    public function __construct(V1CaptureResult $data, ?string $message = null, bool $success = true)
     {
         $this->data = $data;
         $this->message = $message;

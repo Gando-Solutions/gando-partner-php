@@ -2,7 +2,47 @@
 
 ## Overview
 
-Create, retrieve, update, cancel, and capture deposits on behalf of linked rental operators.
+## Gando Partner API v1
+
+Routes under `/api/partner/v1/*` use **partner API keys** only (`gando_pk_` prefix).
+
+### Authentication
+
+- Send the raw key in either:
+  - Header **`x-api-key: gando_pk_…`**, or
+  - Header **`Authorization: Bearer gando_pk_…`**
+- Missing key or wrong prefix → **401** `error.code`: **`missing_api_key`**.
+- Unknown key → **401** `error.code`: **`invalid_api_key`**.
+- Revoked key → **401** `error.code`: **`api_key_revoked`**.
+
+### Error responses (ErrorEnvelope)
+
+All documented 4xx/5xx responses use the same JSON shape (`#/components/schemas/ErrorEnvelope`):
+
+```json
+{
+  "error": {
+    "code": "invalid_request",
+    "message": "Human-readable error message.",
+    "requestId": "req_abc123"
+  }
+}
+```
+
+### Idempotency-Key (mutating POST)
+
+Optional header on **`POST /api/partner/v1/deposits`**, **`POST /api/partner/v1/clients`**, **`POST /api/partner/v1/deposits/{id}/capture`**, and **`POST /api/partner/v1/deposits/{id}/cancel`**. Send a **UUID v4** per logical operation. Within **24 hours**, repeating the same key with the **same JSON body** returns the **cached HTTP status and response**. Reusing the key with a **different body** returns **409** with `error.code`: `idempotency_key_conflict`.
+
+### curl (partner key)
+
+```bash
+curl -sS -X GET "https://gando.app/api/partner/v1/deposits?page=1&limit=20" \
+  -H "x-api-key: gando_pk_YOUR_PARTNER_KEY"
+```
+
+### Migration from `/api/partner/*`
+
+Legacy routes at `/api/partner/*` return `Deprecation: true` and `Sunset` headers pointing to this v1 API. Migrate before the sunset date to avoid 410 Gone responses.
 
 ### Available Operations
 
@@ -11,27 +51,28 @@ Create, retrieve, update, cancel, and capture deposits on behalf of linked renta
 * [retrieve](#retrieve) - Get deposit by id
 * [delete](#delete) - Delete or archive a deposit
 * [update](#update) - Update deposit (change client or cancel pending payment)
+* [cancel](#cancel) - Close deposit (status close + optional email)
 * [getCapture](#getcapture) - Get latest capture for a deposit
 * [capture](#capture) - Create a capture (encaissement)
 * [sendEmails](#sendemails) - Send deposit link to multiple emails
 * [sendDepositMail](#senddepositmail) - Send deposit link to one email
-* [cancel](#cancel) - Close deposit (status close + optional email)
 * [getPaymentMethod](#getpaymentmethod) - Masked card info for the deposit
 * [getPdf](#getpdf) - Download deposit summary PDF
+* [depositsGetScoring](#depositsgetscoring) - Latest open-banking scoring for the deposit client
 
 ## list
 
 Lists deposits across **all active** rental operator accounts linked to your partner.
 
-Pass **`account_id`** to return only deposits for that single linked rental operator account.
+Pass **`accountId`** query to return only deposits for that single linked rental operator account.
 
 Repeat query parameter **`status`** to filter by several statuses (e.g. `?status=pending&status=active`).
 
-When `include_counts=true` **and** `account_id` is set, the response includes per-status counts for that account.
+When `includeCounts=true` **and** `accountId` is set, the response includes per-status counts for that account.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="deposits.list" method="get" path="/api/partner/deposits" -->
+<!-- UsageSnippet language="php" operationID="deposits.list" method="get" path="/api/partner/v1/deposits" -->
 ```php
 declare(strict_types=1);
 
@@ -80,17 +121,15 @@ if ($response->object !== null) {
 
 ## create
 
-Creates a deposit on behalf of a linked rental operator (`account_id`). Optionally set `client_id` to attach an existing client from the same rental operator account.
+Creates a deposit on behalf of a linked rental operator (`accountId` in body). Optionally set `clientId` to attach an existing client from the same rental operator account.
 
-**Inline redirect:** set `inline_redirect: true` and `return_url` to receive `deposit_url` and send the tenant straight to Gando. Same redirect query parameters as the rental operator API: `caution_id`, `caution_status`.
+**URL generation:** set `depositUrlGeneration: true` and `returnUrl` to receive `depositUrl` and send the tenant straight to Gando.
 
-**Idempotency-Key:** optional UUID v4 header; replays return the same **201** and `data.id` within 24h when the body is unchanged. The PHP SDK (`Gando\Partner\Api\Client`) auto-generates this header when omitted so retries stay idempotent.
-
-See the **Accounts** tag description for authentication details and curl/fetch examples.
+**Idempotency-Key:** optional UUID v4 header; replays return the same **201** and `data.id` within 24h when the body is unchanged.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="deposits.create" method="post" path="/api/partner/deposits" -->
+<!-- UsageSnippet language="php" operationID="deposits.create" method="post" path="/api/partner/v1/deposits" -->
 ```php
 declare(strict_types=1);
 
@@ -115,7 +154,7 @@ $body = new Operations\PartnerCreateDepositBody(
     contractStartAt: '2026-06-01T10:00:00.000Z',
     contractEndAt: '2026-06-15T18:00:00.000Z',
     clientId: 'cli_9f3k2a',
-    inlineRedirect: true,
+    depositUrlGeneration: true,
     returnUrl: 'https://partner.example.com/deposits/return',
 );
 
@@ -130,10 +169,10 @@ if ($response->object !== null) {
 
 ### Parameters
 
-| Parameter                                                                                                                                                                                                                                                                                          | Type                                                                                                                                                                                                                                                                                               | Required                                                                                                                                                                                                                                                                                           | Description                                                                                                                                                                                                                                                                                        | Example                                                                                                                                                                                                                                                                                            |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `body`                                                                                                                                                                                                                                                                                             | [Operations\PartnerCreateDepositBody](../../Models/Operations/PartnerCreateDepositBody.md)                                                                                                                                                                                                         | :heavy_check_mark:                                                                                                                                                                                                                                                                                 | N/A                                                                                                                                                                                                                                                                                                | {<br/>"account_id": "acc_7k2m9x",<br/>"amount": 800,<br/>"rental_contract": "CTR-2026-0421",<br/>"contract_start_at": "2026-06-01T10:00:00.000Z",<br/>"contract_end_at": "2026-06-15T18:00:00.000Z",<br/>"client_id": "cli_9f3k2a",<br/>"inline_redirect": true,<br/>"return_url": "https://partner.example.com/deposits/return"<br/>} |
-| `idempotencyKey`                                                                                                                                                                                                                                                                                   | *?string*                                                                                                                                                                                                                                                                                          | :heavy_minus_sign:                                                                                                                                                                                                                                                                                 | Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`.                                                                                                                              |                                                                                                                                                                                                                                                                                                    |
+| Parameter                                                                                                                                                                                                                                                                                       | Type                                                                                                                                                                                                                                                                                            | Required                                                                                                                                                                                                                                                                                        | Description                                                                                                                                                                                                                                                                                     | Example                                                                                                                                                                                                                                                                                         |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `body`                                                                                                                                                                                                                                                                                          | [Operations\PartnerCreateDepositBody](../../Models/Operations/PartnerCreateDepositBody.md)                                                                                                                                                                                                      | :heavy_check_mark:                                                                                                                                                                                                                                                                              | N/A                                                                                                                                                                                                                                                                                             | {<br/>"accountId": "acc_7k2m9x",<br/>"amount": 800,<br/>"rentalContract": "CTR-2026-0421",<br/>"contractStartAt": "2026-06-01T10:00:00.000Z",<br/>"contractEndAt": "2026-06-15T18:00:00.000Z",<br/>"clientId": "cli_9f3k2a",<br/>"depositUrlGeneration": true,<br/>"returnUrl": "https://partner.example.com/deposits/return"<br/>} |
+| `idempotencyKey`                                                                                                                                                                                                                                                                                | *?string*                                                                                                                                                                                                                                                                                       | :heavy_minus_sign:                                                                                                                                                                                                                                                                              | Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`.                                                                                                                           |                                                                                                                                                                                                                                                                                                 |
 
 ### Response
 
@@ -149,11 +188,11 @@ if ($response->object !== null) {
 
 ## retrieve
 
-Returns the same deposit shape as the rental operator API (`CautionItem` fields). Deposit must belong to a linked rental operator.
+Returns the deposit. Deposit must belong to a linked rental operator.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="deposits.retrieve" method="get" path="/api/partner/deposits/{id}" -->
+<!-- UsageSnippet language="php" operationID="deposits.retrieve" method="get" path="/api/partner/v1/deposits/{id}" -->
 ```php
 declare(strict_types=1);
 
@@ -201,11 +240,11 @@ if ($response->object !== null) {
 
 ## delete
 
-Same semantics as rental-operator delete: remove when allowed, otherwise archive. Response uses top-level **`message`** (`Deleted` or `Archived`), not `data`.
+Remove when allowed, otherwise archive. Response uses top-level **`message`** (`Deleted` or `Archived`), not `data`.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="deposits.delete" method="delete" path="/api/partner/deposits/{id}" -->
+<!-- UsageSnippet language="php" operationID="deposits.delete" method="delete" path="/api/partner/v1/deposits/{id}" -->
 ```php
 declare(strict_types=1);
 
@@ -254,12 +293,12 @@ if ($response->partnerDeleteDepositResponse !== null) {
 ## update
 
 Exactly one of:
-- `client_id` — reassign client (must belong to the deposit's rental operator account)
+- `clientId` — reassign client (must belong to the deposit's rental operator account)
 - `action: "cancel"` — void the in-flight deposit payment and set status to `cancelled`
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="deposits.update" method="patch" path="/api/partner/deposits/{id}" -->
+<!-- UsageSnippet language="php" operationID="deposits.update" method="patch" path="/api/partner/v1/deposits/{id}" -->
 ```php
 declare(strict_types=1);
 
@@ -297,7 +336,7 @@ if ($response->object !== null) {
 | Parameter                                                                                | Type                                                                                     | Required                                                                                 | Description                                                                              | Example                                                                                  |
 | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | `id`                                                                                     | *string*                                                                                 | :heavy_check_mark:                                                                       | Deposit (caution) unique identifier                                                      |                                                                                          |
-| `body`                                                                                   | [Operations\PartnerPatchDepositBody](../../Models/Operations/PartnerPatchDepositBody.md) | :heavy_check_mark:                                                                       | N/A                                                                                      | {<br/>"client_id": "cli_9f3k2a"<br/>}                                                    |
+| `body`                                                                                   | [Operations\PartnerPatchDepositBody](../../Models/Operations/PartnerPatchDepositBody.md) | :heavy_check_mark:                                                                       | N/A                                                                                      | {<br/>"clientId": "cli_9f3k2a"<br/>}                                                     |
 
 ### Response
 
@@ -311,13 +350,66 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500, 502                          | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
+## cancel
+
+Sets the deposit status to `close` (end-of-contract closure) and may send the closed-deposit email. **Different from** `PATCH …` with `action: cancel` which voids the in-flight deposit payment and sets status to `cancelled`.
+
+### Example Usage
+
+<!-- UsageSnippet language="php" operationID="deposits.cancel" method="post" path="/api/partner/v1/deposits/{id}/cancel" -->
+```php
+declare(strict_types=1);
+
+require 'vendor/autoload.php';
+
+use Gando\Partner;
+use Gando\Partner\Models\Components;
+
+$sdk = Partner\Gando::builder()
+    ->setSecurity(
+        new Components\Security(
+            partnerApiKeyAuth: '<YOUR_API_KEY_HERE>',
+        )
+    )
+    ->build();
+
+
+
+$response = $sdk->deposits->cancel(
+    id: '<id>'
+);
+
+if ($response->object !== null) {
+    // handle response
+}
+```
+
+### Parameters
+
+| Parameter                                                                                                                                                             | Type                                                                                                                                                                  | Required                                                                                                                                                              | Description                                                                                                                                                           |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                                                                                                                                                                  | *string*                                                                                                                                                              | :heavy_check_mark:                                                                                                                                                    | Deposit (caution) unique identifier                                                                                                                                   |
+| `idempotencyKey`                                                                                                                                                      | *?string*                                                                                                                                                             | :heavy_minus_sign:                                                                                                                                                    | Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`. |
+
+### Response
+
+**[?Operations\DepositsCancelResponse](../../Models/Operations/DepositsCancelResponse.md)**
+
+### Errors
+
+| Error Type                        | Status Code                       | Content Type                      |
+| --------------------------------- | --------------------------------- | --------------------------------- |
+| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
+| Errors\ErrorEnvelope              | 500, 503                          | application/json                  |
+| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+
 ## getCapture
 
 Prefers the latest **paid** capture; if none, returns the most recent capture of any status. **404** when no capture exists yet.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="deposits.getCapture" method="get" path="/api/partner/deposits/{id}/capture" -->
+<!-- UsageSnippet language="php" operationID="deposits.getCapture" method="get" path="/api/partner/v1/deposits/{id}/capture" -->
 ```php
 declare(strict_types=1);
 
@@ -369,7 +461,7 @@ Charge the tenant card for the given amount in **cents** (min 1000). Requires a 
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="deposits.capture" method="post" path="/api/partner/deposits/{id}/capture" -->
+<!-- UsageSnippet language="php" operationID="deposits.capture" method="post" path="/api/partner/v1/deposits/{id}/capture" -->
 ```php
 declare(strict_types=1);
 
@@ -429,7 +521,7 @@ Sends the deposit completion link to each address. Per-recipient success is retu
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="deposits.sendEmails" method="post" path="/api/partner/deposits/{id}/email" -->
+<!-- UsageSnippet language="php" operationID="deposits.sendEmails" method="post" path="/api/partner/v1/deposits/{id}/email" -->
 ```php
 declare(strict_types=1);
 
@@ -486,11 +578,11 @@ if ($response->object !== null) {
 
 ## sendDepositMail
 
-Single-recipient variant of `/email`. Returns provider `messageId` when available.
+Single-recipient variant of `/email`. Returns provider `message_id` when available.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="deposits.sendDepositMail" method="post" path="/api/partner/deposits/{id}/send-deposit-mail" -->
+<!-- UsageSnippet language="php" operationID="deposits.sendDepositMail" method="post" path="/api/partner/v1/deposits/{id}/send-deposit-mail" -->
 ```php
 declare(strict_types=1);
 
@@ -542,66 +634,13 @@ if ($response->object !== null) {
 | Errors\ErrorEnvelope              | 500                               | application/json                  |
 | Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
 
-## cancel
-
-Sets the deposit status to `close` (end-of-contract closure) and may send the closed-caution email. **Different from** `PATCH …` with `action: cancel` which voids the in-flight deposit payment and sets status to `cancelled`.
-
-### Example Usage
-
-<!-- UsageSnippet language="php" operationID="deposits.cancel" method="post" path="/api/partner/deposits/{id}/cancel" -->
-```php
-declare(strict_types=1);
-
-require 'vendor/autoload.php';
-
-use Gando\Partner;
-use Gando\Partner\Models\Components;
-
-$sdk = Partner\Gando::builder()
-    ->setSecurity(
-        new Components\Security(
-            partnerApiKeyAuth: '<YOUR_API_KEY_HERE>',
-        )
-    )
-    ->build();
-
-
-
-$response = $sdk->deposits->cancel(
-    id: '<id>'
-);
-
-if ($response->object !== null) {
-    // handle response
-}
-```
-
-### Parameters
-
-| Parameter                                                                                                                                                             | Type                                                                                                                                                                  | Required                                                                                                                                                              | Description                                                                                                                                                           |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                                                                                                                                                                  | *string*                                                                                                                                                              | :heavy_check_mark:                                                                                                                                                    | Deposit (caution) unique identifier                                                                                                                                   |
-| `idempotencyKey`                                                                                                                                                      | *?string*                                                                                                                                                             | :heavy_minus_sign:                                                                                                                                                    | Optional UUID v4 for request deduplication (24h). Same key + same body replays the cached response; same key + different body returns 409 `idempotency_key_conflict`. |
-
-### Response
-
-**[?Operations\DepositsCancelResponse](../../Models/Operations/DepositsCancelResponse.md)**
-
-### Errors
-
-| Error Type                        | Status Code                       | Content Type                      |
-| --------------------------------- | --------------------------------- | --------------------------------- |
-| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
-| Errors\ErrorEnvelope              | 500, 503                          | application/json                  |
-| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
-
 ## getPaymentMethod
 
 Requires payment processing to be configured and a saved payment method on the deposit.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="deposits.getPaymentMethod" method="get" path="/api/partner/deposits/{id}/payment-method" -->
+<!-- UsageSnippet language="php" operationID="deposits.getPaymentMethod" method="get" path="/api/partner/v1/deposits/{id}/payment-method" -->
 ```php
 declare(strict_types=1);
 
@@ -653,7 +692,7 @@ Returns raw **application/pdf** bytes (not JSON).
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="deposits.getPdf" method="get" path="/api/partner/deposits/{id}/pdf" -->
+<!-- UsageSnippet language="php" operationID="deposits.getPdf" method="get" path="/api/partner/v1/deposits/{id}/pdf" -->
 ```php
 declare(strict_types=1);
 
@@ -690,6 +729,58 @@ if ($response->bytes !== null) {
 ### Response
 
 **[?Operations\DepositsGetPdfResponse](../../Models/Operations/DepositsGetPdfResponse.md)**
+
+### Errors
+
+| Error Type                        | Status Code                       | Content Type                      |
+| --------------------------------- | --------------------------------- | --------------------------------- |
+| Errors\ErrorEnvelope              | 400, 401, 403, 404, 409, 422, 429 | application/json                  |
+| Errors\ErrorEnvelope              | 500                               | application/json                  |
+| Errors\APIException               | 4XX, 5XX                          | \*/\*                             |
+
+## depositsGetScoring
+
+Returns the most recent Bridge scoring for the client linked to the deposit. Requires a `clientId` on the deposit.
+
+### Example Usage
+
+<!-- UsageSnippet language="php" operationID="deposits.getScoring" method="get" path="/api/partner/v1/deposits/{id}/scoring" -->
+```php
+declare(strict_types=1);
+
+require 'vendor/autoload.php';
+
+use Gando\Partner;
+use Gando\Partner\Models\Components;
+
+$sdk = Partner\Gando::builder()
+    ->setSecurity(
+        new Components\Security(
+            partnerApiKeyAuth: '<YOUR_API_KEY_HERE>',
+        )
+    )
+    ->build();
+
+
+
+$response = $sdk->deposits->depositsGetScoring(
+    id: '<id>'
+);
+
+if ($response->object !== null) {
+    // handle response
+}
+```
+
+### Parameters
+
+| Parameter                           | Type                                | Required                            | Description                         |
+| ----------------------------------- | ----------------------------------- | ----------------------------------- | ----------------------------------- |
+| `id`                                | *string*                            | :heavy_check_mark:                  | Deposit (caution) unique identifier |
+
+### Response
+
+**[?Operations\DepositsGetScoringResponse](../../Models/Operations/DepositsGetScoringResponse.md)**
 
 ### Errors
 

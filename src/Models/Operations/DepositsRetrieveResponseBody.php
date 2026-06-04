@@ -15,11 +15,11 @@ class DepositsRetrieveResponseBody
 {
     /**
      *
-     * @var \Gando\Partner\Models\Operations\PartnerCautionItem $data
+     * @var \Gando\Partner\Models\Operations\DepositsRetrieveDepositItem $data
      */
     #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerCautionItem')]
-    public PartnerCautionItem $data;
+    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\DepositsRetrieveDepositItem')]
+    public DepositsRetrieveDepositItem $data;
 
     /**
      * Optional human-readable message
@@ -40,11 +40,11 @@ class DepositsRetrieveResponseBody
 
     /**
      * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\PartnerCautionItem  $data
+     * @param  \Gando\Partner\Models\Operations\DepositsRetrieveDepositItem  $data
      * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(PartnerCautionItem $data, ?string $message = null, bool $success = true)
+    public function __construct(DepositsRetrieveDepositItem $data, ?string $message = null, bool $success = true)
     {
         $this->data = $data;
         $this->message = $message;

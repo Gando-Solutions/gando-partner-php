@@ -50,7 +50,7 @@ class Accounts
     /**
      * List linked rental operator accounts
      *
-     * Returns rental operator accounts linked to your partner. Filter with `status`: `active` (default), `revoked`, or `all`. Results are paginated with **`page`** and **`limit`** query parameters (same semantics as **`GET /api/partner/deposits`**).
+     * Returns rental operator accounts linked to your partner. Filter with `status`: `active` (default), `revoked`, or `all`.
      *
      * @param  ?\Gando\Partner\Models\Operations\AccountsListQueryParamStatus  $status
      * @param  ?int  $page
@@ -91,7 +91,7 @@ class Accounts
             limit: $limit,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/accounts');
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/accounts');
         $urlOverride = null;
         $httpOptions = ['http_errors' => false];
 
@@ -171,7 +171,7 @@ class Accounts
     /**
      * Revoke partner ↔ rental operator link
      *
-     * Revokes the link between your partner and the given rental operator `account_id`. Further deposit operations for that account return **403** until re-linked.
+     * Revokes the link between your partner and the given rental operator `accountId`. Further deposit operations for that account return **403** until re-linked.
      *
      * @param  string  $id
      * @return \Gando\Partner\Models\Operations\AccountsRevokeResponse
@@ -208,7 +208,7 @@ class Accounts
             id: $id,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/accounts/{id}', Operations\AccountsRevokeRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/accounts/{id}', Operations\AccountsRevokeRequest::class, $request);
         $urlOverride = null;
         $httpOptions = ['http_errors' => false];
         $httpOptions['headers']['Accept'] = 'application/json';

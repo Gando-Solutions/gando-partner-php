@@ -2,32 +2,32 @@
 
 ## Overview
 
-## Partner webhooks
+## Partner webhooks (v1)
 
-Register **HTTPS endpoints** that receive JSON events for your entire partner integration (same `gando_pk_` authentication as `/api/partner/*`). Use this instead of polling **`GET /api/partner/accounts`** when you need the Gando **`account_id`** as soon as a rental operator completes partner connect (signup or login with signed `partner_connect`).
+Register **HTTPS endpoints** that receive JSON events for your entire partner integration (same `gando_pk_` authentication as `/api/partner/v1/*`). Use this instead of polling **`GET /api/partner/v1/accounts`** when you need the Gando **`accountId`** as soon as a rental operator completes partner connect.
 
 ### Authentication
 
-Send your partner API key with **`x-api-key: gando_pk_…`** or **`Authorization: Bearer gando_pk_…`** (same as other Partner API routes).
+Send your partner API key with **`x-api-key: gando_pk_…`** or **`Authorization: Bearer gando_pk_…`** (same as other v1 routes).
 
 ### Events
 
-- **`rental_operator.linked`** — Fired when a rental operator account is linked to your partner via connect. Payload includes Gando `account_id`, your `external_id` from the connect URL, and `partner_id`.
-- **`caution.status_changed`** — Wildcard. Delivered for every deposit status transition (same JSON shape as rental-operator webhooks: `#/components/schemas/WebhookCautionStatusChangedEvent`), including optional `data.partner_context` when the deposit belongs to a linked rental operator.
-- **`caution.activated`** — Specific event. Delivered only when a deposit transitions to `active`.
-- **`caution.captured`** — Specific event. Delivered only when a deposit transitions to `captured`.
-- **`caution.expired`** — Specific event. Delivered only when a deposit transitions to `close` (natural end of contract).
-- **`caution.cancelled`** — Specific event. Delivered only when a deposit transitions to `cancelled` (manual cancellation).
+- **`rental_operator.linked`** — Fired when a rental operator account is linked to your partner via connect. Payload includes Gando `accountId`, your `externalId` from the connect URL, and `partnerId`.
+- **`deposit.status_changed`** — Wildcard. Delivered for every deposit status transition (same JSON shape as `#/components/schemas/WebhookDepositStatusChangedEvent`), including optional `data.partnerContext` when the deposit belongs to a linked rental operator.
+- **`deposit.activated`** — Delivered only when a deposit transitions to `active`.
+- **`deposit.captured`** — Delivered only when a deposit transitions to `captured`.
+- **`deposit.expired`** — Delivered only when a deposit transitions to `close` (natural end of contract).
+- **`deposit.cancelled`** — Delivered only when a deposit transitions to `cancelled` (manual cancellation).
 
 When a subscription includes both the wildcard and a specific event, **the most specific subscribed event wins** for that transition (single delivery per endpoint). The `event` field of the payload reflects the chosen event so consumers can branch on it directly.
 
 ### Signing and headers
 
-Identical to rental-operator webhooks: **`X-Gando-Signature`** (`sha256=<hex>`), **`X-Gando-Timestamp`** (unix seconds), **`X-Gando-Event`** (event name). Verify HMAC-SHA256 over `<timestamp>.<rawBody>` with your **webhook signing secret** (returned once when you create the endpoint). See the **Webhooks** tag in this document for full verification examples (Node.js, Python, PHP, Go).
+**`X-Gando-Signature`** (`sha256=<hex>`), **`X-Gando-Timestamp`** (unix seconds), **`X-Gando-Event`** (event name). Verify HMAC-SHA256 over `<timestamp>.<rawBody>` with your **webhook signing secret** (returned once when you create the endpoint). See the **Webhooks** tag for full verification examples (Node.js, Python, PHP, Go).
 
 ### Retries
 
-Failed deliveries are retried on a backoff schedule by Gando’s webhook retry job (same behaviour as rental-operator webhook deliveries).
+Failed deliveries are retried on a backoff schedule by Gando's webhook retry job.
 
 ### Available Operations
 
@@ -42,11 +42,11 @@ Failed deliveries are retried on a backoff schedule by Gando’s webhook retry j
 
 ## list
 
-Retrieve configured webhook endpoints for the authenticated partner (`gando_pk_` key). Each item aggregates subscribed event types. Results are paginated with **`page`** and **`limit`** query parameters (same semantics as **`GET /api/partner/deposits`**).
+Retrieve configured webhook endpoints for the authenticated partner. Each item aggregates subscribed event types. Results are paginated with **`page`** and **`limit`** query parameters (same semantics as **`GET /api/partner/v1/deposits`**).
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="webhooks.list" method="get" path="/api/partner/webhooks" -->
+<!-- UsageSnippet language="php" operationID="webhooks.list" method="get" path="/api/partner/v1/webhooks" -->
 ```php
 declare(strict_types=1);
 
@@ -97,11 +97,11 @@ if ($response->object !== null) {
 
 ## create
 
-Create a webhook URL and signing secret for this partner, and subscribe it to the requested event types. Returns the plain signing secret **exactly once**. Default `events` include all available events (`rental_operator.linked`, `caution.status_changed`, `caution.activated`, `caution.captured`, `caution.expired`, `caution.cancelled`) when omitted.
+Create a webhook URL and signing secret for this partner, and subscribe it to the requested event types. Returns the plain signing secret **exactly once**. Default `events` include all available events when omitted.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="webhooks.create" method="post" path="/api/partner/webhooks" -->
+<!-- UsageSnippet language="php" operationID="webhooks.create" method="post" path="/api/partner/v1/webhooks" -->
 ```php
 declare(strict_types=1);
 
@@ -122,8 +122,8 @@ $sdk = Partner\Gando::builder()
 $request = new Operations\CreatePartnerWebhookSubscriptionBody(
     url: 'https://api.example.com/webhooks/gando',
     events: [
-        Operations\WebhooksCreateEventRequest::CautionActivated,
-        Operations\WebhooksCreateEventRequest::CautionStatusChanged,
+        Operations\WebhooksCreateEventRequest::DepositActivated,
+        Operations\WebhooksCreateEventRequest::DepositStatusChanged,
     ],
 );
 
@@ -160,7 +160,7 @@ Delete a webhook endpoint and its event subscriptions for the authenticated part
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="webhooks.delete" method="delete" path="/api/partner/webhooks/{id}" -->
+<!-- UsageSnippet language="php" operationID="webhooks.delete" method="delete" path="/api/partner/v1/webhooks/{id}" -->
 ```php
 declare(strict_types=1);
 
@@ -212,7 +212,7 @@ Update webhook URL, subscribed event types, or activation status. `{id}` is the 
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="webhooks.update" method="patch" path="/api/partner/webhooks/{id}" -->
+<!-- UsageSnippet language="php" operationID="webhooks.update" method="patch" path="/api/partner/v1/webhooks/{id}" -->
 ```php
 declare(strict_types=1);
 
@@ -233,7 +233,7 @@ $sdk = Partner\Gando::builder()
 $body = new Operations\UpdatePartnerWebhookSubscriptionBody(
     events: [
         Operations\WebhooksUpdateEventRequest::RentalOperatorLinked,
-        Operations\WebhooksUpdateEventRequest::CautionActivated,
+        Operations\WebhooksUpdateEventRequest::DepositActivated,
     ],
     isActive: true,
 );
@@ -254,7 +254,7 @@ if ($response->object !== null) {
 | Parameter                                                                                                          | Type                                                                                                               | Required                                                                                                           | Description                                                                                                        | Example                                                                                                            |
 | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
 | `id`                                                                                                               | *string*                                                                                                           | :heavy_check_mark:                                                                                                 | Partner webhook endpoint id                                                                                        |                                                                                                                    |
-| `body`                                                                                                             | [Operations\UpdatePartnerWebhookSubscriptionBody](../../Models/Operations/UpdatePartnerWebhookSubscriptionBody.md) | :heavy_check_mark:                                                                                                 | Partner webhook endpoint update payload                                                                            | {<br/>"isActive": true,<br/>"events": [<br/>"rental_operator.linked",<br/>"caution.activated"<br/>]<br/>}          |
+| `body`                                                                                                             | [Operations\UpdatePartnerWebhookSubscriptionBody](../../Models/Operations/UpdatePartnerWebhookSubscriptionBody.md) | :heavy_check_mark:                                                                                                 | N/A                                                                                                                | {<br/>"isActive": true,<br/>"events": [<br/>"rental_operator.linked",<br/>"deposit.activated"<br/>]<br/>}          |
 
 ### Response
 
@@ -274,7 +274,7 @@ Generate and return a new signing secret for a partner webhook endpoint.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="webhooks.rotateSecret" method="post" path="/api/partner/webhooks/{id}/rotate-secret" -->
+<!-- UsageSnippet language="php" operationID="webhooks.rotateSecret" method="post" path="/api/partner/v1/webhooks/{id}/rotate-secret" -->
 ```php
 declare(strict_types=1);
 
@@ -326,7 +326,7 @@ Decrypt and return the current signing secret for a partner webhook endpoint.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="webhooks.getSecret" method="get" path="/api/partner/webhooks/{id}/secret" -->
+<!-- UsageSnippet language="php" operationID="webhooks.getSecret" method="get" path="/api/partner/v1/webhooks/{id}/secret" -->
 ```php
 declare(strict_types=1);
 
@@ -374,30 +374,28 @@ if ($response->object !== null) {
 
 ## test
 
-Sends a sample **`caution.activated`** payload to the endpoint URL. The endpoint must be subscribed to either `caution.activated` or the wildcard `caution.status_changed`.
-
-Outbound payload schema reference: `#/components/schemas/WebhookCautionStatusChangedEvent` (see Models). The `data.rental_contract` field carries the partner-side contract id set by the rental operator.
+Sends a sample **`deposit.activated`** payload to the endpoint URL. The endpoint must be subscribed to either `deposit.activated` or the wildcard `deposit.status_changed`.
 
 Sample payload sent by this test and the production dispatcher:
 
 ```json
 {
-  "event": "caution.activated",
-  "created_at": "2026-03-02T10:00:00.000Z",
+  "event": "deposit.activated",
+  "createdAt": "2026-03-02T10:00:00.000Z",
   "data": {
-    "id": "test_deposit_id",
+    "id": "dep_test_abc123",
     "reference": "GAN-TEST",
-    "rental_contract": "CTR-TEST-2026",
+    "rentalContract": "CTR-TEST-2026",
     "status": "active",
-    "previous_status": "pending",
-    "amount_cents": 150000,
-    "contract_start_at": null,
-    "contract_end_at": null,
+    "previousStatus": "pending",
+    "amountCents": 150000,
+    "contractStartAt": null,
+    "contractEndAt": null,
     "client": null,
-    "partner_context": {
-      "partner_id": "ptr_xxx",
-      "partner_name": "Fleetee",
-      "external_id": "fleet_operator_42"
+    "partnerContext": {
+      "partnerId": "ptr_xxx",
+      "partnerName": "Fleetee",
+      "externalId": "fleet_operator_42"
     }
   }
 }
@@ -405,7 +403,7 @@ Sample payload sent by this test and the production dispatcher:
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="webhooks.test" method="post" path="/api/partner/webhooks/{id}/test" -->
+<!-- UsageSnippet language="php" operationID="webhooks.test" method="post" path="/api/partner/v1/webhooks/{id}/test" -->
 ```php
 declare(strict_types=1);
 
@@ -457,7 +455,7 @@ Paginated delivery history for a partner webhook endpoint.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="webhooks.getDeliveries" method="get" path="/api/partner/webhooks/{id}/deliveries" -->
+<!-- UsageSnippet language="php" operationID="webhooks.getDeliveries" method="get" path="/api/partner/v1/webhooks/{id}/deliveries" -->
 ```php
 declare(strict_types=1);
 

@@ -17,11 +17,11 @@ class PartnerCreateDepositBody
      *
      * @var string $accountId
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('account_id')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('accountId')]
     public string $accountId;
 
     /**
-     * Deposit amount in euros (70–2500, same rules as the rental operator API)
+     * Deposit amount in euros. Floor: 70 EUR. Schema-level ceiling: 10 000 EUR (absolute). The effective per-call ceiling is the rental operator's negotiated max (default 2 500 EUR) — exceeding it returns 400 with the operator's resolved limit in the message.
      *
      * @var float $amount
      */
@@ -33,7 +33,7 @@ class PartnerCreateDepositBody
      *
      * @var string $rentalContract
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('rental_contract')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('rentalContract')]
     public string $rentalContract;
 
     /**
@@ -41,15 +41,15 @@ class PartnerCreateDepositBody
      *
      * @var string $contractStartAt
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('contract_start_at')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('contractStartAt')]
     public string $contractStartAt;
 
     /**
-     * Contract end date. Must be on or after `contract_start_at`
+     * Contract end date. Must be on or after `contractStartAt`
      *
      * @var string $contractEndAt
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('contract_end_at')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('contractEndAt')]
     public string $contractEndAt;
 
     /**
@@ -57,25 +57,25 @@ class PartnerCreateDepositBody
      *
      * @var ?string $clientId
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('client_id')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('clientId')]
     #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
     public ?string $clientId = null;
 
     /**
-     * When true, response includes `deposit_url` for immediate tenant redirect
+     * When true, response includes `depositUrl` for immediate tenant redirect
      *
-     * @var ?bool $inlineRedirect
+     * @var ?bool $depositUrlGeneration
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('inline_redirect')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('depositUrlGeneration')]
     #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-    public ?bool $inlineRedirect = null;
+    public ?bool $depositUrlGeneration = null;
 
     /**
-     * HTTPS return URL (localhost allowed). Required with inline checkout; Gando appends `caution_id` and `caution_status` query params
+     * HTTPS return URL (localhost allowed). Required with inline checkout; Gando appends `depositId` and `depositStatus` query params
      *
      * @var ?string $returnUrl
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('return_url')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('returnUrl')]
     #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
     public ?string $returnUrl = null;
 
@@ -86,11 +86,11 @@ class PartnerCreateDepositBody
      * @param  string  $contractStartAt
      * @param  string  $contractEndAt
      * @param  ?string  $clientId
-     * @param  ?bool  $inlineRedirect
+     * @param  ?bool  $depositUrlGeneration
      * @param  ?string  $returnUrl
      * @phpstan-pure
      */
-    public function __construct(string $accountId, float $amount, string $rentalContract, string $contractStartAt, string $contractEndAt, ?string $clientId = null, ?bool $inlineRedirect = null, ?string $returnUrl = null)
+    public function __construct(string $accountId, float $amount, string $rentalContract, string $contractStartAt, string $contractEndAt, ?string $clientId = null, ?bool $depositUrlGeneration = null, ?string $returnUrl = null)
     {
         $this->accountId = $accountId;
         $this->amount = $amount;
@@ -98,7 +98,7 @@ class PartnerCreateDepositBody
         $this->contractStartAt = $contractStartAt;
         $this->contractEndAt = $contractEndAt;
         $this->clientId = $clientId;
-        $this->inlineRedirect = $inlineRedirect;
+        $this->depositUrlGeneration = $depositUrlGeneration;
         $this->returnUrl = $returnUrl;
     }
 }

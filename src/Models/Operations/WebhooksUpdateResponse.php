@@ -34,7 +34,7 @@ class WebhooksUpdateResponse
     public \Psr\Http\Message\ResponseInterface $rawResponse;
 
     /**
-     * Successfully updated webhook endpoint
+     * Updated
      *
      * @var ?\Gando\Partner\Models\Operations\WebhooksUpdateResponseBody $object
      */

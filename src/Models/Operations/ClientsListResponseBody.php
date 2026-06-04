@@ -15,11 +15,11 @@ class ClientsListResponseBody
 {
     /**
      *
-     * @var \Gando\Partner\Models\Operations\PartnerClientsListResponse $data
+     * @var \Gando\Partner\Models\Operations\V1ClientsListResponse $data
      */
     #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerClientsListResponse')]
-    public PartnerClientsListResponse $data;
+    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\V1ClientsListResponse')]
+    public V1ClientsListResponse $data;
 
     /**
      * Optional human-readable message
@@ -40,11 +40,11 @@ class ClientsListResponseBody
 
     /**
      * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\PartnerClientsListResponse  $data
+     * @param  \Gando\Partner\Models\Operations\V1ClientsListResponse  $data
      * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(PartnerClientsListResponse $data, ?string $message = null, bool $success = true)
+    public function __construct(V1ClientsListResponse $data, ?string $message = null, bool $success = true)
     {
         $this->data = $data;
         $this->message = $message;

@@ -10,16 +10,16 @@ declare(strict_types=1);
 namespace Gando\Partner\Models\Operations;
 
 
-/** WebhooksUpdateResponseBody - Successfully updated webhook endpoint */
+/** WebhooksUpdateResponseBody - Updated */
 class WebhooksUpdateResponseBody
 {
     /**
      *
-     * @var \Gando\Partner\Models\Operations\WebhooksUpdatePartnerWebhookSubscriptionItem $data
+     * @var \Gando\Partner\Models\Operations\WebhooksUpdateV1WebhookSubscriptionItem $data
      */
     #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\WebhooksUpdatePartnerWebhookSubscriptionItem')]
-    public WebhooksUpdatePartnerWebhookSubscriptionItem $data;
+    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\WebhooksUpdateV1WebhookSubscriptionItem')]
+    public WebhooksUpdateV1WebhookSubscriptionItem $data;
 
     /**
      * Optional human-readable message
@@ -40,11 +40,11 @@ class WebhooksUpdateResponseBody
 
     /**
      * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\WebhooksUpdatePartnerWebhookSubscriptionItem  $data
+     * @param  \Gando\Partner\Models\Operations\WebhooksUpdateV1WebhookSubscriptionItem  $data
      * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(WebhooksUpdatePartnerWebhookSubscriptionItem $data, ?string $message = null, bool $success = true)
+    public function __construct(WebhooksUpdateV1WebhookSubscriptionItem $data, ?string $message = null, bool $success = true)
     {
         $this->data = $data;
         $this->message = $message;

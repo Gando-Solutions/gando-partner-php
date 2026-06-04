@@ -17,7 +17,7 @@ class PartnerPatchDepositBody
      *
      * @var ?string $clientId
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('client_id')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('clientId')]
     #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
     public ?string $clientId = null;
 

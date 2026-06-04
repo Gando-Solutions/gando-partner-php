@@ -11,7 +11,7 @@ namespace Gando\Partner;
 
 
 
-/** Gando - Gando Partner API: API for **rental management software** and **multi–rental-operator platforms** integrating Gando on behalf of linked rental operators. Use **`gando_pk_`** keys (`x-api-key` or `Authorization: Bearer`) on `/api/partner/*`. */
+/** Gando - Gando Partner API v1: API for **rental management software** and **multi–rental-operator platforms** integrating Gando on behalf of linked rental operators. Use **`gando_pk_`** keys (`x-api-key` or `Authorization: Bearer`) on `/api/partner/v1/*`. */
 class Gando
 {
     public const SERVERS = [
@@ -19,16 +19,27 @@ class Gando
     ];
 
     /**
-     * Manage rental operator accounts linked to your partner integration.
+     * Rental operator account management — list linked accounts and revoke partner links.
+     *
+     * @var Accounts $$accounts
+     */
+    public Accounts $accounts;
+
+    /**
+     * Client management endpoints — create, list, retrieve and update clients.
+     *
+     * @var Clients $$clients
+     */
+    public Clients $clients;
+
+    /**
+     * ## Gando Partner API v1
      *
      *
-     * ## Partner API vs rental operator API
+     * Routes under `/api/partner/v1/*` use **partner API keys** only (`gando_pk_` prefix).
      *
-     * These routes live under `/api/partner/*` and use **partner API keys** only. They are **not** the same as rental operator (loueur) API keys under `/api/cautions`, `/api/clients`, etc.
+     * ### Authentication
      *
-     * ### Authentication (partner keys)
-     *
-     * - Keys are issued by Gando and always start with the prefix **`gando_pk_`**.
      * - Send the raw key in either:
      *   - Header **`x-api-key: gando_pk_…`**, or
      *   - Header **`Authorization: Bearer gando_pk_…`**
@@ -45,183 +56,58 @@ class Gando
      *   "error": {
      *     "code": "invalid_request",
      *     "message": "Human-readable error message.",
-     *     "requestId": "req_abc123",
-     *     "details": { "field": "status" }
+     *     "requestId": "req_abc123"
      *   }
      * }
      * ```
      *
      * ### Idempotency-Key (mutating POST)
      *
-     * Optional header on **`POST /api/partner/deposits`**, **`POST /api/partner/clients`**, **`POST /api/partner/deposits/{id}/capture`**, and **`POST /api/partner/deposits/{id}/cancel`**. Send a **UUID v4** per logical operation. Within **24 hours**, repeating the same key with the **same JSON body** returns the **cached HTTP status and response** (no duplicate side effects). Reusing the key with a **different body** returns **409** with `error.code`: `idempotency_key_conflict`. Invalid key format → **400** with `error.code`: `invalid_idempotency_key`. Requires **`REDIS_URL`** on the server; if Redis is unavailable while the header is sent → **503** with `error.code`: `redis_unavailable`.
+     * Optional header on **`POST /api/partner/v1/deposits`**, **`POST /api/partner/v1/clients`**, **`POST /api/partner/v1/deposits/{id}/capture`**, and **`POST /api/partner/v1/deposits/{id}/cancel`**. Send a **UUID v4** per logical operation. Within **24 hours**, repeating the same key with the **same JSON body** returns the **cached HTTP status and response**. Reusing the key with a **different body** returns **409** with `error.code`: `idempotency_key_conflict`.
      *
      * ### curl (partner key)
      *
      * ```bash
-     * curl -sS -X GET "https://gando.app/api/partner/deposits?page=1&limit=20" \
+     * curl -sS -X GET "https://gando.app/api/partner/v1/deposits?page=1&limit=20" \
      *   -H "x-api-key: gando_pk_YOUR_PARTNER_KEY"
      * ```
      *
-     * ```bash
-     * curl -sS -X GET "https://gando.app/api/partner/deposits?page=1&limit=20" \
-     *   -H "Authorization: Bearer gando_pk_YOUR_PARTNER_KEY"
-     * ```
+     * ### Migration from `/api/partner/*`
      *
-     * ### Create client then deposit (recommended flow)
-     *
-     * ```bash
-     * curl -sS -X POST "https://gando.app/api/partner/clients" \
-     *   -H "Content-Type: application/json" \
-     *   -H "x-api-key: gando_pk_YOUR_PARTNER_KEY" \
-     *   -d '{
-     *     "account_id": "acct_rental_operator_uuid",
-     *     "email": "tenant@example.com",
-     *     "first_name": "Jean",
-     *     "last_name": "Dupont"
-     *   }'
-     * ```
-     *
-     * Then reuse the returned client `id` as optional `client_id` when creating a deposit.
-     *
-     * ### Create a deposit (full example)
-     *
-     * ```bash
-     * curl -sS -X POST "https://gando.app/api/partner/deposits" \
-     *   -H "Content-Type: application/json" \
-     *   -H "x-api-key: gando_pk_YOUR_PARTNER_KEY" \
-     *   -d '{
-     *     "account_id": "acct_rental_operator_uuid",
-     *     "amount": 800,
-     *     "rental_contract": "CTR-2026-042",
-     *     "contract_start_at": "2026-04-01T00:00:00.000Z",
-     *     "contract_end_at": "2026-04-10T23:59:59.000Z",
-     *     "client_id": "cli_123",
-     *     "inline_redirect": true,
-     *     "return_url": "https://partner.example/checkout/complete"
-     *   }'
-     * ```
-     *
-     * ### JavaScript (fetch) — create + redirect
-     *
-     * ```javascript
-     * const BASE = "https://gando.app";
-     * const PARTNER_KEY = process.env.GANDO_PARTNER_KEY; // gando_pk_…
-     *
-     * const res = await fetch(`${BASE}/api/partner/deposits`, {
-     *   method: "POST",
-     *   headers: {
-     *     "Content-Type": "application/json",
-     *     "x-api-key": PARTNER_KEY,
-     *   },
-     *   body: JSON.stringify({
-     *     account_id: "acct_rental_operator_uuid",
-     *     amount: 800,
-     *     rental_contract: "CTR-2026-042",
-     *     contract_start_at: "2026-04-01T00:00:00.000Z",
-     *     contract_end_at: "2026-04-10T23:59:59.000Z",
-     *     client_id: "cli_123",
-     *     inline_redirect: true,
-     *     return_url: "https://partner.example/checkout/complete",
-     *   }),
-     * });
-     * const json = await res.json();
-     * if (!json.success) throw new Error(json.error);
-     * const { deposit_url } = json.data;
-     * if (deposit_url) window.location.assign(deposit_url);
-     * ```
-     *
-     * `deposit_url` is only returned when `inline_redirect` is `true`. After the tenant finishes on Gando, they are sent to `return_url` with query params **`caution_id`** and **`caution_status`** (`secured` | `declined` | `abandoned`). Always confirm the final state with **webhooks** (subscribe under **`/api/partner/webhooks`** — see **Webhooks** tag) or **GET /api/partner/deposits/{id}**.
-     *
-     * ### Webhooks — `partner_context` on caution events
-     *
-     * When a deposit was created through the Partner API, webhook payloads (`caution.status_changed` wildcard or any of the specific `caution.activated` / `caution.captured` / `caution.expired` / `caution.cancelled`) may include **`data.partner_context`**:
-     *
-     * - `partner_id` — Gando partner id
-     * - `partner_name` — display name
-     * - `external_id` — your rental-operator / account identifier on the link, or `null`
-     *
-     * Schema reference: `#/components/schemas/WebhookCautionStatusChangedEvent` (field `data.partner_context`).
-     *
-     * ### Verify webhook HMAC (Node.js)
-     *
-     * Use the **same** signing rules as rental-operator webhooks (`X-Gando-Signature`, `X-Gando-Timestamp`, payload `timestamp.rawBody`). See the **Webhooks** tag description in this document for full HMAC examples (Node, Python, PHP, Go).
-     *
-     * ```javascript
-     * import crypto from "node:crypto";
-     *
-     * export function verifyGandoWebhook(rawBody, signature, timestamp, secret) {
-     *   if (!signature?.startsWith("sha256=")) return false;
-     *   const signedPayload = `${timestamp}.${rawBody}`;
-     *   const expected =
-     *     "sha256=" +
-     *     crypto.createHmac("sha256", secret).update(signedPayload).digest("hex");
-     *   const a = Buffer.from(signature);
-     *   const b = Buffer.from(expected);
-     *   return a.length === b.length && crypto.timingSafeEqual(a, b);
-     * }
-     * ```
-     *
-     * ### HTTP status codes (Partner API)
-     *
-     * | Code | Meaning |
-     * |------|---------|
-     * | **401** | Missing partner key, invalid or revoked `gando_pk_` key |
-     * | **403** | Partner is not allowed to use this rental operator `account_id` / deposit |
-     * | **404** | Unknown deposit id, capture not found, etc. |
-     * | **409** | Idempotency key conflict (`idempotency_key_conflict`) or future linking conflicts |
-     * | **422** | Semantic validation failure (reserved; many cases still return **400** today) |
-     * | **429** | Rate limited (middleware: 200 req/min per IP+path on `/api/*`; `Retry-After` header) |
-     * | **400** | Invalid JSON body, query params, or business rule (e.g. capture amount) |
-     * | **500** / **502** | Server or upstream payment-processor errors |
-     *
-     * Rental-operator tokens (`gando_…` without `_pk_`) and session cookies are documented under **Deposits** / **Clients** / **Webhooks** — do **not** use them for `/api/partner/*`.
-     *
-     * @var Accounts $$accounts
-     */
-    public Accounts $accounts;
-
-    /**
-     * Create and manage end-customer (tenant) records across linked rental operator accounts.
-     *
-     * @var Clients $$clients
-     */
-    public Clients $clients;
-
-    /**
-     * Create, retrieve, update, cancel, and capture deposits on behalf of linked rental operators.
+     * Legacy routes at `/api/partner/*` return `Deprecation: true` and `Sunset` headers pointing to this v1 API. Migrate before the sunset date to avoid 410 Gone responses.
      *
      * @var Deposits $$deposits
      */
     public Deposits $deposits;
 
     /**
-     * ## Partner webhooks
+     * ## Partner webhooks (v1)
      *
      *
-     * Register **HTTPS endpoints** that receive JSON events for your entire partner integration (same `gando_pk_` authentication as `/api/partner/*`). Use this instead of polling **`GET /api/partner/accounts`** when you need the Gando **`account_id`** as soon as a rental operator completes partner connect (signup or login with signed `partner_connect`).
+     * Register **HTTPS endpoints** that receive JSON events for your entire partner integration (same `gando_pk_` authentication as `/api/partner/v1/*`). Use this instead of polling **`GET /api/partner/v1/accounts`** when you need the Gando **`accountId`** as soon as a rental operator completes partner connect.
      *
      * ### Authentication
      *
-     * Send your partner API key with **`x-api-key: gando_pk_…`** or **`Authorization: Bearer gando_pk_…`** (same as other Partner API routes).
+     * Send your partner API key with **`x-api-key: gando_pk_…`** or **`Authorization: Bearer gando_pk_…`** (same as other v1 routes).
      *
      * ### Events
      *
-     * - **`rental_operator.linked`** — Fired when a rental operator account is linked to your partner via connect. Payload includes Gando `account_id`, your `external_id` from the connect URL, and `partner_id`.
-     * - **`caution.status_changed`** — Wildcard. Delivered for every deposit status transition (same JSON shape as rental-operator webhooks: `#/components/schemas/WebhookCautionStatusChangedEvent`), including optional `data.partner_context` when the deposit belongs to a linked rental operator.
-     * - **`caution.activated`** — Specific event. Delivered only when a deposit transitions to `active`.
-     * - **`caution.captured`** — Specific event. Delivered only when a deposit transitions to `captured`.
-     * - **`caution.expired`** — Specific event. Delivered only when a deposit transitions to `close` (natural end of contract).
-     * - **`caution.cancelled`** — Specific event. Delivered only when a deposit transitions to `cancelled` (manual cancellation).
+     * - **`rental_operator.linked`** — Fired when a rental operator account is linked to your partner via connect. Payload includes Gando `accountId`, your `externalId` from the connect URL, and `partnerId`.
+     * - **`deposit.status_changed`** — Wildcard. Delivered for every deposit status transition (same JSON shape as `#/components/schemas/WebhookDepositStatusChangedEvent`), including optional `data.partnerContext` when the deposit belongs to a linked rental operator.
+     * - **`deposit.activated`** — Delivered only when a deposit transitions to `active`.
+     * - **`deposit.captured`** — Delivered only when a deposit transitions to `captured`.
+     * - **`deposit.expired`** — Delivered only when a deposit transitions to `close` (natural end of contract).
+     * - **`deposit.cancelled`** — Delivered only when a deposit transitions to `cancelled` (manual cancellation).
      *
      * When a subscription includes both the wildcard and a specific event, **the most specific subscribed event wins** for that transition (single delivery per endpoint). The `event` field of the payload reflects the chosen event so consumers can branch on it directly.
      *
      * ### Signing and headers
      *
-     * Identical to rental-operator webhooks: **`X-Gando-Signature`** (`sha256=<hex>`), **`X-Gando-Timestamp`** (unix seconds), **`X-Gando-Event`** (event name). Verify HMAC-SHA256 over `<timestamp>.<rawBody>` with your **webhook signing secret** (returned once when you create the endpoint). See the **Webhooks** tag in this document for full verification examples (Node.js, Python, PHP, Go).
+     * **`X-Gando-Signature`** (`sha256=<hex>`), **`X-Gando-Timestamp`** (unix seconds), **`X-Gando-Event`** (event name). Verify HMAC-SHA256 over `<timestamp>.<rawBody>` with your **webhook signing secret** (returned once when you create the endpoint). See the **Webhooks** tag for full verification examples (Node.js, Python, PHP, Go).
      *
      * ### Retries
      *
-     * Failed deliveries are retried on a backoff schedule by Gando’s webhook retry job (same behaviour as rental-operator webhook deliveries).
+     * Failed deliveries are retried on a backoff schedule by Gando's webhook retry job.
      *
      * @var Webhooks $$webhooks
      */

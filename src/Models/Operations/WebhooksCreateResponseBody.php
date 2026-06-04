@@ -15,11 +15,11 @@ class WebhooksCreateResponseBody
 {
     /**
      *
-     * @var \Gando\Partner\Models\Operations\PartnerWebhookSubscriptionCreated $data
+     * @var \Gando\Partner\Models\Operations\V1WebhookSubscriptionCreated $data
      */
     #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\PartnerWebhookSubscriptionCreated')]
-    public PartnerWebhookSubscriptionCreated $data;
+    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\V1WebhookSubscriptionCreated')]
+    public V1WebhookSubscriptionCreated $data;
 
     /**
      * Optional human-readable message
@@ -40,11 +40,11 @@ class WebhooksCreateResponseBody
 
     /**
      * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\PartnerWebhookSubscriptionCreated  $data
+     * @param  \Gando\Partner\Models\Operations\V1WebhookSubscriptionCreated  $data
      * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(PartnerWebhookSubscriptionCreated $data, ?string $message = null, bool $success = true)
+    public function __construct(V1WebhookSubscriptionCreated $data, ?string $message = null, bool $success = true)
     {
         $this->data = $data;
         $this->message = $message;

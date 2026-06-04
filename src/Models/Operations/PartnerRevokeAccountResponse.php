@@ -26,7 +26,7 @@ class PartnerRevokeAccountResponse
      *
      * @var \DateTime $revokedAt
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('revoked_at')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('revokedAt')]
     public \DateTime $revokedAt;
 
     /**

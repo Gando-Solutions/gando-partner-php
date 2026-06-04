@@ -13,11 +13,11 @@ use Gando\Partner\Utils\SpeakeasyMetadata;
 class DepositsListRequest
 {
     /**
-     * When set, only deposits for this linked rental operator account (`account_id`)
+     * When set, only deposits for this linked rental operator account (`accountId`)
      *
      * @var ?string $accountId
      */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=account_id')]
+    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=accountId')]
     public ?string $accountId = null;
 
     /**
@@ -49,7 +49,7 @@ class DepositsListRequest
      *
      * @var ?string $clientId
      */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=client_id')]
+    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=clientId')]
     public ?string $clientId = null;
 
     /**
@@ -57,7 +57,7 @@ class DepositsListRequest
      *
      * @var ?string $startAtFrom
      */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=start_at_from')]
+    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=startAtFrom')]
     public ?string $startAtFrom = null;
 
     /**
@@ -65,7 +65,7 @@ class DepositsListRequest
      *
      * @var ?string $startAtTo
      */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=start_at_to')]
+    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=startAtTo')]
     public ?string $startAtTo = null;
 
     /**
@@ -73,7 +73,7 @@ class DepositsListRequest
      *
      * @var ?string $expiresAtFrom
      */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=expires_at_from')]
+    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=expiresAtFrom')]
     public ?string $expiresAtFrom = null;
 
     /**
@@ -81,15 +81,15 @@ class DepositsListRequest
      *
      * @var ?string $expiresAtTo
      */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=expires_at_to')]
+    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=expiresAtTo')]
     public ?string $expiresAtTo = null;
 
     /**
-     * When `true` or `1`, include per-status counts (requires `account_id`)
+     * When `true` or `1`, include per-status counts (requires `accountId`)
      *
      * @var ?\Gando\Partner\Models\Operations\IncludeCounts $includeCounts
      */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=include_counts')]
+    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=includeCounts')]
     public ?IncludeCounts $includeCounts = null;
 
     /**
@@ -97,7 +97,7 @@ class DepositsListRequest
      *
      * @var ?float $amountMin
      */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=amount_min')]
+    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=amountMin')]
     public ?float $amountMin = null;
 
     /**
@@ -105,7 +105,7 @@ class DepositsListRequest
      *
      * @var ?float $amountMax
      */
-    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=amount_max')]
+    #[SpeakeasyMetadata('queryParam:style=form,explode=true,name=amountMax')]
     public ?float $amountMax = null;
 
     /**

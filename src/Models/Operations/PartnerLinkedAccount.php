@@ -13,11 +13,11 @@ namespace Gando\Partner\Models\Operations;
 class PartnerLinkedAccount
 {
     /**
-     * Gando rental operator account id. Use as `account_id` in Partner API calls.
+     * Gando rental operator account id. Use as `accountId` in Partner API calls.
      *
      * @var string $accountId
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('account_id')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('accountId')]
     public string $accountId;
 
     /**
@@ -25,7 +25,7 @@ class PartnerLinkedAccount
      *
      * @var \DateTime $linkedAt
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('linked_at')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('linkedAt')]
     public \DateTime $linkedAt;
 
     /**
@@ -42,7 +42,7 @@ class PartnerLinkedAccount
      *
      * @var ?string $externalId
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('external_id')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('externalId')]
     public ?string $externalId;
 
     /**
@@ -50,7 +50,7 @@ class PartnerLinkedAccount
      *
      * @var ?string $companyName
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('company_name')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('companyName')]
     public ?string $companyName;
 
     /**
@@ -58,7 +58,7 @@ class PartnerLinkedAccount
      *
      * @var ?string $displayName
      */
-    #[\Speakeasy\Serializer\Annotation\SerializedName('display_name')]
+    #[\Speakeasy\Serializer\Annotation\SerializedName('displayName')]
     public ?string $displayName;
 
     /**

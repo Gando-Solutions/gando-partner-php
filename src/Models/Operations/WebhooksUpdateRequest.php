@@ -21,7 +21,6 @@ class WebhooksUpdateRequest
     public string $id;
 
     /**
-     * Partner webhook endpoint update payload
      *
      * @var \Gando\Partner\Models\Operations\UpdatePartnerWebhookSubscriptionBody $body
      */

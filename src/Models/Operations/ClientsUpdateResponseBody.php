@@ -15,11 +15,11 @@ class ClientsUpdateResponseBody
 {
     /**
      *
-     * @var \Gando\Partner\Models\Operations\ClientsUpdatePartnerClientItem $data
+     * @var \Gando\Partner\Models\Operations\ClientsUpdateClientItem $data
      */
     #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\ClientsUpdatePartnerClientItem')]
-    public ClientsUpdatePartnerClientItem $data;
+    #[\Speakeasy\Serializer\Annotation\Type('\Gando\Partner\Models\Operations\ClientsUpdateClientItem')]
+    public ClientsUpdateClientItem $data;
 
     /**
      * Optional human-readable message
@@ -40,11 +40,11 @@ class ClientsUpdateResponseBody
 
     /**
      * @param  bool  $success
-     * @param  \Gando\Partner\Models\Operations\ClientsUpdatePartnerClientItem  $data
+     * @param  \Gando\Partner\Models\Operations\ClientsUpdateClientItem  $data
      * @param  ?string  $message
      * @phpstan-pure
      */
-    public function __construct(ClientsUpdatePartnerClientItem $data, ?string $message = null, bool $success = true)
+    public function __construct(ClientsUpdateClientItem $data, ?string $message = null, bool $success = true)
     {
         $this->data = $data;
         $this->message = $message;
