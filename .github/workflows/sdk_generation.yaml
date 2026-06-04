@@ -22,7 +22,22 @@ permissions:
       - labeled
       - unlabeled
 jobs:
+  openapi-breaking:
+    name: Check Partner OpenAPI breaking changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch base branch
+        run: git fetch --depth=1 origin ${{ github.base_ref || 'main' }}
+      - name: Breaking changes (partner.json)
+        uses: oasdiff/oasdiff-action/breaking@v0.0.52
+        with:
+          base: origin/${{ github.base_ref || 'main' }}:partner.json
+          revision: HEAD:partner.json
+          fail-on: ERR
+
   generate:
+    needs: openapi-breaking
     uses: speakeasy-api/sdk-generation-action/.github/workflows/workflow-executor.yaml@v15
     with:
       force: ${{ github.event.inputs.force }}
