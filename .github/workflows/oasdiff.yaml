@@ -32,6 +32,6 @@ jobs:
           oasdiff diff \
             origin/main:partner.json \
             HEAD:partner.json \
-            --fail-on ERR \
+            --fail-on-diff \
             --summary \
             --format github
