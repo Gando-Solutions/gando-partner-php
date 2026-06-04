@@ -13,12 +13,15 @@ namespace Gando\Partner\Models\Operations;
 final readonly class DepositsRetrieveResponseBody
 {
     /**
+     * @param  bool  $success
+     * @param  \Gando\Partner\Models\Operations\DepositsRetrieveDepositItem  $data
+     * @param  ?string  $message
      * @phpstan-pure
      */
     public function __construct(
         #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\PartnerCautionItem::class)]
-        public PartnerCautionItem $data,
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\DepositsRetrieveDepositItem::class)]
+        public DepositsRetrieveDepositItem $data,
         /**
          * Optional human-readable message
          */

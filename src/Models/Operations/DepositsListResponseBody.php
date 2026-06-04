@@ -9,16 +9,19 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-/** DepositsListResponseBody - Paginated list (`items` + `total` + `numPages`; optional `counts`) */
+/** DepositsListResponseBody - Paginated list (`items` + `total`; optional `counts`) */
 final readonly class DepositsListResponseBody
 {
     /**
+     * @param  bool  $success
+     * @param  \Gando\Partner\Models\Operations\V1DepositListResponse  $data
+     * @param  ?string  $message
      * @phpstan-pure
      */
     public function __construct(
         #[\Speakeasy\Serializer\Annotation\SerializedName('data')]
-        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\PartnerDepositListResponse::class)]
-        public PartnerDepositListResponse $data,
+        #[\Speakeasy\Serializer\Annotation\Type(\Gando\Partner\Models\Operations\V1DepositListResponse::class)]
+        public V1DepositListResponse $data,
         /**
          * Optional human-readable message
          */

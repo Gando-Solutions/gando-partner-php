@@ -12,6 +12,7 @@ namespace Gando\Partner\Models\Operations;
 class WebhooksUpdateResponse
 {
     /**
+     * Updated
      * @phpstan-pure
      */
     public function __construct(

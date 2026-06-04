@@ -13,7 +13,7 @@ namespace Gando\Partner\Models\Components;
 final readonly class ParticulierClient
 {
     /**
-     * @phpstan-pure
+     * Target rental operator account id
      */
     public function __construct(
         /**
@@ -93,6 +93,5 @@ final readonly class ParticulierClient
         #[\Speakeasy\Serializer\Annotation\SerializedName('companyName')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
         public ?string $companyName = null,
-    ) {
-    }
+    ) {}
 }

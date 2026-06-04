@@ -12,6 +12,7 @@ namespace Gando\Partner\Models\Operations;
 final readonly class PartnerPatchDepositBody
 {
     /**
+    #[\Speakeasy\Serializer\Annotation\SerializedName('clientId')]
      * @phpstan-pure
      */
     public function __construct(
