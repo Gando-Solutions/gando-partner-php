@@ -33,5 +33,4 @@ jobs:
             origin/main:partner.json \
             HEAD:partner.json \
             --fail-on-diff \
-            --summary \
-            --format github
+            --format markdown
