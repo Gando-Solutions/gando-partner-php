@@ -24,7 +24,7 @@ class PartnerRevokeAccountResponse
         /**
          * ISO 8601 timestamp when the link was revoked
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('revoked_at')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('revokedAt')]
         public \DateTime $revokedAt,
     ) {
     }

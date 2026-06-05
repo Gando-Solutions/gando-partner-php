@@ -18,7 +18,7 @@ final readonly class PartnerCreateDepositBody
         /**
          * Rental operator account id. Must be actively linked to your partner.
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('account_id')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('accountId')]
         public string $accountId,
         /**
          * Deposit amount in euros (70–2500, same rules as the rental operator API)
@@ -28,34 +28,34 @@ final readonly class PartnerCreateDepositBody
         /**
          * Your rental contract or booking reference for reconciliation
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('rental_contract')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('rentalContract')]
         public string $rentalContract,
         /**
          * Contract start date (ISO 8601 or parseable date string)
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('contract_start_at')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('contractStartAt')]
         public string $contractStartAt,
         /**
          * Contract end date. Must be on or after `contract_start_at`
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('contract_end_at')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('contractEndAt')]
         public string $contractEndAt,
         /**
          * Optional client id from `POST /api/partner/clients` on the same rental operator account
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('client_id')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('clientId')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
         public ?string $clientId = null,
         /**
          * When true, response includes `deposit_url` for immediate tenant redirect
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('inline_redirect')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('depositUrlGeneration')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
-        public ?bool $inlineRedirect = null,
+        public ?bool $depositUrlGeneration = null,
         /**
          * HTTPS return URL (localhost allowed). Required with inline checkout; Gando appends `caution_id` and `caution_status` query params
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('return_url')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('returnUrl')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
         public ?string $returnUrl = null,
     ) {

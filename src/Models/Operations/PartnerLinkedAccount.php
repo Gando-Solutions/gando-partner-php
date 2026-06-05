@@ -18,12 +18,12 @@ final readonly class PartnerLinkedAccount
         /**
          * Gando rental operator account id. Use as `account_id` in Partner API calls.
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('account_id')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('accountId')]
         public string $accountId,
         /**
          * ISO 8601 timestamp when the partner link was created
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('linked_at')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('linkedAt')]
         public \DateTime $linkedAt,
         /**
          * Partner link status: `active` (operations allowed) or `revoked` (403 on deposits)
@@ -34,17 +34,17 @@ final readonly class PartnerLinkedAccount
         /**
          * Your external id from partner connect, when provided at link time
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('external_id')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('externalId')]
         public ?string $externalId = null,
         /**
          * Legal or trade name of the rental operator
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('company_name')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('companyName')]
         public ?string $companyName = null,
         /**
          * Display name in Gando dashboards
          */
-        #[\Speakeasy\Serializer\Annotation\SerializedName('display_name')]
+        #[\Speakeasy\Serializer\Annotation\SerializedName('displayName')]
         public ?string $displayName = null,
         /**
          * Primary contact email for the rental operator
