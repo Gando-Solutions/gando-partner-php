@@ -7,9 +7,9 @@ Event type delivered
 
 | Name                   | Value                  |
 | ---------------------- | ---------------------- |
+| `DepositStatusChanged` | deposit.status_changed |
+| `DepositActivated`     | deposit.activated      |
+| `DepositCaptured`      | deposit.captured       |
+| `DepositExpired`       | deposit.expired        |
+| `DepositCancelled`     | deposit.cancelled      |
 | `RentalOperatorLinked` | rental_operator.linked |
-| `CautionStatusChanged` | caution.status_changed |
-| `CautionActivated`     | caution.activated      |
-| `CautionCaptured`      | caution.captured       |
-| `CautionExpired`       | caution.expired        |
-| `CautionCancelled`     | caution.cancelled      |

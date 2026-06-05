@@ -12,10 +12,10 @@ namespace Gando\Partner\Models\Operations;
 /** Event type delivered */
 enum EventType: string
 {
+    case DepositStatusChanged = 'deposit.status_changed';
+    case DepositActivated = 'deposit.activated';
+    case DepositCaptured = 'deposit.captured';
+    case DepositExpired = 'deposit.expired';
+    case DepositCancelled = 'deposit.cancelled';
     case RentalOperatorLinked = 'rental_operator.linked';
-    case CautionStatusChanged = 'caution.status_changed';
-    case CautionActivated = 'caution.activated';
-    case CautionCaptured = 'caution.captured';
-    case CautionExpired = 'caution.expired';
-    case CautionCancelled = 'caution.cancelled';
 }

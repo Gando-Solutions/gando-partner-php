@@ -1,9 +1,0 @@
-# PartnerClientsListResponse
-
-
-## Fields
-
-| Field                                                                                                     | Type                                                                                                      | Required                                                                                                  | Description                                                                                               |
-| --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `items`                                                                                                   | array<[Operations\ClientsListPartnerClientItem](../../Models/Operations/ClientsListPartnerClientItem.md)> | :heavy_check_mark:                                                                                        | Clients for the current page                                                                              |
-| `pagination`                                                                                              | [Operations\Pagination](../../Models/Operations/Pagination.md)                                            | :heavy_check_mark:                                                                                        | Pagination metadata                                                                                       |

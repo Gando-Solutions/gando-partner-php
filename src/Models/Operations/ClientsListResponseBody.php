@@ -33,5 +33,6 @@ final readonly class ClientsListResponseBody
          */
         #[\Speakeasy\Serializer\Annotation\SerializedName('success')]
         public bool $success = true,
-    ) {}
+    ) {
+    }
 }

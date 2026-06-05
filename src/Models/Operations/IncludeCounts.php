@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-/** When `true` or `1`, include per-status counts (requires `account_id`) */
+/** When `true` or `1`, include per-status counts (requires `accountId`) */
 enum IncludeCounts: string
 {
     case Zero = '0';

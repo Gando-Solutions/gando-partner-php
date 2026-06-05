@@ -91,5 +91,6 @@ final readonly class ProfessionnelClient
         #[\Speakeasy\Serializer\Annotation\SerializedName('postalCode')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
         public ?string $postalCode = null,
-    ) {}
+    ) {
+    }
 }

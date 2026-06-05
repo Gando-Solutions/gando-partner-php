@@ -3,7 +3,8 @@
 
 ## Fields
 
-| Field                                 | Type                                  | Required                              | Description                           |
-| ------------------------------------- | ------------------------------------- | ------------------------------------- | ------------------------------------- |
-| `email`                               | *string*                              | :heavy_check_mark:                    | Recipient address                     |
-| `success`                             | *bool*                                | :heavy_check_mark:                    | Whether this recipient send succeeded |
+| Field              | Type               | Required           | Description        |
+| ------------------ | ------------------ | ------------------ | ------------------ |
+| `email`            | *string*           | :heavy_check_mark: | N/A                |
+| `success`          | *bool*             | :heavy_check_mark: | N/A                |
+| `error`            | *?string*          | :heavy_minus_sign: | N/A                |

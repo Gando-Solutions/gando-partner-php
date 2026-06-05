@@ -93,5 +93,6 @@ final readonly class ParticulierClient
         #[\Speakeasy\Serializer\Annotation\SerializedName('companyName')]
         #[\Speakeasy\Serializer\Annotation\SkipWhenNull]
         public ?string $companyName = null,
-    ) {}
+    ) {
+    }
 }

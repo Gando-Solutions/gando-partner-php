@@ -45,7 +45,7 @@ class Webhooks
     /**
      * Create partner webhook endpoint
      *
-     * Create a webhook URL and signing secret for this partner, and subscribe it to the requested event types. Returns the plain signing secret **exactly once**. Default `events` include all available events (`rental_operator.linked`, `caution.status_changed`, `caution.activated`, `caution.captured`, `caution.expired`, `caution.cancelled`) when omitted.
+     * Create a webhook URL and signing secret for this partner, and subscribe it to the requested event types. Returns the plain signing secret **exactly once**. Default `events` include all available events when omitted.
      *
      * @throws \Gando\Partner\Models\Errors\APIException
      */
@@ -77,7 +77,7 @@ class Webhooks
             ];
         }
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/webhooks');
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/webhooks');
         $httpOptions = ['http_errors' => false];
         $body = Utils\Utils::serializeRequestBody($request, 'request', 'json');
         if ($body === null) {
@@ -193,7 +193,7 @@ class Webhooks
             id: $id,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/webhooks/{id}', Operations\WebhooksDeleteRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/webhooks/{id}', Operations\WebhooksDeleteRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $httpOptions['headers']['Accept'] = 'application/json';
         $httpOptions['headers']['user-agent'] = $this->sdkConfiguration->userAgent;
@@ -306,7 +306,7 @@ class Webhooks
             offset: $offset,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/webhooks/{id}/deliveries', Operations\WebhooksGetDeliveriesRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/webhooks/{id}/deliveries', Operations\WebhooksGetDeliveriesRequest::class, $request);
         $urlOverride = null;
         $httpOptions = ['http_errors' => false];
 
@@ -421,7 +421,7 @@ class Webhooks
             id: $id,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/webhooks/{id}/secret', Operations\WebhooksGetSecretRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/webhooks/{id}/secret', Operations\WebhooksGetSecretRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $httpOptions['headers']['Accept'] = 'application/json';
         $httpOptions['headers']['user-agent'] = $this->sdkConfiguration->userAgent;
@@ -497,7 +497,7 @@ class Webhooks
     /**
      * List partner webhook endpoints
      *
-     * Retrieve configured webhook endpoints for the authenticated partner (`gando_pk_` key). Each item aggregates subscribed event types. Results are paginated with **`page`** and **`limit`** query parameters (same semantics as **`GET /api/partner/deposits`**).
+     * Retrieve configured webhook endpoints for the authenticated partner. Each item aggregates subscribed event types. Results are paginated with **`page`** and **`limit`** query parameters (same semantics as **`GET /api/partner/v1/deposits`**).
      *
      * @throws \Gando\Partner\Models\Errors\APIException
      */
@@ -533,7 +533,7 @@ class Webhooks
             limit: $limit,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/webhooks');
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/webhooks');
         $urlOverride = null;
         $httpOptions = ['http_errors' => false];
 
@@ -647,7 +647,7 @@ class Webhooks
             id: $id,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/webhooks/{id}/rotate-secret', Operations\WebhooksRotateSecretRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/webhooks/{id}/rotate-secret', Operations\WebhooksRotateSecretRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $httpOptions['headers']['Accept'] = 'application/json';
         $httpOptions['headers']['user-agent'] = $this->sdkConfiguration->userAgent;
@@ -723,30 +723,28 @@ class Webhooks
     /**
      * Send test partner webhook delivery
      *
-     * Sends a sample **`caution.activated`** payload to the endpoint URL. The endpoint must be subscribed to either `caution.activated` or the wildcard `caution.status_changed`.
-     *
-     * Outbound payload schema reference: `#/components/schemas/WebhookCautionStatusChangedEvent` (see Models). The `data.rental_contract` field carries the partner-side contract id set by the rental operator.
+     * Sends a sample **`deposit.activated`** payload to the endpoint URL. The endpoint must be subscribed to either `deposit.activated` or the wildcard `deposit.status_changed`.
      *
      * Sample payload sent by this test and the production dispatcher:
      *
      * ```json
      * {
-     *   "event": "caution.activated",
-     *   "created_at": "2026-03-02T10:00:00.000Z",
+     *   "event": "deposit.activated",
+     *   "createdAt": "2026-03-02T10:00:00.000Z",
      *   "data": {
-     *     "id": "test_deposit_id",
+     *     "id": "dep_test_abc123",
      *     "reference": "GAN-TEST",
-     *     "rental_contract": "CTR-TEST-2026",
+     *     "rentalContract": "CTR-TEST-2026",
      *     "status": "active",
-     *     "previous_status": "pending",
-     *     "amount_cents": 150000,
-     *     "contract_start_at": null,
-     *     "contract_end_at": null,
+     *     "previousStatus": "pending",
+     *     "amountCents": 150000,
+     *     "contractStartAt": null,
+     *     "contractEndAt": null,
      *     "client": null,
-     *     "partner_context": {
-     *       "partner_id": "ptr_xxx",
-     *       "partner_name": "Fleetee",
-     *       "external_id": "fleet_operator_42"
+     *     "partnerContext": {
+     *       "partnerId": "ptr_xxx",
+     *       "partnerName": "Fleetee",
+     *       "externalId": "fleet_operator_42"
      *     }
      *   }
      * }
@@ -785,7 +783,7 @@ class Webhooks
             id: $id,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/webhooks/{id}/test', Operations\WebhooksTestRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/webhooks/{id}/test', Operations\WebhooksTestRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $httpOptions['headers']['Accept'] = 'application/json';
         $httpOptions['headers']['user-agent'] = $this->sdkConfiguration->userAgent;
@@ -897,7 +895,7 @@ class Webhooks
             body: $body,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/webhooks/{id}', Operations\WebhooksUpdateRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/webhooks/{id}', Operations\WebhooksUpdateRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $body = Utils\Utils::serializeRequestBody($request, 'body', 'json');
         if ($body === null) {

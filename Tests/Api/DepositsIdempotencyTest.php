@@ -30,9 +30,9 @@ final class DepositsIdempotencyTest extends TestCase
                 'id' => 'dep_retry_once',
                 'reference' => 'GAN-RETRY',
                 'status' => 'pending',
-                'deposit_url' => null,
+                'depositUrl' => null,
                 'amount' => 800,
-                'created_at' => '2026-04-01T10:00:00.000Z',
+                'createdAt' => '2026-04-01T10:00:00.000Z',
             ],
         ], JSON_THROW_ON_ERROR);
 
@@ -89,9 +89,9 @@ final class DepositsIdempotencyTest extends TestCase
                     'id' => 'dep_1',
                     'reference' => 'GAN-1',
                     'status' => 'pending',
-                    'deposit_url' => null,
+                    'depositUrl' => null,
                     'amount' => 800,
-                    'created_at' => '2026-04-01T10:00:00.000Z',
+                    'createdAt' => '2026-04-01T10:00:00.000Z',
                 ],
             ], JSON_THROW_ON_ERROR)),
         ]);
