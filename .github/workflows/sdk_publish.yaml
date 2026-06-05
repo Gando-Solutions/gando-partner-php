@@ -18,7 +18,9 @@ jobs:
     with:
       target: gando
     secrets:
-      github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      # Enterprise pins the default GITHUB_TOKEN to read-only, blocking the
+      # GitHub release/tag creation step. Use the same dedicated token as Generate.
+      github_access_token: ${{ secrets.SDK_BOT_TOKEN }}
       packagist_token: ${{ secrets.PACKAGIST_TOKEN }}
       packagist_username: ${{ secrets.PACKAGIST_USERNAME }}
       speakeasy_api_key: ${{ secrets.SPEAKEASY_API_KEY }}
