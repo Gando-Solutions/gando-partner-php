@@ -26,13 +26,13 @@ generation:
   requestBodyFieldName: body
   versioningStrategy: automatic
   persistentEdits:
-    enabled: "true"
+    enabled: "false"
   tests:
     generateTests: false
     generateNewTests: true
     skipResponseBodyAssertions: false
 php:
-  version: 0.1.7
+  version: 0.1.8
   additionalDependencies:
     autoload: {}
     autoload-dev: {}
