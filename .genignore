@@ -1,3 +1,13 @@
 # Fully owned by the repo (custom scripts, require-dev, Api\Client deps).
 # Mirror runtime additions in .speakeasy/gen.yaml → php.additionalDependencies.require.
 composer.json
+
+# Custom, hand-written code Speakeasy does not generate. Keeping it listed here
+# protects it from being overwritten/removed on regen now that persistentEdits is
+# disabled. These are the repo-owned layers Olivier authored (HMAC webhook
+# verification, Connect URL signing, idempotency, the PSR-18 Api\Client transport).
+src/Api/
+src/Connect/
+src/Helpers/
+src/WebhookVerifier.php
+src/Exceptions/WebhookSignatureException.php
