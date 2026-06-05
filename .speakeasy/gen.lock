@@ -5,15 +5,15 @@ management:
   docVersion: 1.0.0
   speakeasyVersion: 1.770.0
   generationVersion: 2.893.0
-  releaseVersion: 0.1.8
-  configChecksum: 2735f2a463e50feacdce687eb2d1c319
+  releaseVersion: 0.1.10
+  configChecksum: 891524a2bb589bba5419589a045b1939
   repoURL: https://github.com/Gando-Solutions/gando-partner-php.git
   installationURL: https://github.com/Gando-Solutions/gando-partner-php.git
   published: true
 persistentEdits:
-  generation_id: 32d6ab6e-b0d7-4b73-901a-e7be454024c1
-  pristine_commit_hash: 5f835fdc67e5132ec4c1d9e646dd8112f715ebfe
-  pristine_tree_hash: 501976f9a21d750aab28501acc31db20842c9351
+  generation_id: 24833f49-291b-4e5d-a152-084edcb28fca
+  pristine_commit_hash: acfd8e957a9f149771fee36929870010439e2056
+  pristine_tree_hash: cba8d61ef712f8e38e6b9c6bb5c16784dfec974d
 features:
   php:
     constsAndDefaults: 0.2.2
@@ -1393,8 +1393,8 @@ trackedFiles:
     pristine_git_object: 27b7f371b99ca085fd0c43d0d6c8c580a78ab2d6
   src/SDKConfiguration.php:
     id: 9d60ab0bec0b
-    last_write_checksum: sha1:0e7b99f34fd44914014e8b38786717d9122b7dce
-    pristine_git_object: 9328120d6a697ec1e2e710d095e236111d0c5089
+    last_write_checksum: sha1:7dc4b45350790afc143029f31d036d59118c60bb
+    pristine_git_object: 8134d27a66964d7e94f6f20156856f9d74b2b6ce
   src/Utils/BigDecimalHandler.php:
     id: cdcca3718e2e
     last_write_checksum: sha1:29b1d82d6e7200885c9ba413c9b8148627e846a4
