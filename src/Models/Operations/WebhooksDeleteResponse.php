@@ -12,6 +12,7 @@ namespace Gando\Partner\Models\Operations;
 class WebhooksDeleteResponse
 {
     /**
+     * Deleted
      * @phpstan-pure
      */
     public function __construct(

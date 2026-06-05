@@ -179,9 +179,9 @@ final class DepositsHappyPathE2ETest extends TestCase
                 'id' => 'dep_create_1',
                 'reference' => 'GAN-CREATE-1',
                 'status' => 'pending',
-                'deposit_url' => null,
+                'depositUrl' => null,
                 'amount' => 800.0,
-                'created_at' => '2026-04-01T10:00:00.000Z',
+                'createdAt' => '2026-04-01T10:00:00.000Z',
             ],
         ], JSON_THROW_ON_ERROR);
     }
@@ -196,6 +196,7 @@ final class DepositsHappyPathE2ETest extends TestCase
                 'amount' => 800.0,
                 'currency' => 'EUR',
                 'status' => 'pending',
+                'locale' => 'fr',
                 'createdAt' => '2026-04-01T10:00:00.000Z',
                 'updatedAt' => '2026-04-01T10:00:00.000Z',
                 'rentalContract' => 'CTR-2026-042',

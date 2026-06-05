@@ -46,7 +46,7 @@ class Clients
     /**
      * Create a client for a linked rental operator account
      *
-     * Creates a client and returns its id. This id can then be sent as optional `client_id` in `POST /api/partner/deposits`. This endpoint is idempotent by email within account: when a client already exists, it returns 200 with the existing id.
+     * Creates a client and returns its id. This id can then be sent as optional `clientId` in `POST /api/partner/v1/deposits`. This endpoint is idempotent by email within account: when a client already exists, it returns 200 with the existing id.
      *
      * @throws \Gando\Partner\Models\Errors\APIException
      */
@@ -82,7 +82,7 @@ class Clients
             idempotencyKey: $idempotencyKey,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/clients');
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/clients');
         $httpOptions = ['http_errors' => false];
         $body = Utils\Utils::serializeRequestBody($request, 'body', 'json');
         if ($body === null) {
@@ -184,7 +184,7 @@ class Clients
     /**
      * List clients across linked rental operator accounts
      *
-     * Returns paginated clients for all active linked rental operator accounts, or for a specific linked account when `accountId` is provided.
+     * Returns paginated clients for all active linked rental operator accounts, or for a specific linked account when `accountId` query is provided.
      *
      * @throws \Gando\Partner\Models\Errors\APIException
      */
@@ -222,7 +222,7 @@ class Clients
             limit: $limit,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/clients');
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/clients');
         $urlOverride = null;
         $httpOptions = ['http_errors' => false];
 
@@ -338,7 +338,7 @@ class Clients
             body: $body,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/clients/{id}', Operations\ClientsUpdateRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/clients/{id}', Operations\ClientsUpdateRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $body = Utils\Utils::serializeRequestBody($request, 'body', 'json');
         if ($body === null) {

@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Models\Operations;
 
-/** WebhooksDeleteResponseBody - Webhook endpoint deleted */
+/** WebhooksDeleteResponseBody - Deleted */
 final readonly class WebhooksDeleteResponseBody
 {
     /**

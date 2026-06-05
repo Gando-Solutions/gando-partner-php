@@ -1,0 +1,9 @@
+# V1ClientsListResponse
+
+
+## Fields
+
+| Field                                                                                       | Type                                                                                        | Required                                                                                    | Description                                                                                 | Example                                                                                     |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `items`                                                                                     | array<[Operations\ClientsListClientItem](../../Models/Operations/ClientsListClientItem.md)> | :heavy_check_mark:                                                                          | Clients for the current page                                                                |                                                                                             |
+| `pagination`                                                                                | [Operations\Pagination](../../Models/Operations/Pagination.md)                              | :heavy_check_mark:                                                                          | Pagination metadata                                                                         | {<br/>"page": 1,<br/>"limit": 20,<br/>"total": 42,<br/>"totalPages": 3<br/>}                |

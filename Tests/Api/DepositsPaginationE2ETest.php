@@ -82,6 +82,7 @@ final class DepositsPaginationE2ETest extends TestCase
                 'amount' => 800.0,
                 'currency' => 'EUR',
                 'status' => 'pending',
+                'locale' => 'fr',
                 'createdAt' => '2026-05-01T10:00:00.000Z',
                 'updatedAt' => '2026-05-01T10:00:00.000Z',
                 'rentalContract' => sprintf('CTR-%03d', $n),

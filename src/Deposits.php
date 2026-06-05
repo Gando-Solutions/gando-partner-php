@@ -45,7 +45,7 @@ class Deposits
     /**
      * Close deposit (status close + optional email)
      *
-     * Sets the deposit status to `close` (end-of-contract closure) and may send the closed-caution email. **Different from** `PATCH …` with `action: cancel` which voids the in-flight deposit payment and sets status to `cancelled`.
+     * Sets the deposit status to `close` (end-of-contract closure) and may send the closed-deposit email. **Different from** `PATCH …` with `action: cancel` which voids the in-flight deposit payment and sets status to `cancelled`.
      *
      * @throws \Gando\Partner\Models\Errors\APIException
      */
@@ -81,7 +81,7 @@ class Deposits
             idempotencyKey: $idempotencyKey,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits/{id}/cancel', Operations\DepositsCancelRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits/{id}/cancel', Operations\DepositsCancelRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $httpOptions = array_merge_recursive($httpOptions, Utils\Utils::getHeaders($request));
         if (! array_key_exists('headers', $httpOptions)) {
@@ -198,7 +198,7 @@ class Deposits
             idempotencyKey: $idempotencyKey,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits/{id}/capture', Operations\DepositsCaptureRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits/{id}/capture', Operations\DepositsCaptureRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $body = Utils\Utils::serializeRequestBody($request, 'body', 'json');
         if ($body === null) {
@@ -283,13 +283,11 @@ class Deposits
     /**
      * Create a deposit for a linked rental operator
      *
-     * Creates a deposit on behalf of a linked rental operator (`account_id`). Optionally set `client_id` to attach an existing client from the same rental operator account.
+     * Creates a deposit on behalf of a linked rental operator (`accountId` in body). Optionally set `clientId` to attach an existing client from the same rental operator account.
      *
-     * **Inline redirect:** set `inline_redirect: true` and `return_url` to receive `deposit_url` and send the tenant straight to Gando. Same redirect query parameters as the rental operator API: `caution_id`, `caution_status`.
+     * **URL generation:** set `depositUrlGeneration: true` and `returnUrl` to receive `depositUrl` and send the tenant straight to Gando.
      *
-     * **Idempotency-Key:** optional UUID v4 header; replays return the same **201** and `data.id` within 24h when the body is unchanged. The PHP SDK (`Gando\Partner\Api\Client`) auto-generates this header when omitted so retries stay idempotent.
-     *
-     * See the **Accounts** tag description for authentication details and curl/fetch examples.
+     * **Idempotency-Key:** optional UUID v4 header; replays return the same **201** and `data.id` within 24h when the body is unchanged.
      *
      * @throws \Gando\Partner\Models\Errors\APIException
      */
@@ -325,7 +323,7 @@ class Deposits
             idempotencyKey: $idempotencyKey,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits');
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits');
         $httpOptions = ['http_errors' => false];
         $body = Utils\Utils::serializeRequestBody($request, 'body', 'json');
         if ($body === null) {
@@ -410,7 +408,7 @@ class Deposits
     /**
      * Delete or archive a deposit
      *
-     * Same semantics as rental-operator delete: remove when allowed, otherwise archive. Response uses top-level **`message`** (`Deleted` or `Archived`), not `data`.
+     * Remove when allowed, otherwise archive. Response uses top-level **`message`** (`Deleted` or `Archived`), not `data`.
      *
      * @throws \Gando\Partner\Models\Errors\APIException
      */
@@ -445,7 +443,7 @@ class Deposits
             id: $id,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits/{id}', Operations\DepositsDeleteRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits/{id}', Operations\DepositsDeleteRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $httpOptions['headers']['Accept'] = 'application/json';
         $httpOptions['headers']['user-agent'] = $this->sdkConfiguration->userAgent;
@@ -556,7 +554,7 @@ class Deposits
             id: $id,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits/{id}/capture', Operations\DepositsGetCaptureRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits/{id}/capture', Operations\DepositsGetCaptureRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $httpOptions['headers']['Accept'] = 'application/json';
         $httpOptions['headers']['user-agent'] = $this->sdkConfiguration->userAgent;
@@ -667,7 +665,7 @@ class Deposits
             id: $id,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits/{id}/payment-method', Operations\DepositsGetPaymentMethodRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits/{id}/payment-method', Operations\DepositsGetPaymentMethodRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $httpOptions['headers']['Accept'] = 'application/json';
         $httpOptions['headers']['user-agent'] = $this->sdkConfiguration->userAgent;
@@ -778,7 +776,7 @@ class Deposits
             id: $id,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits/{id}/pdf', Operations\DepositsGetPdfRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits/{id}/pdf', Operations\DepositsGetPdfRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $httpOptions['headers']['Accept'] = 'application/pdf';
         $httpOptions['headers']['user-agent'] = $this->sdkConfiguration->userAgent;
@@ -850,15 +848,130 @@ class Deposits
     }
 
     /**
+     * Latest open-banking scoring for the deposit client
+     *
+     * Returns the most recent Bridge scoring for the client linked to the deposit. Requires a `clientId` on the deposit.
+     *
+     * @param  string  $id
+     * @return \Gando\Partner\Models\Operations\DepositsGetScoringResponse
+     * @throws \Gando\Partner\Models\Errors\APIException
+     */
+    public function depositsGetScoring(string $id, ?Options $options = null): Operations\DepositsGetScoringResponse
+    {
+        $retryConfig = null;
+        if ($options) {
+            $retryConfig = $options->retryConfig;
+        }
+        if ($retryConfig === null && $this->sdkConfiguration->retryConfig) {
+            $retryConfig = $this->sdkConfiguration->retryConfig;
+        } else {
+            $retryConfig = new Retry\RetryConfigBackoff(
+                initialInterval: 500,
+                maxInterval: 60000,
+                exponent: 1.5,
+                maxElapsedTime: 30000,
+                retryConnectionErrors: true,
+            );
+        }
+        $retryCodes = null;
+        if ($options) {
+            $retryCodes = $options->retryCodes;
+        }
+        if ($retryCodes === null) {
+            $retryCodes = [
+                '429',
+                '5XX',
+            ];
+        }
+        $request = new Operations\DepositsGetScoringRequest(
+            id: $id,
+        );
+        $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits/{id}/scoring', Operations\DepositsGetScoringRequest::class, $request);
+        $urlOverride = null;
+        $httpOptions = ['http_errors' => false];
+        $httpOptions['headers']['Accept'] = 'application/json';
+        $httpOptions['headers']['user-agent'] = $this->sdkConfiguration->userAgent;
+        $httpRequest = new \GuzzleHttp\Psr7\Request('GET', $url);
+        $hookContext = new HookContext($this->sdkConfiguration, $baseUrl, 'deposits.getScoring', null, $this->sdkConfiguration->securitySource);
+        $httpRequest = $this->sdkConfiguration->hooks->beforeRequest(new Hooks\BeforeRequestContext($hookContext), $httpRequest);
+        $httpOptions = Utils\Utils::convertHeadersToOptions($httpRequest, $httpOptions);
+        $httpRequest = Utils\Utils::removeHeaders($httpRequest);
+        try {
+            $httpResponse = RetryUtils::retryWrapper(fn () => $this->sdkConfiguration->client->send($httpRequest, $httpOptions), $retryConfig, $retryCodes);
+        } catch (\GuzzleHttp\Exception\GuzzleException $error) {
+            $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), null, $error);
+            $httpResponse = $res;
+        }
+        $contentType = $httpResponse->getHeader('Content-Type')[0] ?? '';
+
+        if (Utils\Utils::matchStatusCodes($httpResponse->getStatusCode(), ['4XX', '5XX'])) {
+            $res = $this->sdkConfiguration->hooks->afterError(new Hooks\AfterErrorContext($hookContext), $httpResponse, null);
+            $httpResponse = $res;
+        }
+
+        $statusCode = $httpResponse->getStatusCode();
+        if (Utils\Utils::matchStatusCodes($statusCode, ['200'])) {
+            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
+                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
+
+                $serializer = Utils\JSON::createSerializer();
+                $responseData = (string) $httpResponse->getBody();
+                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Operations\DepositsGetScoringResponseBody', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+                $response = new Operations\DepositsGetScoringResponse(
+                    statusCode: $statusCode,
+                    contentType: $contentType,
+                    rawResponse: $httpResponse,
+                    object: $obj
+                );
+
+                return $response;
+            } else {
+                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+            }
+        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['400', '401', '403', '404', '409', '422', '429'])) {
+            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
+                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
+
+                $serializer = Utils\JSON::createSerializer();
+                $responseData = (string) $httpResponse->getBody();
+                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Errors\ErrorEnvelope', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+                $obj->rawResponse = $httpResponse;
+                throw $obj->toException();
+            } else {
+                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+            }
+        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['500'])) {
+            if (Utils\Utils::matchContentType($contentType, 'application/json')) {
+                $httpResponse = $this->sdkConfiguration->hooks->afterSuccess(new Hooks\AfterSuccessContext($hookContext), $httpResponse);
+
+                $serializer = Utils\JSON::createSerializer();
+                $responseData = (string) $httpResponse->getBody();
+                $obj = $serializer->deserialize($responseData, '\Gando\Partner\Models\Errors\ErrorEnvelope', 'json', DeserializationContext::create()->setRequireAllRequiredProperties(true));
+                $obj->rawResponse = $httpResponse;
+                throw $obj->toException();
+            } else {
+                throw new \Gando\Partner\Models\Errors\APIException('Unknown content type received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+            }
+        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['4XX'])) {
+            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        } elseif (Utils\Utils::matchStatusCodes($statusCode, ['5XX'])) {
+            throw new \Gando\Partner\Models\Errors\APIException('API error occurred', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        } else {
+            throw new \Gando\Partner\Models\Errors\APIException('Unknown status code received', $statusCode, $httpResponse->getBody()->getContents(), $httpResponse);
+        }
+    }
+
+    /**
      * List deposits
      *
      * Lists deposits across **all active** rental operator accounts linked to your partner.
      *
-     * Pass **`account_id`** to return only deposits for that single linked rental operator account.
+     * Pass **`accountId`** query to return only deposits for that single linked rental operator account.
      *
      * Repeat query parameter **`status`** to filter by several statuses (e.g. `?status=pending&status=active`).
      *
-     * When `include_counts=true` **and** `account_id` is set, the response includes per-status counts for that account.
+     * When `includeCounts=true` **and** `accountId` is set, the response includes per-status counts for that account.
      *
      * @throws \Gando\Partner\Models\Errors\APIException
      */
@@ -890,7 +1003,7 @@ class Deposits
             ];
         }
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits');
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits');
         $urlOverride = null;
         $httpOptions = ['http_errors' => false];
 
@@ -969,7 +1082,7 @@ class Deposits
     /**
      * Get deposit by id
      *
-     * Returns the same deposit shape as the rental operator API (`CautionItem` fields). Deposit must belong to a linked rental operator.
+     * Returns the deposit. Deposit must belong to a linked rental operator.
      *
      * @throws \Gando\Partner\Models\Errors\APIException
      */
@@ -1004,7 +1117,7 @@ class Deposits
             id: $id,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits/{id}', Operations\DepositsRetrieveRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits/{id}', Operations\DepositsRetrieveRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $httpOptions['headers']['Accept'] = 'application/json';
         $httpOptions['headers']['user-agent'] = $this->sdkConfiguration->userAgent;
@@ -1080,7 +1193,7 @@ class Deposits
     /**
      * Send deposit link to one email
      *
-     * Single-recipient variant of `/email`. Returns provider `messageId` when available.
+     * Single-recipient variant of `/email`. Returns provider `message_id` when available.
      *
      * @throws \Gando\Partner\Models\Errors\APIException
      */
@@ -1116,7 +1229,7 @@ class Deposits
             body: $body,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits/{id}/send-deposit-mail', Operations\DepositsSendDepositMailRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits/{id}/send-deposit-mail', Operations\DepositsSendDepositMailRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $body = Utils\Utils::serializeRequestBody($request, 'body', 'json');
         if ($body === null) {
@@ -1233,7 +1346,7 @@ class Deposits
             body: $body,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits/{id}/email', Operations\DepositsSendEmailsRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits/{id}/email', Operations\DepositsSendEmailsRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $body = Utils\Utils::serializeRequestBody($request, 'body', 'json');
         if ($body === null) {
@@ -1315,7 +1428,7 @@ class Deposits
      * Update deposit (change client or cancel pending payment)
      *
      * Exactly one of:
-     * - `client_id` — reassign client (must belong to the deposit's rental operator account)
+     * - `clientId` — reassign client (must belong to the deposit's rental operator account)
      * - `action: "cancel"` — void the in-flight deposit payment and set status to `cancelled`
      *
      * @throws \Gando\Partner\Models\Errors\APIException
@@ -1352,7 +1465,7 @@ class Deposits
             body: $body,
         );
         $baseUrl = $this->sdkConfiguration->getTemplatedServerUrl();
-        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/deposits/{id}', Operations\DepositsUpdateRequest::class, $request);
+        $url = Utils\Utils::generateUrl($baseUrl, '/api/partner/v1/deposits/{id}', Operations\DepositsUpdateRequest::class, $request);
         $httpOptions = ['http_errors' => false];
         $body = Utils\Utils::serializeRequestBody($request, 'body', 'json');
         if ($body === null) {

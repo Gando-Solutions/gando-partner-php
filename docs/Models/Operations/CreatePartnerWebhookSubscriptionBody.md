@@ -1,7 +1,5 @@
 # CreatePartnerWebhookSubscriptionBody
 
-Partner webhook endpoint creation payload
-
 
 ## Fields
 

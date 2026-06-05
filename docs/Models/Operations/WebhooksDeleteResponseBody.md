@@ -1,6 +1,6 @@
 # WebhooksDeleteResponseBody
 
-Webhook endpoint deleted
+Deleted
 
 
 ## Fields

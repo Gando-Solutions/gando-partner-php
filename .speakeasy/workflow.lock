@@ -2,8 +2,8 @@ speakeasyVersion: 1.764.0
 sources:
     Gando Partner API:
         sourceNamespace: gando-partner-api
-        sourceRevisionDigest: sha256:34117e17768f39e54cfeef73156813ec959af7189a84297fc16cc523f0bdf925
-        sourceBlobDigest: sha256:2e4a626aaf9ad808f3913b30b878c793967d0dcc07dc0202555de90076e2f87e
+        sourceRevisionDigest: sha256:a4d4f32543abf5fa87ff06ff80878201f363b5cb3076e9a3fad1dd8fb0b1ab56
+        sourceBlobDigest: sha256:368fc2a10fd1f14972e07ea7bd62c8e03f22673269e797227b7b4b8c445c69b9
         tags:
             - latest
             - 1.0.0
@@ -11,10 +11,10 @@ targets:
     gando:
         source: Gando Partner API
         sourceNamespace: gando-partner-api
-        sourceRevisionDigest: sha256:34117e17768f39e54cfeef73156813ec959af7189a84297fc16cc523f0bdf925
-        sourceBlobDigest: sha256:2e4a626aaf9ad808f3913b30b878c793967d0dcc07dc0202555de90076e2f87e
+        sourceRevisionDigest: sha256:a4d4f32543abf5fa87ff06ff80878201f363b5cb3076e9a3fad1dd8fb0b1ab56
+        sourceBlobDigest: sha256:368fc2a10fd1f14972e07ea7bd62c8e03f22673269e797227b7b4b8c445c69b9
         codeSamplesNamespace: gando-partner-api-php-code-samples
-        codeSamplesRevisionDigest: sha256:fdabbcc55e7f4de98f67be6d9e5e28a53ef13ab6c57560e3e1be726ef245c164
+        codeSamplesRevisionDigest: sha256:35267414c62370ed2dea311cbb8b8747c42d26408ff436df43bbff0aad133d69
 workflow:
     workflowVersion: 1.0.0
     speakeasyVersion: latest

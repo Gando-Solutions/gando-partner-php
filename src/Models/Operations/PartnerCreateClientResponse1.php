@@ -12,6 +12,7 @@ namespace Gando\Partner\Models\Operations;
 final readonly class PartnerCreateClientResponse1
 {
     /**
+     * Created or existing client id (use as `clientId` on deposits)
      * @phpstan-pure
      */
     public function __construct(

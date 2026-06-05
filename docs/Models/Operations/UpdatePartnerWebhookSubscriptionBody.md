@@ -1,7 +1,5 @@
 # UpdatePartnerWebhookSubscriptionBody
 
-Partner webhook endpoint update payload
-
 
 ## Fields
 

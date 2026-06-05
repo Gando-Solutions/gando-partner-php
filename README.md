@@ -13,7 +13,7 @@ Developer-friendly & type-safe Php SDK specifically catered to leverage *gando/p
 <!-- Start Summary [summary] -->
 ## Summary
 
-Gando Partner API: API for **rental management software** and **multi–rental-operator platforms** integrating Gando on behalf of linked rental operators. Use **`gando_pk_`** keys (`x-api-key` or `Authorization: Bearer`) on `/api/partner/*`.
+Gando Partner API v1: API for **rental management software** and **multi–rental-operator platforms** integrating Gando on behalf of linked rental operators. Use **`gando_pk_`** keys (`x-api-key` or `Authorization: Bearer`) on `/api/partner/v1/*`.
 <!-- End Summary [summary] -->
 
 <!-- Start Table of Contents [toc] -->
@@ -222,13 +222,14 @@ if ($response->object !== null) {
 * [retrieve](docs/sdks/deposits/README.md#retrieve) - Get deposit by id
 * [delete](docs/sdks/deposits/README.md#delete) - Delete or archive a deposit
 * [update](docs/sdks/deposits/README.md#update) - Update deposit (change client or cancel pending payment)
+* [cancel](docs/sdks/deposits/README.md#cancel) - Close deposit (status close + optional email)
 * [getCapture](docs/sdks/deposits/README.md#getcapture) - Get latest capture for a deposit
 * [capture](docs/sdks/deposits/README.md#capture) - Create a capture (encaissement)
 * [sendEmails](docs/sdks/deposits/README.md#sendemails) - Send deposit link to multiple emails
 * [sendDepositMail](docs/sdks/deposits/README.md#senddepositmail) - Send deposit link to one email
-* [cancel](docs/sdks/deposits/README.md#cancel) - Close deposit (status close + optional email)
 * [getPaymentMethod](docs/sdks/deposits/README.md#getpaymentmethod) - Masked card info for the deposit
 * [getPdf](docs/sdks/deposits/README.md#getpdf) - Download deposit summary PDF
+* [depositsGetScoring](docs/sdks/deposits/README.md#depositsgetscoring) - Latest open-banking scoring for the deposit client
 
 ### [Webhooks](docs/sdks/webhooks/README.md)
 

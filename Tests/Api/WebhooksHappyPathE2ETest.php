@@ -115,7 +115,7 @@ final class WebhooksHappyPathE2ETest extends TestCase
             'data' => [
                 'id' => 'wh_123',
                 'url' => 'https://partner.example.test/webhooks',
-                'events' => ['caution.status_changed'],
+                'events' => ['deposit.status_changed'],
                 'createdAt' => '2026-05-01T10:00:00.000Z',
                 'secret' => 'gando_whsec_123',
             ],
@@ -130,7 +130,7 @@ final class WebhooksHappyPathE2ETest extends TestCase
                 'items' => [[
                     'id' => 'wh_123',
                     'url' => 'https://partner.example.test/webhooks',
-                    'events' => ['caution.status_changed'],
+                    'events' => ['deposit.status_changed'],
                     'isActive' => true,
                     'createdAt' => '2026-05-01T10:00:00.000Z',
                     'updatedAt' => '2026-05-01T10:00:00.000Z',

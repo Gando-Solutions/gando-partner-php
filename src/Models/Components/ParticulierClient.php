@@ -13,7 +13,7 @@ namespace Gando\Partner\Models\Components;
 final readonly class ParticulierClient
 {
     /**
-     * @phpstan-pure
+     * Target rental operator account id
      */
     public function __construct(
         /**

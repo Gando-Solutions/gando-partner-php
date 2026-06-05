@@ -2,7 +2,7 @@
 
 ## Overview
 
-Create and manage end-customer (tenant) records across linked rental operator accounts.
+Client management endpoints — create, list, retrieve and update clients.
 
 ### Available Operations
 
@@ -12,11 +12,11 @@ Create and manage end-customer (tenant) records across linked rental operator ac
 
 ## list
 
-Returns paginated clients for all active linked rental operator accounts, or for a specific linked account when `accountId` is provided.
+Returns paginated clients for all active linked rental operator accounts, or for a specific linked account when `accountId` query is provided.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="clients.list" method="get" path="/api/partner/clients" -->
+<!-- UsageSnippet language="php" operationID="clients.list" method="get" path="/api/partner/v1/clients" -->
 ```php
 declare(strict_types=1);
 
@@ -69,11 +69,11 @@ if ($response->object !== null) {
 
 ## create
 
-Creates a client and returns its id. This id can then be sent as optional `client_id` in `POST /api/partner/deposits`. This endpoint is idempotent by email within account: when a client already exists, it returns 200 with the existing id.
+Creates a client and returns its id. This id can then be sent as optional `clientId` in `POST /api/partner/v1/deposits`. This endpoint is idempotent by email within account: when a client already exists, it returns 200 with the existing id.
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="clients.create" method="post" path="/api/partner/clients" -->
+<!-- UsageSnippet language="php" operationID="clients.create" method="post" path="/api/partner/v1/clients" -->
 ```php
 declare(strict_types=1);
 
@@ -132,7 +132,7 @@ Updates a client that belongs to one of the partner's linked rental operator acc
 
 ### Example Usage
 
-<!-- UsageSnippet language="php" operationID="clients.update" method="patch" path="/api/partner/clients/{id}" -->
+<!-- UsageSnippet language="php" operationID="clients.update" method="patch" path="/api/partner/v1/clients/{id}" -->
 ```php
 declare(strict_types=1);
 
