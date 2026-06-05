@@ -1,9 +1,5 @@
 {
-    "preset": "psr12",
-    "exclude": [
-        "vendor",
-        "docs"
-    ],
+    "preset": "laravel",
     "rules": {
         "no_superfluous_phpdoc_tags": false,
         "phpdoc_separation": false,
