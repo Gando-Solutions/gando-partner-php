@@ -19,3 +19,13 @@ Based on:
 - [php v0.1.10] .
 ### Releases
 - [Composer v0.1.10] https://packagist.org/packages/gando/partner#v0.1.10 - .
+
+## 2026-07-03 12:45:54
+### Changes
+Based on:
+- OpenAPI Doc  
+- Speakeasy CLI 1.788.0 (2.915.0) https://github.com/speakeasy-api/speakeasy
+### Generated
+- [php v0.1.11] .
+### Releases
+- [Composer v0.1.11] https://packagist.org/packages/gando/partner#v0.1.11 - .

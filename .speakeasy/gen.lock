@@ -3,21 +3,21 @@ id: ff98e090-a6dd-40a9-9d11-5d7368eba7f0
 management:
   docChecksum: cfbc282c4a6718c0f0d2a2a29e785ee0
   docVersion: 1.0.0
-  speakeasyVersion: 1.770.0
-  generationVersion: 2.893.0
-  releaseVersion: 0.1.10
-  configChecksum: 891524a2bb589bba5419589a045b1939
+  speakeasyVersion: 1.788.0
+  generationVersion: 2.915.0
+  releaseVersion: 0.1.11
+  configChecksum: a6eecaa00542b6d0e56c23849a2bf048
   repoURL: https://github.com/Gando-Solutions/gando-partner-php.git
   installationURL: https://github.com/Gando-Solutions/gando-partner-php.git
   published: true
 persistentEdits:
-  generation_id: 24833f49-291b-4e5d-a152-084edcb28fca
-  pristine_commit_hash: acfd8e957a9f149771fee36929870010439e2056
-  pristine_tree_hash: cba8d61ef712f8e38e6b9c6bb5c16784dfec974d
+  generation_id: 11bb3118-31e9-448a-8e3c-06efd28b0e49
+  pristine_commit_hash: 875891af780621b9fc5cd7f8c5a9ba042ca44f05
+  pristine_tree_hash: dfa1968aa5bc9bb5a41ddf3b6dc7ee1de44425be
 features:
   php:
     constsAndDefaults: 0.2.2
-    core: 3.9.23
+    core: 3.9.25
     flattening: 2.81.2
     globalSecurity: 2.81.12
     globalServerURLs: 2.83.1
@@ -25,8 +25,8 @@ features:
     nameOverrides: 2.81.4
     nullables: 1.0.1
     responseFormat: 0.1.0
-    retries: 0.1.1
-    unions: 0.1.7
+    retries: 0.1.2
+    unions: 0.1.8
 trackedFiles:
   .gitattributes:
     id: 24139dae6567
@@ -1393,8 +1393,8 @@ trackedFiles:
     pristine_git_object: 27b7f371b99ca085fd0c43d0d6c8c580a78ab2d6
   src/SDKConfiguration.php:
     id: 9d60ab0bec0b
-    last_write_checksum: sha1:7dc4b45350790afc143029f31d036d59118c60bb
-    pristine_git_object: 8134d27a66964d7e94f6f20156856f9d74b2b6ce
+    last_write_checksum: sha1:e32150d197072b724587f5e6032bc899553453ca
+    pristine_git_object: ca26743811f6fcd825c9a9c01a1e9a601691171c
   src/Utils/BigDecimalHandler.php:
     id: cdcca3718e2e
     last_write_checksum: sha1:29b1d82d6e7200885c9ba413c9b8148627e846a4
@@ -1501,8 +1501,8 @@ trackedFiles:
     pristine_git_object: bc5b53374c87d0948a6cccacbd085ae24c6a3cef
   src/Utils/Retry/RetryUtils.php:
     id: 28597380e832
-    last_write_checksum: sha1:0caa9cd8534dad24f7aed51036619fb5164ffa11
-    pristine_git_object: 29262340ebd480395cc7283a31a37843ca49c45e
+    last_write_checksum: sha1:d3ea502d42de6a2c576e250aa10515ae408578b6
+    pristine_git_object: fb882638aaa36b13cdadf0976314c138b24c5e47
   src/Utils/Retry/TemporaryError.php:
     id: d58c3851b91f
     last_write_checksum: sha1:9c6e56a6978c2a71ded3b48db769a03d7769a828
@@ -1529,8 +1529,8 @@ trackedFiles:
     pristine_git_object: 64a0ece3dd2956702c67cfaddd96a342193bd3cb
   src/Utils/UnionHandler.php:
     id: 5a76a946fe85
-    last_write_checksum: sha1:27c4aa97957f51ec478c2c8676405d04c88753ea
-    pristine_git_object: fd8474bab9684499839f30b62c0830f8778d3d4d
+    last_write_checksum: sha1:b6ad0203fc36a0b33de7b33bf8fb20ccdb99fd4b
+    pristine_git_object: 56b85b45ab18d057c461a8cc99aeaa4f64aac0a0
   src/Utils/Utils.php:
     id: c902f57e2422
     last_write_checksum: sha1:dd0bfc8c71ec45e2d889f656f0545aec971f4020
