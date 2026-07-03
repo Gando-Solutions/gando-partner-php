@@ -29,6 +29,8 @@ When a subscription includes both the wildcard and a specific event, **the most 
 
 Failed deliveries are retried on a backoff schedule by Gando's webhook retry job.
 
+**Integration guide:** [Recipe 02 — Receive webhooks](../../../recipes/02-webhook-lifecycle.md) (setup, plain PHP + Symfony receivers, idempotency, local testing).
+
 ### Available Operations
 
 * [list](#list) - List partner webhook endpoints
