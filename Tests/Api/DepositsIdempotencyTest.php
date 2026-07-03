@@ -128,10 +128,10 @@ final class DepositsIdempotencyTest extends TestCase
             ->setServerURL('http://localhost:3000')
             ->setSecurity(new Security(partnerApiKeyAuth: 'gando_pk_test'))
             ->setRetryConfig(new RetryConfigBackoff(
-                initialInterval: 0,
-                maxInterval: 0,
+                initialIntervalMs: 0,
+                maxIntervalMs: 0,
                 exponent: 1.5,
-                maxElapsedTime: 30_000,
+                maxElapsedTimeMs: 30_000,
                 retryConnectionErrors: true,
             ))
             ->build();

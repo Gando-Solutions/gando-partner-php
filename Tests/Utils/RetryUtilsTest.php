@@ -26,10 +26,10 @@ final class RetryUtilsTest extends TestCase
                 };
             },
             new RetryConfigBackoff(
-                initialInterval: 0,
-                maxInterval: 0,
+                initialIntervalMs: 0,
+                maxIntervalMs: 0,
                 exponent: 1.5,
-                maxElapsedTime: 30_000,
+                maxElapsedTimeMs: 30_000,
                 retryConnectionErrors: true,
             ),
             ['429', '5xx'],
@@ -52,10 +52,10 @@ final class RetryUtilsTest extends TestCase
                     : new Response(200);
             },
             new RetryConfigBackoff(
-                initialInterval: 0,
-                maxInterval: 0,
+                initialIntervalMs: 0,
+                maxIntervalMs: 0,
                 exponent: 1.5,
-                maxElapsedTime: 30_000,
+                maxElapsedTimeMs: 30_000,
                 retryConnectionErrors: true,
             ),
             ['429', '5xx'],

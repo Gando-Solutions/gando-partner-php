@@ -11,6 +11,7 @@ use Gando\Partner\Api\Events\HttpRequestFinished;
 use Gando\Partner\Api\Events\HttpRequestStarted;
 use Gando\Partner\Clients;
 use Gando\Partner\Webhooks;
+use Gando\Support\Secret;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -40,6 +41,29 @@ final class ClientTest extends TestCase
 
         self::assertFalse(property_exists($api, 'connectSecret'));
         self::assertFalse(property_exists($api, 'connect_secret'));
+
+        $publicProperties = array_keys(get_object_vars($api));
+        self::assertNotContains('apiKey', $publicProperties);
+    }
+
+    public function test_client_accepts_secret_value_object(): void
+    {
+        $api = new Client(apiKey: new Secret('gando_pk_test_key'), baseUrl: 'http://localhost:3000');
+
+        self::assertInstanceOf(Accounts::class, $api->accounts);
+    }
+
+    public function test_var_dump_client_does_not_reveal_api_key(): void
+    {
+        $plainApiKey = 'gando_pk_var_dump_must_not_leak';
+        $api = new Client(apiKey: $plainApiKey, baseUrl: 'http://localhost:3000');
+
+        ob_start();
+        var_dump($api);
+        $output = (string) ob_get_clean();
+
+        self::assertStringNotContainsString($plainApiKey, $output);
+        self::assertStringContainsString('***', $output);
     }
 
     public function test_client_routes_requests_through_injected_psr18_client(): void
@@ -70,8 +94,8 @@ final class ClientTest extends TestCase
         self::assertCount(1, $psr18->requests);
         self::assertSame('GET', $psr18->requests[0]->getMethod());
         self::assertStringContainsString('/api/partner/v1/accounts', (string) $psr18->requests[0]->getUri());
-        self::assertContainsOnlyInstancesOf(HttpRequestStarted::class, array_filter($events->events, static fn ($event): bool => $event instanceof HttpRequestStarted));
-        self::assertContainsOnlyInstancesOf(HttpRequestFinished::class, array_filter($events->events, static fn ($event): bool => $event instanceof HttpRequestFinished));
+        self::assertContainsOnlyInstancesOf(HttpRequestStarted::class, array_filter($events->events, static fn($event): bool => $event instanceof HttpRequestStarted));
+        self::assertContainsOnlyInstancesOf(HttpRequestFinished::class, array_filter($events->events, static fn($event): bool => $event instanceof HttpRequestFinished));
     }
 }
 
@@ -82,8 +106,7 @@ final class RecordingPsr18Client implements Psr18ClientInterface
 
     public function __construct(
         private readonly ResponseInterface $response,
-    ) {
-    }
+    ) {}
 
     /**
      * @throws ClientExceptionInterface
