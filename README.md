@@ -1,14 +1,9 @@
 # gando/partner
 
-Developer-friendly & type-safe Php SDK specifically catered to leverage *gando/partner* API.
+Developer-friendly & type-safe Php SDK specifically catered to leverage _gando/partner_ API.
 
 [![Built by Speakeasy](https://img.shields.io/badge/Built_by-SPEAKEASY-374151?style=for-the-badge&labelColor=f3f4f6)](https://www.speakeasy.com/?utm_source=gando/partner&utm_campaign=php)
 [![License: MIT](https://img.shields.io/badge/LICENSE_//_MIT-3b5bdb?style=for-the-badge&labelColor=eff6ff)](https://opensource.org/licenses/MIT)
-
-
-<br /><br />
-> [!IMPORTANT]
-> This SDK is not yet ready for production use. To complete setup please follow the steps outlined in your [workspace](https://app.speakeasy.com/org/gando/gando). Delete this section before > publishing to a package manager.
 
 <!-- Start Summary [summary] -->
 ## Summary
@@ -51,11 +46,11 @@ composer require "gando/partner"
 
 Gando Partner integrations use **two different secrets** depending on what you are doing.
 
-| Secret | Prefix | Class | Use |
-| --- | --- | --- | --- |
-| Partner API key | `gando_pk_` | `Gando\Partner\Api\Client` | Call `/api/partner/*` |
-| Connect secret | `gando_cs_` | [`Gando\Partner\Connect\UrlBuilder`](docs/sdks/connect/README.md) | Build signed `/register` URLs |
-| Webhook secret | `gando_whsec_` | `Gando\Partner\WebhookVerifier` | Verify inbound webhooks |
+| Secret          | Prefix         | Class                                                             | Use                           |
+| --------------- | -------------- | ----------------------------------------------------------------- | ----------------------------- |
+| Partner API key | `gando_pk_`    | `Gando\Partner\Api\Client`                                        | Call `/api/partner/*`         |
+| Connect secret  | `gando_cs_`    | [`Gando\Partner\Connect\UrlBuilder`](docs/sdks/connect/README.md) | Build signed `/register` URLs |
+| Webhook secret  | `gando_whsec_` | `Gando\Partner\WebhookVerifier`                                   | Verify inbound webhooks       |
 
 ### Example
 
@@ -249,13 +244,13 @@ if ($response->object !== null) {
 
 All Partner API operations use the global `x-speakeasy-retries` extension from the Partner OpenAPI document (`PARTNER_SPEAKEASY_RETRIES` in `gando-app` → `lib/api/openapi/shared.ts`). Out of the box, the SDK retries transient failures without custom loops in partner integrations.
 
-| Setting | Value |
-| --- | --- |
-| Strategy | Exponential backoff (`initialInterval` 500 ms, `maxInterval` 60 s, `exponent` 1.5) |
-| Max elapsed time | 30 s |
-| Status codes | `429`, `5xx` (server errors) |
-| Connection errors | Retried when enabled |
-| Attempts | Up to **3** (1 initial + **2** retries) within the elapsed window |
+| Setting           | Value                                                                              |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| Strategy          | Exponential backoff (`initialInterval` 500 ms, `maxInterval` 60 s, `exponent` 1.5) |
+| Max elapsed time  | 30 s                                                                               |
+| Status codes      | `429`, `5xx` (server errors)                                                       |
+| Connection errors | Retried when enabled                                                               |
+| Attempts          | Up to **3** (1 initial + **2** retries) within the elapsed window                  |
 
 The SDK respects a `Retry-After` response header when present. Override globally via `Gando::builder()->setRetryConfig(...)` or per call via `Utils\Options` (see below).
 
@@ -492,7 +487,7 @@ looking for the latest version.
 
 ## Contributions
 
-While we value open-source contributions to this SDK, this library is generated programmatically. Any manual changes added to internal files will be overwritten on the next generation. 
-We look forward to hearing your feedback. Feel free to open a PR or an issue with a proof of concept and we'll do our best to include it in a future release. 
+While we value open-source contributions to this SDK, this library is generated programmatically. Any manual changes added to internal files will be overwritten on the next generation.
+We look forward to hearing your feedback. Feel free to open a PR or an issue with a proof of concept and we'll do our best to include it in a future release.
 
 ### SDK Created by [Speakeasy](https://www.speakeasy.com/?utm_source=gando/partner&utm_campaign=php)

@@ -73,7 +73,7 @@ final class AccountsHappyPathE2ETest extends TestCase
             'success' => true,
             'data' => [
                 'status' => 'revoked',
-                'revoked_at' => '2026-05-01T10:00:00.000Z',
+                'revokedAt' => '2026-05-01T10:00:00.000Z',
             ],
         ], JSON_THROW_ON_ERROR);
     }
