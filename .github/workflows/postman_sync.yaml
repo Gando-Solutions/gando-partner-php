@@ -27,13 +27,26 @@ jobs:
       - name: Convert OpenAPI to Postman collection
         run: npx openapi-to-postmanv2 -s partner.json -o generated_collection.json
 
-      - name: Install Postman CLI
-        run: curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
-
-      - name: Login to Postman CLI
-        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
-
       - name: Update Postman collection
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+          POSTMAN_COLLECTION_ID: ${{ secrets.POSTMAN_COLLECTION_ID }}
         run: |
-          postman collection update "${{ secrets.POSTMAN_COLLECTION_ID }}" \
-            --file ./generated_collection.json
+          jq '{collection: .}' generated_collection.json > postman_payload.json
+
+          response_file="$(mktemp)"
+          http_code="$(
+            curl --silent --show-error --output "$response_file" --write-out '%{http_code}' \
+              --request PUT \
+              --url "https://api.getpostman.com/collections/${POSTMAN_COLLECTION_ID}" \
+              --header "X-Api-Key: ${POSTMAN_API_KEY}" \
+              --header "Content-Type: application/json" \
+              --data-binary @postman_payload.json
+          )"
+
+          cat "$response_file"
+
+          if [[ "$http_code" -lt 200 || "$http_code" -ge 300 ]]; then
+            echo "Postman API request failed with HTTP ${http_code}"
+            exit 1
+          fi
