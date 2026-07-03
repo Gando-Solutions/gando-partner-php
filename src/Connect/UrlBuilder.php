@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Gando\Partner\Connect;
 
+use Gando\Support\Secret;
+
 final readonly class UrlBuilder
 {
+    private Secret $connectSecret;
+
     public function __construct(
-        private string $connectSecret,
+        #[\SensitiveParameter]
+        string|Secret $connectSecret,
         private string $partnerSlug,
         private string $baseUrl,
     ) {
+        $this->connectSecret = $connectSecret instanceof Secret ? $connectSecret : new Secret($connectSecret);
     }
 
     public function signupUrl(
@@ -43,18 +49,18 @@ final readonly class UrlBuilder
 
         $base = rtrim($this->baseUrl, '/');
 
-        return $base.'/register?'.http_build_query($query);
+        return $base . '/register?' . http_build_query($query);
     }
 
     private function signature(string $externalId, string $ts): string
     {
         $payload = $this->signingPayload($externalId, $ts);
 
-        return hash_hmac('sha256', $payload, $this->connectSecret);
+        return hash_hmac('sha256', $payload, $this->connectSecret->reveal());
     }
 
     private function signingPayload(string $externalId, string $ts): string
     {
-        return $this->partnerSlug.'.'.$externalId.'.'.$ts;
+        return $this->partnerSlug . '.' . $externalId . '.' . $ts;
     }
 }

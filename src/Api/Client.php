@@ -10,6 +10,7 @@ use Gando\Partner\Gando;
 use Gando\Partner\Api\Http\Psr18GuzzleAdapter;
 use Gando\Partner\Models\Components\Security;
 use Gando\Partner\Webhooks;
+use Gando\Support\Secret;
 use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -25,8 +26,11 @@ final readonly class Client
     public Deposits $deposits;
     public Webhooks $webhooks;
 
+    private Secret $apiKey;
+
     public function __construct(
-        public string $apiKey,
+        #[\SensitiveParameter]
+        string|Secret $apiKey,
         ?Psr18ClientInterface $httpClient = null,
         ?RequestFactoryInterface $requestFactory = null,
         ?LoggerInterface $logger = null,
@@ -34,13 +38,15 @@ final readonly class Client
         ?EventDispatcherInterface $events = null,
         ?string $baseUrl = null,
     ) {
+        $this->apiKey = $apiKey instanceof Secret ? $apiKey : new Secret($apiKey);
+
         $resolvedHttpClient = $httpClient ?? Psr18ClientDiscovery::find();
         $resolvedRequestFactory = $requestFactory ?? Psr17FactoryDiscovery::findRequestFactory();
         $transport = new Psr18GuzzleAdapter($resolvedHttpClient, $resolvedRequestFactory, $logger, $events);
 
         $sdk = Gando::builder()
             ->setClient($transport)
-            ->setSecurity(new Security(partnerApiKeyAuth: $apiKey))
+            ->setSecurity(new Security(partnerApiKeyAuth: $this->apiKey->reveal()))
             ->setServerUrl($baseUrl ?? Gando::SERVERS[0])
             ->build();
 
@@ -48,5 +54,13 @@ final readonly class Client
         $this->clients = $sdk->clients;
         $this->deposits = new Deposits($sdk->deposits, $cache, $logger);
         $this->webhooks = $sdk->webhooks;
+    }
+
+    /**
+     * @return array{apiKey: Secret}
+     */
+    public function __debugInfo(): array
+    {
+        return ['apiKey' => $this->apiKey];
     }
 }
