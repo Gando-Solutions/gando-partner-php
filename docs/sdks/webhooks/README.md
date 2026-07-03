@@ -6,6 +6,8 @@
 
 Register **HTTPS endpoints** that receive JSON events for your entire partner integration (same `gando_pk_` authentication as `/api/partner/v1/*`). Use this instead of polling **`GET /api/partner/v1/accounts`** when you need the Gando **`accountId`** as soon as a rental operator completes partner connect.
 
+> **Integration path:** [1. Connect](../../../recipes/01-connect-flow.md) → [2. Webhooks](../../../recipes/02-webhook-lifecycle.md) *(this SDK)* → [3. Deposits](../../../recipes/03-create-deposit.md)
+
 ### Authentication
 
 Send your partner API key with **`x-api-key: gando_pk_…`** or **`Authorization: Bearer gando_pk_…`** (same as other v1 routes).
@@ -28,6 +30,8 @@ When a subscription includes both the wildcard and a specific event, **the most 
 ### Retries
 
 Failed deliveries are retried on a backoff schedule by Gando's webhook retry job.
+
+**Integration guide:** [Recipe 02 — Receive webhooks](../../../recipes/02-webhook-lifecycle.md) (setup, plain PHP + Symfony receivers, idempotency, local testing).
 
 ### Available Operations
 
