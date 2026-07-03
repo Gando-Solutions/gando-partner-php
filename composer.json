@@ -5,7 +5,8 @@
   "license": "MIT",
   "autoload": {
     "psr-4": {
-      "Gando\\Partner\\": "src/"
+      "Gando\\Partner\\": "src/",
+      "Gando\\Support\\": "src/Support/"
     }
   },
   "require": {
