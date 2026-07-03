@@ -5,6 +5,9 @@ Create a deposit on behalf of a linked rental operator, send the tenant to Gando
 **Time:** ~15 minutes  
 **API:** `POST /api/partner/v1/deposits`
 
+> **Integration path** — recommended order for a new partner integration:  
+> [1. Connect](01-connect-flow.md) → [2. Webhooks](02-webhook-lifecycle.md) → **3. Deposits** *(this recipe)*
+
 ---
 
 ## Prerequisites
@@ -17,7 +20,7 @@ Create a deposit on behalf of a linked rental operator, send the tenant to Gando
 
 2. **Partner API key** — issued by Gando, prefix `gando_pk_test_…` for staging.
 3. **Staging environment** — point requests at `https://stagingv2.gando.app` (production: `https://gando.app`).
-4. **Linked rental operator** — you need a `GANDO_ACCOUNT_ID` for an account actively linked to your partner. List linked accounts:
+4. **Linked rental operator** — you need a `GANDO_ACCOUNT_ID` for an account actively linked to your partner. Complete **[Recipe 01 — Link a rental operator](01-connect-flow.md)** first if none exist. List linked accounts:
 
 ```php
  <?php
@@ -41,6 +44,7 @@ Create a deposit on behalf of a linked rental operator, send the tenant to Gando
 ```
 
 5. **Runnable examples repo** (for the full script at the end): [gando-partner-php-examples](https://github.com/Gando-Solutions/gando-partner-php-examples).
+6. **Webhooks configured** (recommended) — **[Recipe 02 — Receive webhooks](02-webhook-lifecycle.md)** so you track deposit status via `deposit.activated` instead of polling.
 
 ---
 
@@ -314,7 +318,7 @@ Log `requestId` from every error when contacting Gando support.
 
 ## Full code
 
-Runnable end-to-end script — identical to `[examples/01-create-deposit.php](https://github.com/Gando-Solutions/gando-partner-php-examples/blob/main/examples/01-create-deposit.php)` in the examples repo.
+Runnable end-to-end script — identical to `[examples/03-create-deposit.php](https://github.com/Gando-Solutions/gando-partner-php-examples/blob/main/examples/03-create-deposit.php)` in the examples repo.
 
 ```bash
 git clone https://github.com/Gando-Solutions/gando-partner-php-examples.git
@@ -322,7 +326,7 @@ cd gando-partner-php-examples
 composer install
 cp .env.example .env
 # Set GANDO_API_KEY, GANDO_ACCOUNT_ID
-php examples/01-create-deposit.php
+php examples/03-create-deposit.php
 ```
 
 ```php
@@ -333,7 +337,7 @@ declare(strict_types=1);
 /**
  * Create a deposit for a linked rental operator (Partner API).
  *
- * Usage: php examples/01-create-deposit.php
+ * Usage: php examples/03-create-deposit.php
  */
 
 require __DIR__.'/_bootstrap.php';
@@ -375,6 +379,14 @@ try {
 
 ## Next steps
 
-- **[Recipe 02 — Receive webhooks](02-webhook-lifecycle.md)** — production-grade status tracking
+You have completed the core integration path (Connect → Webhooks → Deposits).
+
+**Optional enhancements:**
+
 - **[Create a client](snippets/clients.create.php)** — pre-fill tenant info before creating the deposit
-- **[Partner API reference](https://developers.gando.app/partner)** — full endpoint documentation
+- **[Partner API reference](https://developers.gando.app/partner)** — capture, cancel, list deposits, and more
+
+**Earlier in the path** (if you skipped a step):
+
+- **[Recipe 01 — Link a rental operator](01-connect-flow.md)** — Partner Connect signed URLs
+- **[Recipe 02 — Receive webhooks](02-webhook-lifecycle.md)** — production-grade event delivery
