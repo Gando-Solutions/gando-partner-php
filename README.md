@@ -6,52 +6,77 @@ Developer-friendly & type-safe Php SDK specifically catered to leverage _gando/p
 [![License: MIT](https://img.shields.io/badge/LICENSE_//_MIT-3b5bdb?style=for-the-badge&labelColor=eff6ff)](https://opensource.org/licenses/MIT)
 
 <!-- Start Summary [summary] -->
+
 ## Summary
 
 Gando Partner API v1: API for **rental management software** and **multi–rental-operator platforms** integrating Gando on behalf of linked rental operators. Use **`gando_pk_`** keys (`x-api-key` or `Authorization: Bearer`) on `/api/partner/v1/*`.
+
 <!-- End Summary [summary] -->
 
+[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://app.getpostman.com/run-collection/56365347-ec6d479f-fedc-45af-9b6f-0d15196bd2bf?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D56365347-ec6d479f-fedc-45af-9b6f-0d15196bd2bf%26entityType%3Dcollection%26workspaceId%3Dd399468f-5095-445a-843b-718f4c54f512#?env%5BGando%20partner%20env%5D=W3sia2V5IjoiYmFzZVVSTCIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZSwidHlwZSI6ImRlZmF1bHQifSx7ImtleSI6ImFwaUtleSIsInZhbHVlIjoiIiwiZW5hYmxlZCI6dHJ1ZSwidHlwZSI6ImRlZmF1bHQifV0=)
+
 <!-- Start Table of Contents [toc] -->
+
 ## Table of Contents
+
 <!-- $toc-max-depth=2 -->
-* [gando/partner](#gandopartner)
-  * [SDK Installation](#sdk-installation)
-  * [Integration recipes](#integration-recipes)
-  * [Two credentials, two classes](#two-credentials-two-classes)
-  * [SDK Example Usage](#sdk-example-usage)
-  * [Authentication](#authentication)
-  * [Available Resources and Operations](#available-resources-and-operations)
-  * [Default retry policy](#default-retry-policy)
-  * [Retries](#retries)
-  * [Error Handling](#error-handling)
-  * [Server Selection](#server-selection)
-  * [Webhook signature verification](#webhook-signature-verification)
-* [Development](#development)
-  * [Maturity](#maturity)
-  * [Contributions](#contributions)
+
+- [gando/partner](#gandopartner)
+  - [Summary](#summary)
+  - [Table of Contents](#table-of-contents)
+  - [SDK Installation](#sdk-installation)
+  - [Integration recipes](#integration-recipes)
+  - [Two credentials, two classes](#two-credentials-two-classes)
+    - [Example](#example)
+    - [PSR injection (enterprise/Symfony)](#psr-injection-enterprisesymfony)
+    - [Deposit create idempotency](#deposit-create-idempotency)
+  - [SDK Example Usage](#sdk-example-usage)
+    - [Example](#example-1)
+  - [Authentication](#authentication)
+    - [Per-Client Security Schemes](#per-client-security-schemes)
+  - [Available Resources and Operations](#available-resources-and-operations)
+    - [Accounts](#accounts)
+    - [Clients](#clients)
+    - [Deposits](#deposits)
+    - [Webhooks](#webhooks)
+  - [Default retry policy](#default-retry-policy)
+  - [Retries](#retries)
+  - [Error Handling](#error-handling)
+    - [Example](#example-2)
+  - [Server Selection](#server-selection)
+    - [Override Server URL Per-Client](#override-server-url-per-client)
+  - [Partner Connect (signed URLs)](#partner-connect-signed-urls)
+  - [Webhook signature verification](#webhook-signature-verification)
+- [Development](#development)
+  - [Maturity](#maturity)
+  - [Contributions](#contributions)
+    - [SDK Created by Speakeasy](#sdk-created-by-speakeasy)
 
 <!-- End Table of Contents [toc] -->
 
 <!-- Start SDK Installation [installation] -->
+
 ## SDK Installation
 
 The SDK relies on [Composer](https://getcomposer.org/) to manage its dependencies.
 
 To install the SDK and add it as a dependency to an existing `composer.json` file:
+
 ```bash
 composer require "gando/partner"
 ```
+
 <!-- End SDK Installation [installation] -->
 
 ## Integration recipes
 
 Follow this order for a new partner integration (~50 minutes total):
 
-| Step | Recipe | What you get |
-| --- | --- | --- |
+| Step  | Recipe                                                   | What you get                                                                              |
+| ----- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | **1** | **[Link a rental operator](recipes/01-connect-flow.md)** | Signed Partner Connect URLs (`gando_cs_`), `PartnerAccountLink`, `rental_operator.linked` |
-| **2** | **[Receive webhooks](recipes/02-webhook-lifecycle.md)** | HMAC verification, idempotency, plain PHP + Symfony receivers |
-| **3** | **[Create a deposit](recipes/03-create-deposit.md)** | `POST /deposits`, tenant checkout, track `deposit.activated` |
+| **2** | **[Receive webhooks](recipes/02-webhook-lifecycle.md)**  | HMAC verification, idempotency, plain PHP + Symfony receivers                             |
+| **3** | **[Create a deposit](recipes/03-create-deposit.md)**     | `POST /deposits`, tenant checkout, track `deposit.activated`                              |
 
 Runnable examples: [gando-partner-php-examples](https://github.com/Gando-Solutions/gando-partner-php-examples). Full index: [recipes/README.md](recipes/README.md).
 
@@ -59,11 +84,11 @@ Runnable examples: [gando-partner-php-examples](https://github.com/Gando-Solutio
 
 Gando Partner integrations use **two different secrets** depending on what you are doing.
 
-| Secret          | Prefix         | Class                                                             | Use                           |
-| --------------- | -------------- | ----------------------------------------------------------------- | ----------------------------- |
-| Partner API key | `gando_pk_`    | `Gando\Partner\Api\Client`                                        | Call `/api/partner/*`         |
-| Connect secret  | `gando_cs_`    | [`Gando\Partner\Connect\UrlBuilder`](docs/sdks/connect/README.md) | Sign partner connect URLs     |
-| Webhook secret  | `gando_whsec_` | `Gando\Partner\WebhookVerifier`                                   | Verify inbound webhooks       |
+| Secret          | Prefix         | Class                                                             | Use                       |
+| --------------- | -------------- | ----------------------------------------------------------------- | ------------------------- |
+| Partner API key | `gando_pk_`    | `Gando\Partner\Api\Client`                                        | Call `/api/partner/*`     |
+| Connect secret  | `gando_cs_`    | [`Gando\Partner\Connect\UrlBuilder`](docs/sdks/connect/README.md) | Sign partner connect URLs |
+| Webhook secret  | `gando_whsec_` | `Gando\Partner\WebhookVerifier`                                   | Verify inbound webhooks   |
 
 ### Example
 
@@ -131,6 +156,7 @@ All PSR dependencies are optional. If you omit `httpClient` and `requestFactory`
 `POST /api/partner/deposits` is idempotent when the `Idempotency-Key` header is sent (UUID v4, 24h deduplication via Redis on the API). **`Gando\Partner\Api\Client`** auto-generates that key on `deposits->create()` when you omit it, so SDK retries do not create duplicate deposits. Pass your own key to override.
 
 <!-- Start SDK Example Usage [usage] -->
+
 ## SDK Example Usage
 
 ### Example
@@ -163,9 +189,11 @@ if ($response->object !== null) {
     // handle response
 }
 ```
+
 <!-- End SDK Example Usage [usage] -->
 
 <!-- Start Authentication [security] -->
+
 ## Authentication
 
 ### Per-Client Security Schemes
@@ -178,6 +206,7 @@ This SDK supports the following security schemes globally:
 | `partnerBearerAuth` | http   | HTTP Bearer |
 
 You can set the security parameters through the `setSecurity` function on the `SDKBuilder` when initializing the SDK. The selected scheme will be used by default to authenticate with the API for all operations that support it. For example:
+
 ```php
 declare(strict_types=1);
 
@@ -206,9 +235,11 @@ if ($response->object !== null) {
     // handle response
 }
 ```
+
 <!-- End Authentication [security] -->
 
 <!-- Start Available Resources and Operations [operations] -->
+
 ## Available Resources and Operations
 
 <details open>
@@ -216,41 +247,41 @@ if ($response->object !== null) {
 
 ### [Accounts](docs/sdks/accounts/README.md)
 
-* [list](docs/sdks/accounts/README.md#list) - List linked rental operator accounts
-* [revoke](docs/sdks/accounts/README.md#revoke) - Revoke partner ↔ rental operator link
+- [list](docs/sdks/accounts/README.md#list) - List linked rental operator accounts
+- [revoke](docs/sdks/accounts/README.md#revoke) - Revoke partner ↔ rental operator link
 
 ### [Clients](docs/sdks/clients/README.md)
 
-* [list](docs/sdks/clients/README.md#list) - List clients across linked rental operator accounts
-* [create](docs/sdks/clients/README.md#create) - Create a client for a linked rental operator account
-* [update](docs/sdks/clients/README.md#update) - Update a partner-accessible client
+- [list](docs/sdks/clients/README.md#list) - List clients across linked rental operator accounts
+- [create](docs/sdks/clients/README.md#create) - Create a client for a linked rental operator account
+- [update](docs/sdks/clients/README.md#update) - Update a partner-accessible client
 
 ### [Deposits](docs/sdks/deposits/README.md)
 
-* [list](docs/sdks/deposits/README.md#list) - List deposits
-* [create](docs/sdks/deposits/README.md#create) - Create a deposit for a linked rental operator
-* [retrieve](docs/sdks/deposits/README.md#retrieve) - Get deposit by id
-* [delete](docs/sdks/deposits/README.md#delete) - Delete or archive a deposit
-* [update](docs/sdks/deposits/README.md#update) - Update deposit (change client or cancel pending payment)
-* [cancel](docs/sdks/deposits/README.md#cancel) - Close deposit (status close + optional email)
-* [getCapture](docs/sdks/deposits/README.md#getcapture) - Get latest capture for a deposit
-* [capture](docs/sdks/deposits/README.md#capture) - Create a capture (encaissement)
-* [sendEmails](docs/sdks/deposits/README.md#sendemails) - Send deposit link to multiple emails
-* [sendDepositMail](docs/sdks/deposits/README.md#senddepositmail) - Send deposit link to one email
-* [getPaymentMethod](docs/sdks/deposits/README.md#getpaymentmethod) - Masked card info for the deposit
-* [getPdf](docs/sdks/deposits/README.md#getpdf) - Download deposit summary PDF
-* [depositsGetScoring](docs/sdks/deposits/README.md#depositsgetscoring) - Latest open-banking scoring for the deposit client
+- [list](docs/sdks/deposits/README.md#list) - List deposits
+- [create](docs/sdks/deposits/README.md#create) - Create a deposit for a linked rental operator
+- [retrieve](docs/sdks/deposits/README.md#retrieve) - Get deposit by id
+- [delete](docs/sdks/deposits/README.md#delete) - Delete or archive a deposit
+- [update](docs/sdks/deposits/README.md#update) - Update deposit (change client or cancel pending payment)
+- [cancel](docs/sdks/deposits/README.md#cancel) - Close deposit (status close + optional email)
+- [getCapture](docs/sdks/deposits/README.md#getcapture) - Get latest capture for a deposit
+- [capture](docs/sdks/deposits/README.md#capture) - Create a capture (encaissement)
+- [sendEmails](docs/sdks/deposits/README.md#sendemails) - Send deposit link to multiple emails
+- [sendDepositMail](docs/sdks/deposits/README.md#senddepositmail) - Send deposit link to one email
+- [getPaymentMethod](docs/sdks/deposits/README.md#getpaymentmethod) - Masked card info for the deposit
+- [getPdf](docs/sdks/deposits/README.md#getpdf) - Download deposit summary PDF
+- [depositsGetScoring](docs/sdks/deposits/README.md#depositsgetscoring) - Latest open-banking scoring for the deposit client
 
 ### [Webhooks](docs/sdks/webhooks/README.md)
 
-* [list](docs/sdks/webhooks/README.md#list) - List partner webhook endpoints
-* [create](docs/sdks/webhooks/README.md#create) - Create partner webhook endpoint
-* [delete](docs/sdks/webhooks/README.md#delete) - Delete partner webhook endpoint
-* [update](docs/sdks/webhooks/README.md#update) - Update partner webhook endpoint
-* [rotateSecret](docs/sdks/webhooks/README.md#rotatesecret) - Rotate partner webhook secret
-* [getSecret](docs/sdks/webhooks/README.md#getsecret) - Get partner webhook secret
-* [test](docs/sdks/webhooks/README.md#test) - Send test partner webhook delivery
-* [getDeliveries](docs/sdks/webhooks/README.md#getdeliveries) - List partner webhook deliveries
+- [list](docs/sdks/webhooks/README.md#list) - List partner webhook endpoints
+- [create](docs/sdks/webhooks/README.md#create) - Create partner webhook endpoint
+- [delete](docs/sdks/webhooks/README.md#delete) - Delete partner webhook endpoint
+- [update](docs/sdks/webhooks/README.md#update) - Update partner webhook endpoint
+- [rotateSecret](docs/sdks/webhooks/README.md#rotatesecret) - Rotate partner webhook secret
+- [getSecret](docs/sdks/webhooks/README.md#getsecret) - Get partner webhook secret
+- [test](docs/sdks/webhooks/README.md#test) - Send test partner webhook delivery
+- [getDeliveries](docs/sdks/webhooks/README.md#getdeliveries) - List partner webhook deliveries
 
 </details>
 <!-- End Available Resources and Operations [operations] -->
@@ -270,11 +301,13 @@ All Partner API operations use the global `x-speakeasy-retries` extension from t
 The SDK respects a `Retry-After` response header when present. Override globally via `Gando::builder()->setRetryConfig(...)` or per call via `Utils\Options` (see below).
 
 <!-- Start Retries [retries] -->
+
 ## Retries
 
 Some of the endpoints in this SDK support retries. If you use the SDK without any configuration, it will fall back to the default retry strategy provided by the API. However, the default retry strategy can be overridden on a per-operation basis, or across the entire SDK.
 
 To change the default retry strategy for a single API call, simply provide an `Options` object built with a `RetryConfig` object to the call:
+
 ```php
 declare(strict_types=1);
 
@@ -314,6 +347,7 @@ if ($response->object !== null) {
 ```
 
 If you'd like to override the default retry strategy for all operations that support retries, you can pass a `RetryConfig` object to the `SDKBuilder->setRetryConfig` function when initializing the SDK:
+
 ```php
 declare(strict_types=1);
 
@@ -352,23 +386,25 @@ if ($response->object !== null) {
     // handle response
 }
 ```
+
 <!-- End Retries [retries] -->
 
 <!-- Start Error Handling [errors] -->
+
 ## Error Handling
 
 Handling errors in this SDK should largely match your expectations. All operations return a response object or throw an exception.
 
 By default an API error will raise a `Errors\APIException` exception, which has the following properties:
 
-| Property       | Type                                    | Description           |
-|----------------|-----------------------------------------|-----------------------|
-| `$message`     | *string*                                | The error message     |
-| `$statusCode`  | *int*                                   | The HTTP status code  |
-| `$rawResponse` | *?\Psr\Http\Message\ResponseInterface*  | The raw HTTP response |
-| `$body`        | *string*                                | The response content  |
+| Property       | Type                                   | Description           |
+| -------------- | -------------------------------------- | --------------------- |
+| `$message`     | _string_                               | The error message     |
+| `$statusCode`  | _int_                                  | The HTTP status code  |
+| `$rawResponse` | _?\Psr\Http\Message\ResponseInterface_ | The raw HTTP response |
+| `$body`        | _string_                               | The response content  |
 
-When custom error responses are specified for an operation, the SDK may also throw their associated exception. You can refer to respective *Errors* tables in SDK docs for more details on possible exception types for each operation. For example, the `list` method throws the following exceptions:
+When custom error responses are specified for an operation, the SDK may also throw their associated exception. You can refer to respective _Errors_ tables in SDK docs for more details on possible exception types for each operation. For example, the `list` method throws the following exceptions:
 
 | Error Type           | Status Code                       | Content Type     |
 | -------------------- | --------------------------------- | ---------------- |
@@ -416,14 +452,17 @@ try {
     throw $e;
 }
 ```
+
 <!-- End Error Handling [errors] -->
 
 <!-- Start Server Selection [server] -->
+
 ## Server Selection
 
 ### Override Server URL Per-Client
 
 The default server can be overridden globally using the `setServerUrl(string $serverUrl)` builder method when initializing the SDK client instance. For example:
+
 ```php
 declare(strict_types=1);
 
@@ -453,6 +492,7 @@ if ($response->object !== null) {
     // handle response
 }
 ```
+
 <!-- End Server Selection [server] -->
 
 <!-- Placeholder for Future Speakeasy SDK Sections -->
