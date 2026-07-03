@@ -5,20 +5,24 @@ Register an HTTPS endpoint, verify every inbound delivery, and react to deposit 
 **Time:** ~20 minutes  
 **API:** `POST /api/partner/v1/webhooks` (register) · `POST` your endpoint (receive)
 
+> **Integration path** — recommended order for a new partner integration:  
+> [1. Connect](01-connect-flow.md) → **2. Webhooks** *(this recipe)* → [3. Deposits](03-create-deposit.md)
+
 ---
 
 ## Prerequisites
 
 1. **Install the SDK**
 
-```bash
- composer require gando/partner
-```
+   ```bash
+   composer require gando/partner
+   ```
 
-1. **Partner API key** — `gando_pk_test_…` for staging.
-2. **Staging environment** — `https://stagingv2.gando.app` (production: `https://gando.app`).
-3. **Public HTTPS URL** for your receiver — use [ngrok](https://ngrok.com/) or similar for local dev (see [Test locally](#test-locally)).
-4. **Runnable examples repo** (optional): [gando-partner-php-examples](https://github.com/Gando-Solutions/gando-partner-php-examples) — `examples/02-webhook-receiver-plain.php` and `examples/02-webhook-receiver-symfony/`.
+2. **Partner API key** — `gando_pk_test_…` for staging.
+3. **Staging environment** — `https://stagingv2.gando.app` (production: `https://gando.app`).
+4. **Public HTTPS URL** for your receiver — use [ngrok](https://ngrok.com/) or similar for local dev (see [Test locally](#test-locally)).
+5. **Recipe 01 completed** (recommended) — subscribe to `rental_operator.linked` to receive the Gando `accountId` as soon as a rental operator activates via Partner Connect.
+6. **Runnable examples repo** (optional): [gando-partner-php-examples](https://github.com/Gando-Solutions/gando-partner-php-examples) — `examples/02-webhook-receiver-plain.php` and `examples/02-webhook-receiver-symfony/`.
 
 ---
 
@@ -578,12 +582,22 @@ Save the printed `gando_whsec_…` into `.env` as `GANDO_WEBHOOK_SECRET` and res
  $api->webhooks->test(id: 'pwh_…');
 ```
 
-1. **Trigger a real event** — complete [Recipe 01 — Create a deposit](01-create-deposit.md) with `depositUrlGeneration: true` and finish tenant checkout on staging. Watch your receiver logs for `deposit.activated`.
+1. **Trigger a real event** — complete [Recipe 03 — Create a deposit](03-create-deposit.md) with `depositUrlGeneration: true` and finish tenant checkout on staging. Watch your receiver logs for `deposit.activated`.
 2. **Inspect deliveries** in the Gando partner dashboard or via `GET /api/partner/v1/webhooks/{id}/deliveries`.
 
 ---
 
 ## Next steps
+
+Continue the integration path:
+
+1. **[Recipe 03 — Create a deposit](03-create-deposit.md)** — create cautions and track `deposit.activated` via webhooks instead of polling
+
+Earlier in the path:
+
+- **[Recipe 01 — Link a rental operator](01-connect-flow.md)** — if not done yet; triggers `rental_operator.linked`
+
+Reference:
 
 - **[Webhooks SDK reference](../docs/sdks/webhooks/README.md)** — list, update, rotate secret, deliveries
 - **[Partner API reference](https://developers.gando.app/partner)** — full OpenAPI docs

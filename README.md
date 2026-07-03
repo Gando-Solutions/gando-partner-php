@@ -16,6 +16,7 @@ Gando Partner API v1: API for **rental management software** and **multi–renta
 <!-- $toc-max-depth=2 -->
 * [gando/partner](#gandopartner)
   * [SDK Installation](#sdk-installation)
+  * [Integration recipes](#integration-recipes)
   * [Two credentials, two classes](#two-credentials-two-classes)
   * [SDK Example Usage](#sdk-example-usage)
   * [Authentication](#authentication)
@@ -42,6 +43,18 @@ composer require "gando/partner"
 ```
 <!-- End SDK Installation [installation] -->
 
+## Integration recipes
+
+Follow this order for a new partner integration (~50 minutes total):
+
+| Step | Recipe | What you get |
+| --- | --- | --- |
+| **1** | **[Link a rental operator](recipes/01-connect-flow.md)** | Signed Partner Connect URLs (`gando_cs_`), `PartnerAccountLink`, `rental_operator.linked` |
+| **2** | **[Receive webhooks](recipes/02-webhook-lifecycle.md)** | HMAC verification, idempotency, plain PHP + Symfony receivers |
+| **3** | **[Create a deposit](recipes/03-create-deposit.md)** | `POST /deposits`, tenant checkout, track `deposit.activated` |
+
+Runnable examples: [gando-partner-php-examples](https://github.com/Gando-Solutions/gando-partner-php-examples). Full index: [recipes/README.md](recipes/README.md).
+
 ## Two credentials, two classes
 
 Gando Partner integrations use **two different secrets** depending on what you are doing.
@@ -49,7 +62,7 @@ Gando Partner integrations use **two different secrets** depending on what you a
 | Secret          | Prefix         | Class                                                             | Use                           |
 | --------------- | -------------- | ----------------------------------------------------------------- | ----------------------------- |
 | Partner API key | `gando_pk_`    | `Gando\Partner\Api\Client`                                        | Call `/api/partner/*`         |
-| Connect secret  | `gando_cs_`    | [`Gando\Partner\Connect\UrlBuilder`](docs/sdks/connect/README.md) | Build signed `/register` URLs |
+| Connect secret  | `gando_cs_`    | [`Gando\Partner\Connect\UrlBuilder`](docs/sdks/connect/README.md) | Sign partner connect URLs     |
 | Webhook secret  | `gando_whsec_` | `Gando\Partner\WebhookVerifier`                                   | Verify inbound webhooks       |
 
 ### Example
@@ -72,6 +85,8 @@ $builder = new UrlBuilder(
 );
 $signupUrl = $builder->signupUrl(externalId: 'fleet_acct_42');
 ```
+
+See **[Recipe 01 — Link a rental operator](recipes/01-connect-flow.md)** for the full connect flow (HMAC payload, 5-minute window, security, post-link verification).
 
 ### PSR injection (enterprise/Symfony)
 
@@ -441,6 +456,25 @@ if ($response->object !== null) {
 <!-- End Server Selection [server] -->
 
 <!-- Placeholder for Future Speakeasy SDK Sections -->
+
+## Partner Connect (signed URLs)
+
+Build activation links with `Gando\Partner\Connect\UrlBuilder` and your **connect secret** (`gando_cs_…`). Sign server-side only — never in the browser.
+
+```php
+$builder = new UrlBuilder(
+    connectSecret: getenv('GANDO_CONNECT_SECRET'),
+    partnerSlug: 'fleetee',
+    baseUrl: 'https://dashboard.gando.app',
+);
+
+header('Location: '.$builder->signupUrl(
+    externalId: 'fleet_acct_42',
+    returnUrl: 'https://partner.example/gando/callback',
+));
+```
+
+See [Connect SDK docs](docs/sdks/connect/README.md) and **[Recipe 01 — Link a rental operator](recipes/01-connect-flow.md)**.
 
 ## Webhook signature verification
 
