@@ -17,7 +17,7 @@ use Psr\Http\Message\RequestInterface;
 
 final class WebhooksHappyPathE2ETest extends TestCase
 {
-    public function testWebhooksCreateHappyPathIncludesExpectedHeaders(): void
+    public function test_webhooks_create_happy_path_includes_expected_headers(): void
     {
         $captured = [];
         $webhooks = $this->webhooksWithStack(
@@ -37,7 +37,7 @@ final class WebhooksHappyPathE2ETest extends TestCase
         self::assertSame('application/json', $captured[0]['content_type']);
     }
 
-    public function testWebhooksListHappyPathIncludesAuthorizationHeader(): void
+    public function test_webhooks_list_happy_path_includes_authorization_header(): void
     {
         $captured = [];
         $webhooks = $this->webhooksWithStack(

@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 final class RetryStrategyTest extends TestCase
 {
-    public function testRetryStrategyRetriesTwiceAndHonorsRetryAfterTiming(): void
+    public function test_retry_strategy_retries_twice_and_honors_retry_after_timing(): void
     {
         $attempts = 0;
         $start = microtime(true);

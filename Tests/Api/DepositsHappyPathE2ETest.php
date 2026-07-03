@@ -19,7 +19,7 @@ use Psr\Http\Message\RequestInterface;
 
 final class DepositsHappyPathE2ETest extends TestCase
 {
-    public function testDepositsCreateHappyPathIncludesExpectedHeaders(): void
+    public function test_deposits_create_happy_path_includes_expected_headers(): void
     {
         $captured = [];
         $deposits = $this->depositsWithStack(
@@ -40,7 +40,7 @@ final class DepositsHappyPathE2ETest extends TestCase
         self::assertNotSame('', $captured[0]['idempotency_key']);
     }
 
-    public function testDepositsRetrieveHappyPathIncludesAuthorizationHeader(): void
+    public function test_deposits_retrieve_happy_path_includes_authorization_header(): void
     {
         $captured = [];
         $deposits = $this->depositsWithStack(
@@ -59,7 +59,7 @@ final class DepositsHappyPathE2ETest extends TestCase
         self::assertSame('gando_pk_test', $captured[0]['auth_header_value']);
     }
 
-    public function testDepositsCaptureHappyPathIncludesExpectedHeaders(): void
+    public function test_deposits_capture_happy_path_includes_expected_headers(): void
     {
         $captured = [];
         $deposits = $this->depositsWithStack(
@@ -84,7 +84,7 @@ final class DepositsHappyPathE2ETest extends TestCase
         self::assertSame('capture-key-001', $captured[0]['idempotency_key']);
     }
 
-    public function testDepositsCancelHappyPathIncludesExpectedHeaders(): void
+    public function test_deposits_cancel_happy_path_includes_expected_headers(): void
     {
         $captured = [];
         $deposits = $this->depositsWithStack(

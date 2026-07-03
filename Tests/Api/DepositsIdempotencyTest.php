@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DepositsIdempotencyTest extends TestCase
 {
-    public function testCreateRetriesAfter503WithSameIdempotencyKey(): void
+    public function test_create_retries_after503_with_same_idempotency_key(): void
     {
         $capturedKeys = [];
 
@@ -78,7 +78,7 @@ final class DepositsIdempotencyTest extends TestCase
         self::assertSame($capturedKeys[0], $capturedKeys[1]);
     }
 
-    public function testCreateRespectsCallerProvidedIdempotencyKey(): void
+    public function test_create_respects_caller_provided_idempotency_key(): void
     {
         $capturedKeys = [];
 

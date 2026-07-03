@@ -19,7 +19,7 @@ final class AccountsHappyPathE2ETest extends TestCase
     /**
      * accounts.create is not present in this SDK; this covers the closest account mutation.
      */
-    public function testAccountsRevokeHappyPathIncludesAuthorizationHeader(): void
+    public function test_accounts_revoke_happy_path_includes_authorization_header(): void
     {
         $captured = [];
         $accounts = $this->accountsWithStack(
