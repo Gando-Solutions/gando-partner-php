@@ -6,7 +6,7 @@ Register an HTTPS endpoint, verify every inbound delivery, and react to deposit 
 **API:** `POST /api/partner/v1/webhooks` (register) · `POST` your endpoint (receive)
 
 > **Integration path** — recommended order for a new partner integration:  
-> [1. Connect](01-connect-flow.md) → **2. Webhooks** *(this recipe)* → [3. Deposits](03-create-deposit.md)
+> [1. Connect](01-connect-flow.md) → **2. Webhooks** _(this recipe)_ → [3. Deposits](03-create-deposit.md)
 
 ---
 
@@ -119,7 +119,7 @@ use Gando\Partner\Models\Operations\WebhooksCreateEventRequest;
 
 $api = new Client(
     apiKey: getenv('GANDO_API_KEY'),
-    baseUrl: 'https://staging.gando.app',
+    baseUrl: 'https://stagingv2.gando.app',
 );
 
 $body = new CreatePartnerWebhookSubscriptionBody(
@@ -140,7 +140,7 @@ $secret = $webhook->secret; // gando_whsec_…
 file_put_contents('/secure/path/gando_webhook_secret', $secret, LOCK_EX);
 ```
 
-Snippet: `[recipes/snippets/webhooks.create.php](snippets/webhooks.create.php)`
+Snippet: `[snippets/webhooks.create.php](snippets/webhooks.create.php)`
 
 **Response (201):**
 
@@ -563,27 +563,28 @@ Until then:
 1. **Start your receiver** (plain PHP on `8787` or Symfony on `8788`).
 2. **Expose with ngrok:**
 
-```bash
- ngrok http 8787
- # Copy https://abc123.ngrok-free.app
-```
+   ```bash
+   ngrok http 8787   # plain PHP
+   # or: ngrok http 8788   # Symfony
+   # Copy https://abc123.ngrok-free.app
+   ```
 
-1. **Register the ngrok URL** on staging:
+3. **Register the ngrok URL** on staging:
 
-```bash
- GANDO_WEBHOOK_URL=https://abc123.ngrok-free.app php recipes/snippets/webhooks.create.php
-```
+   ```bash
+   GANDO_WEBHOOK_URL=https://abc123.ngrok-free.app php recipes/snippets/webhooks.create.php
+   ```
 
-Save the printed `gando_whsec_…` into `.env` as `GANDO_WEBHOOK_SECRET` and restart your receiver.
+   Save the printed `gando_whsec_…` into `.env` as `GANDO_WEBHOOK_SECRET` and restart your receiver.
 
-4. **Send a test delivery:**
+4. **Send a test delivery** (use the `pwh_…` id from step 3):
 
-```php
- $api->webhooks->test(id: 'pwh_…');
-```
+   ```php
+   $api->webhooks->test(id: 'pwh_…');
+   ```
 
-1. **Trigger a real event** — complete [Recipe 03 — Create a deposit](03-create-deposit.md) with `depositUrlGeneration: true` and finish tenant checkout on staging. Watch your receiver logs for `deposit.activated`.
-2. **Inspect deliveries** in the Gando partner dashboard or via `GET /api/partner/v1/webhooks/{id}/deliveries`.
+5. **Trigger a real event** — complete [Recipe 03 — Create a deposit](03-create-deposit.md) with `depositUrlGeneration: true` and finish tenant checkout on staging. Watch your receiver logs for `deposit.activated`.
+6. **Inspect deliveries** in the Gando partner dashboard or via `GET /api/partner/v1/webhooks/{id}/deliveries`.
 
 ---
 
