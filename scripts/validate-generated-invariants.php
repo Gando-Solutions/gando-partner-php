@@ -18,6 +18,7 @@ foreach ($iterator as $fileInfo) {
     $content = file_get_contents($path);
     if (! is_string($content)) {
         $errors[] = sprintf('Unable to read file: %s', $path);
+
         continue;
     }
 

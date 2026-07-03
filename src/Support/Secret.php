@@ -14,7 +14,8 @@ final readonly class Secret implements \Stringable
     public function __construct(
         #[\SensitiveParameter]
         private string $value,
-    ) {}
+    ) {
+    }
 
     public function __toString(): string
     {

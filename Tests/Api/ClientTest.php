@@ -94,8 +94,8 @@ final class ClientTest extends TestCase
         self::assertCount(1, $psr18->requests);
         self::assertSame('GET', $psr18->requests[0]->getMethod());
         self::assertStringContainsString('/api/partner/v1/accounts', (string) $psr18->requests[0]->getUri());
-        self::assertContainsOnlyInstancesOf(HttpRequestStarted::class, array_filter($events->events, static fn($event): bool => $event instanceof HttpRequestStarted));
-        self::assertContainsOnlyInstancesOf(HttpRequestFinished::class, array_filter($events->events, static fn($event): bool => $event instanceof HttpRequestFinished));
+        self::assertContainsOnlyInstancesOf(HttpRequestStarted::class, array_filter($events->events, static fn ($event): bool => $event instanceof HttpRequestStarted));
+        self::assertContainsOnlyInstancesOf(HttpRequestFinished::class, array_filter($events->events, static fn ($event): bool => $event instanceof HttpRequestFinished));
     }
 }
 
@@ -106,7 +106,8 @@ final class RecordingPsr18Client implements Psr18ClientInterface
 
     public function __construct(
         private readonly ResponseInterface $response,
-    ) {}
+    ) {
+    }
 
     /**
      * @throws ClientExceptionInterface

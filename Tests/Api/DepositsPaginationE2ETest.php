@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DepositsPaginationE2ETest extends TestCase
 {
-    public function testListManualPaginationUsesPageAndLimitQueryParams(): void
+    public function test_list_manual_pagination_uses_page_and_limit_query_params(): void
     {
         $capturedQueryParams = [];
         $mock = new MockHandler([

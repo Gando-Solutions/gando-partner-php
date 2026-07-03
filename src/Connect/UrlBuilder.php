@@ -49,7 +49,7 @@ final readonly class UrlBuilder
 
         $base = rtrim($this->baseUrl, '/');
 
-        return $base . '/register?' . http_build_query($query);
+        return $base.'/register?'.http_build_query($query);
     }
 
     private function signature(string $externalId, string $ts): string
@@ -61,6 +61,6 @@ final readonly class UrlBuilder
 
     private function signingPayload(string $externalId, string $ts): string
     {
-        return $this->partnerSlug . '.' . $externalId . '.' . $ts;
+        return $this->partnerSlug.'.'.$externalId.'.'.$ts;
     }
 }

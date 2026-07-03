@@ -27,7 +27,7 @@ final class WebhookVerifierTest extends TestCase
         ], JSON_THROW_ON_ERROR);
     }
 
-    public function testVerifyAcceptsValidSignature(): void
+    public function test_verify_accepts_valid_signature(): void
     {
         $timestamp = (string) time();
         $signature = $this->sign($this->rawBody, $timestamp, self::SECRET);
@@ -37,7 +37,7 @@ final class WebhookVerifierTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testVerifyRejectsTamperedBody(): void
+    public function test_verify_rejects_tampered_body(): void
     {
         $timestamp = (string) time();
         $signature = $this->sign($this->rawBody, $timestamp, self::SECRET);
@@ -52,7 +52,7 @@ final class WebhookVerifierTest extends TestCase
         WebhookVerifier::verify($tamperedBody, $signature, $timestamp, self::SECRET);
     }
 
-    public function testVerifyRejectsWrongSecret(): void
+    public function test_verify_rejects_wrong_secret(): void
     {
         $timestamp = (string) time();
         $signature = $this->sign($this->rawBody, $timestamp, self::SECRET);
@@ -63,7 +63,7 @@ final class WebhookVerifierTest extends TestCase
         WebhookVerifier::verify($this->rawBody, $signature, $timestamp, 'gando_whsec_wrong');
     }
 
-    public function testVerifyRejectsExpiredTimestamp(): void
+    public function test_verify_rejects_expired_timestamp(): void
     {
         $timestamp = (string) (time() - 301);
         $signature = $this->sign($this->rawBody, $timestamp, self::SECRET);
@@ -74,7 +74,7 @@ final class WebhookVerifierTest extends TestCase
         WebhookVerifier::verify($this->rawBody, $signature, $timestamp, self::SECRET);
     }
 
-    public function testVerifyRejectsInvalidTimestampHeader(): void
+    public function test_verify_rejects_invalid_timestamp_header(): void
     {
         $this->expectException(WebhookSignatureException::class);
         $this->expectExceptionMessage('invalid');
@@ -82,7 +82,7 @@ final class WebhookVerifierTest extends TestCase
         WebhookVerifier::verify($this->rawBody, 'sha256=abc', 'not_a_unix_timestamp', self::SECRET);
     }
 
-    public function testVerifyRejectsNonPositiveTimestampHeader(): void
+    public function test_verify_rejects_non_positive_timestamp_header(): void
     {
         $this->expectException(WebhookSignatureException::class);
         $this->expectExceptionMessage('invalid');
@@ -90,7 +90,7 @@ final class WebhookVerifierTest extends TestCase
         WebhookVerifier::verify($this->rawBody, 'sha256=abc', '0', self::SECRET);
     }
 
-    public function testVerifyAcceptsTimestampInsideCustomTolerance(): void
+    public function test_verify_accepts_timestamp_inside_custom_tolerance(): void
     {
         $timestamp = (string) (time() - 30);
         $signature = $this->sign($this->rawBody, $timestamp, self::SECRET);
@@ -100,7 +100,7 @@ final class WebhookVerifierTest extends TestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testVerifyRejectsTimestampOutsideCustomTolerance(): void
+    public function test_verify_rejects_timestamp_outside_custom_tolerance(): void
     {
         $timestamp = (string) (time() - 31);
         $signature = $this->sign($this->rawBody, $timestamp, self::SECRET);
@@ -122,7 +122,7 @@ final class WebhookVerifierTest extends TestCase
     }
 
     #[DataProvider('malformedSignatureProvider')]
-    public function testVerifyRejectsMalformedSignature(string $signature): void
+    public function test_verify_rejects_malformed_signature(string $signature): void
     {
         $timestamp = (string) time();
 
