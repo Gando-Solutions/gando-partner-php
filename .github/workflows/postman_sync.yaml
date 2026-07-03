@@ -1,0 +1,39 @@
+name: Sync OpenAPI to Postman Cloud
+
+permissions:
+  contents: read
+
+"on":
+  push:
+    branches:
+      - main
+    paths:
+      - partner.json
+  workflow_dispatch: {}
+
+jobs:
+  sync-postman:
+    name: Generate and push collection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Convert OpenAPI to Postman collection
+        run: npx openapi-to-postmanv2 -s partner.json -o generated_collection.json
+
+      - name: Install Postman CLI
+        run: curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+
+      - name: Update Postman collection
+        run: |
+          postman collection update "${{ secrets.POSTMAN_COLLECTION_ID }}" \
+            --file ./generated_collection.json
