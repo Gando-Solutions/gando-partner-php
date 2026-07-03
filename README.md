@@ -475,7 +475,7 @@ $payload = json_decode($rawBody, true, flags: JSON_THROW_ON_ERROR);
 // handle $payload...
 ```
 
-See also [Webhooks SDK docs](docs/sdks/webhooks/README.md) and the recipe snippet at `recipes/snippets/webhooks.verify.php`.
+See also [Webhooks SDK docs](docs/sdks/webhooks/README.md), **[Recipe 02 — Receive webhooks](recipes/02-webhook-lifecycle.md)**, and the snippet at `recipes/snippets/webhooks.verify.php`.
 
 # Development
 
