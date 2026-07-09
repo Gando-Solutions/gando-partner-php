@@ -69,6 +69,8 @@ flowchart TD
 
 ## Step 1 (optional) — Initialize the client
 
+This optional step consist in providing Gando with informations regarding the final client that paid the rent. This will accelerate the deposit process since Gando won't be asking the client fill in one more time all of their information. 
+If you do this call, you will receive on the response a clientID that you need to put in the create deposit call in step 2. 
 If you have not already, instantiate the API client once and reuse it:
 
 ```php
