@@ -6,7 +6,7 @@ Send a rental operator from your back-office to Gando with a signed URL so they 
 **SDK:** `Gando\Partner\Connect\UrlBuilder` · **API (verify):** `GET /api/partner/v1/accounts`
 
 > **Integration path** — recommended order for a new partner integration:  
-> **1. Connect** *(this recipe)* → [2. Webhooks](02-webhook-lifecycle.md) → [3. Deposits](03-create-deposit.md)
+> **1. Connect** _(this recipe)_ → [2. Webhooks](02-webhook-lifecycle.md) → [3. Deposits](03-create-deposit.md)
 
 ---
 
@@ -36,9 +36,9 @@ Before you can create deposits on behalf of a rental operator, Gando needs a **P
 
 ### Connect secret vs API key
 
-| Credential | Prefix | Used for |
-| --- | --- | --- |
-| Connect secret | `gando_cs_` | HMAC signing of `/register` and `/login` URLs only |
+| Credential      | Prefix      | Used for                                                          |
+| --------------- | ----------- | ----------------------------------------------------------------- |
+| Connect secret  | `gando_cs_` | HMAC signing of `/register` and `/login` URLs only                |
 | Partner API key | `gando_pk_` | `x-api-key` on `/api/partner/v1/*` (deposits, accounts, webhooks) |
 
 These are **two different secrets**. Using `gando_pk_` to sign a connect URL always fails validation.
@@ -63,9 +63,7 @@ sig = HMAC_SHA256(connect_secret, UTF-8(payload)) → lowercase hex (64 chars)
 - `external_id` — your stable rental-operator id in your PMS (same as query param `external_id`)
 - `ts` — Unix timestamp in **seconds**. Must match the `ts` query param exactly (string form as sent in the URL)
 
-**Validity window:** 5 minutes (absolute difference between `ts` and Gando server time). Generate the URL **at click time**, not in advance.
-
-Source: `lib/partners/partner-connect-signing.ts` · `lib/partners/partner-connect.service.ts` (`CONNECT_MAX_AGE_SECONDS = 300`).
+**Validity window:** 30 days (absolute difference between `ts` and Gando server time). Generate the URL **at click time** on your server — never sign in the browser.
 
 ---
 
@@ -85,7 +83,7 @@ sequenceDiagram
     API-->>PMS: 302 signed URL
     PMS-->>RO: Redirect to Gando
     RO->>G: GET /register?... or /login?...
-    Note over G: Validate sig + ts (5 min)
+    Note over G: Validate sig + ts (30d)
     RO->>G: Signup or login
     G->>G: Create PartnerAccountLink
     G-->>WH: rental_operator.linked
@@ -119,15 +117,15 @@ $signupUrl = $builder->signupUrl(
 
 `signupUrl()` targets `{baseUrl}/register` with query params:
 
-| Param | Required | Description |
-| --- | --- | --- |
-| `partner` | yes | Partner slug |
-| `external_id` | yes | Your rental-operator id |
-| `ts` | yes | Unix seconds (defaults to `time()`) |
-| `sig` | yes | HMAC-SHA256 hex of `{slug}.{external_id}.{ts}` |
-| `email` | no | Pre-fill signup email |
-| `name` | no | Pre-fill company / display name |
-| `return_url` | no | HTTPS callback after connect (localhost allowed in dev) |
+| Param         | Required | Description                                             |
+| ------------- | -------- | ------------------------------------------------------- |
+| `partner`     | yes      | Partner slug                                            |
+| `external_id` | yes      | Your rental-operator id                                 |
+| `ts`          | yes      | Unix seconds (defaults to `time()`)                     |
+| `sig`         | yes      | HMAC-SHA256 hex of `{slug}.{external_id}.{ts}`          |
+| `email`       | no       | Pre-fill signup email                                   |
+| `name`        | no       | Pre-fill company / display name                         |
+| `return_url`  | no       | HTTPS callback after connect (localhost allowed in dev) |
 
 Snippet: [`recipes/snippets/connect.signup-url.php`](snippets/connect.signup-url.php)
 
@@ -184,7 +182,7 @@ header('Location: '.$loginUrl);
 exit;
 ```
 
-Gando reuses the same signature validation and 5-minute window. After login, the `PartnerAccountLink` is created the same way as after signup.
+Gando reuses the same signature validation and 30-day window. After login, the `PartnerAccountLink` is created the same way as after signup.
 
 On the register page, Gando also offers a "Already have an account?" link that preserves all connect params on `/login`.
 
@@ -194,24 +192,23 @@ On the register page, Gando also offers a "Already have an account?" link that p
 
 ### The connect secret never leaves your server
 
-| Do | Don't |
-| --- | --- |
-| Store `gando_cs_` in server env / secrets manager | Put it in `.env` shipped to the frontend build |
-| Sign URLs in PHP on your backend | Compute HMAC in JavaScript "for convenience" |
+| Do                                                | Don't                                                         |
+| ------------------------------------------------- | ------------------------------------------------------------- |
+| Store `gando_cs_` in server env / secrets manager | Put it in `.env` shipped to the frontend build                |
+| Sign URLs in PHP on your backend                  | Compute HMAC in JavaScript "for convenience"                  |
 | Return a **302 redirect** to the signed Gando URL | Return the secret or a pre-signed URL template to the browser |
-| Log errors without the secret | Log full query strings containing valid `sig` in production |
+| Log errors without the secret                     | Log full query strings containing valid `sig` in production   |
 
 Signing in the browser exposes `gando_cs_` to anyone who opens DevTools — they can then forge links for any `external_id` and link arbitrary accounts to your partner.
 
 ### Regenerate on every click
 
-A URL signed at 10:00:00 expires by 10:05:00. Do not:
+A URL signed on 1 Jan expires after **30 days** (31 Jan). Still generate a fresh URL when the rental operator clicks **Activate Gando** — do not expose `gando_cs_` to the client or pre-sign URLs in frontend code.
 
-- Cache signed URLs in your database for reuse
-- Email a signed link and expect it to work hours later
-- Pre-render signed URLs in list pages at page-load time
+Avoid reusing URLs older than 30 days:
 
-Generate when the rental operator clicks **Activate Gando**.
+- Do not rely on bookmarked connect links indefinitely
+- Regenerate if the rental operator returns after the 30-day window
 
 ### `ts` must be a string match
 
@@ -271,22 +268,22 @@ Once linked, proceed to [Recipe 03 — Create a deposit](03-create-deposit.md) u
 
 Gando surfaces these when the rental operator opens an invalid connect URL (register/login page) or when link creation fails after auth.
 
-| Error | Cause | Fix |
-| --- | --- | --- |
-| `invalid_signature` | Wrong `gando_cs_`, wrong payload order, `sig` not lowercase hex, or `ts` in payload does not match query `ts` | Use `UrlBuilder`; verify payload is `{slug}.{external_id}.{ts}` with dots |
-| `expired` | `ts` older than 5 minutes (or too far in the future) | Regenerate URL at click time |
-| `partner_not_found` | Wrong `partner` slug | Use the slug issued by Gando |
-| `missing_connect_secret` | Partner record has no connect secret in Gando | Contact Gando support to provision `gando_cs_` |
-| `account_already_linked` | Rental operator account is already linked to **another** partner | Rental operator must revoke the other link, or use the correct partner |
+| Error                    | Cause                                                                                                         | Fix                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `invalid_signature`      | Wrong `gando_cs_`, wrong payload order, `sig` not lowercase hex, or `ts` in payload does not match query `ts` | Use `UrlBuilder`; verify payload is `{slug}.{external_id}.{ts}` with dots |
+| `expired`                | `ts` older than 30 days (or too far in the future)                                                            | Regenerate URL with a fresh `ts`                                          |
+| `partner_not_found`      | Wrong `partner` slug                                                                                          | Use the slug issued by Gando                                              |
+| `missing_connect_secret` | Partner record has no connect secret in Gando                                                                 | Contact Gando support to provision `gando_cs_`                            |
+| `account_already_linked` | Rental operator account is already linked to **another** partner                                              | Rental operator must revoke the other link, or use the correct partner    |
 
 **Frequent integration mistakes:**
 
-| Mistake | Symptom |
-| --- | --- |
-| Signing with `gando_pk_` instead of `gando_cs_` | `invalid_signature` |
-| Payload `slug.external_id.ts` but query uses different `external_id` | `invalid_signature` |
-| Reusing a bookmarked connect URL | `expired` |
-| HMAC in browser / secret in frontend bundle | Security breach — rotate secret immediately |
+| Mistake                                                              | Symptom                                     |
+| -------------------------------------------------------------------- | ------------------------------------------- |
+| Signing with `gando_pk_` instead of `gando_cs_`                      | `invalid_signature`                         |
+| Payload `slug.external_id.ts` but query uses different `external_id` | `invalid_signature`                         |
+| Reusing a connect URL older than 30 days                             | `expired`                                   |
+| HMAC in browser / secret in frontend bundle                          | Security breach — rotate secret immediately |
 
 ---
 
@@ -364,7 +361,7 @@ $signupUrl = $builder->signupUrl(
     returnUrl: 'https://partner.example/gando/callback',
 );
 
-echo "Signup URL (valid 5 minutes):\n";
+echo "Signup URL (valid 30 days):\n";
 echo $signupUrl."\n\n";
 
 $loginUrl = str_replace('/register?', '/login?', $signupUrl);
