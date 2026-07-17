@@ -94,7 +94,11 @@ sequenceDiagram
 
 ---
 
-## Step 1 — Build the signed URL
+## Step 1 — Build the signed URL to register your rental operators
+
+You'll need to sign and send the URL to your rental operators so that they can create/login their Gando account and Gando connect it directly to your Gando partner account. 
+This is our way to facilitate the integration for your rental operators, they will not have to handle any API keys. 
+And also it'll help you to retrieve easilly all Gando deposits created by your rental operators. 
 
 Use `Gando\Partner\Connect\UrlBuilder`. It computes the HMAC and assembles the query string.
 
@@ -131,7 +135,7 @@ Snippet: [`recipes/snippets/connect.signup-url.php`](snippets/connect.signup-url
 
 ---
 
-## Step 2 — Redirect at click time
+## Step 2 — Redirect your rental operators at click time
 
 Expose a **server route** your frontend calls when the rental operator clicks the button. That route builds a fresh URL and redirects.
 
@@ -165,7 +169,7 @@ Your backend loads the rental account, signs, and redirects. The browser never s
 
 ---
 
-## Step 3 — Existing Gando account (`/login`)
+## Step 2 bis — Existing Gando account (`/login`)
 
 `signupUrl()` returns a `/register?…` URL. For rental operators who **already have a Gando account**, use the **same signed query string** on `/login`:
 
@@ -216,7 +220,7 @@ The HMAC payload uses the exact `ts` string sent in the query. `UrlBuilder` uses
 
 ---
 
-## Step 4 — Confirm the link
+## Step 3 — Confirm the link
 
 After the rental operator completes signup or login, Gando creates the link and fires `rental_operator.linked` on your webhook endpoint (see [Recipe 02 — Receive webhooks](02-webhook-lifecycle.md)).
 
